@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Quản lý Thi đua</title>
-    <!-- Tích hợp Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tích hợp Tailwind CSS và Form Plugin để fix giao diện Checkbox/Select -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <!-- Tích hợp Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -178,14 +178,14 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold mb-2 text-emerald-700">Thành tích (Tiêu chí Đặc cách)</label>
-                        <div id="achievements-container" class="grid grid-cols-1 gap-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100/50">
+                        <div id="achievements-container" class="grid grid-cols-1 gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100/50">
                             <!-- Render bằng JS -->
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold mb-2 text-red-700">Vi phạm / Kỷ luật (Tiêu chí phủ quyết)</label>
-                        <div id="faults-container" class="grid grid-cols-1 gap-2 p-4 bg-red-50 rounded-xl border border-red-100/50">
+                        <div id="faults-container" class="grid grid-cols-1 gap-3 p-4 bg-red-50 rounded-xl border border-red-100/50">
                             <!-- Render bằng JS -->
                         </div>
                     </div>
@@ -345,7 +345,7 @@
                     else if (evalRes.rating === 'KHTNV') counts.KHTNV++;
                     else counts.HTNV++;
 
-                    const achivementsHtml = (staff.achievements || []).length > 0 
+                    const achievementsHtml = (staff.achievements || []).length > 0 
                         ? `<ul class="list-disc pl-4 text-emerald-700 space-y-1">` + staff.achievements.map(a => `<li>${ACHIEVEMENTS[a]?.label}</li>`).join('') + `</ul>`
                         : `<span class="text-slate-300">-</span>`;
 
@@ -382,7 +382,7 @@
                             <span class="block text-[11px] font-bold tracking-wide text-blue-700 bg-blue-100 w-max px-2 py-1 rounded mb-1">${GROUPS[staff.group]}</span>
                             <span class="text-slate-600 font-medium">${staff.subject}</span>
                         </td>
-                        <td class="p-4">${achivementsHtml}</td>
+                        <td class="p-4">${achievementsHtml}</td>
                         <td class="p-4">${faultsHtml}</td>
                         <td class="p-4">
                             <span class="px-3 py-1.5 rounded-full text-xs border ${evalRes.color}">${evalRes.label}</span>
@@ -408,21 +408,21 @@
             const groupSelect = document.getElementById('staff-group');
             groupSelect.innerHTML = Object.entries(GROUPS).map(([key, val]) => `<option value="${key}">${val}</option>`).join('');
 
-            // Thành tích
+            // Thành tích (Fix CSS checkbox h-5 w-5 chuẩn Tailwind)
             const achContainer = document.getElementById('achievements-container');
             achContainer.innerHTML = Object.entries(ACHIEVEMENTS).map(([key, data]) => `
-                <label class="flex items-center space-x-3 cursor-pointer group">
-                    <input type="checkbox" name="achievements" value="${key}" class="rounded text-emerald-600 focus:ring-emerald-500 w-4.5 h-4.5 border-emerald-300 cursor-pointer">
-                    <span class="text-sm group-hover:text-emerald-800 ${data.isSpecial ? 'font-bold text-emerald-900' : 'text-slate-700'}">${data.label}</span>
+                <label class="flex items-start space-x-3 cursor-pointer group">
+                    <input type="checkbox" name="achievements" value="${key}" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 w-5 h-5 border-emerald-300 cursor-pointer transition-colors">
+                    <span class="text-sm leading-relaxed group-hover:text-emerald-800 ${data.isSpecial ? 'font-bold text-emerald-900' : 'text-slate-700'}">${data.label}</span>
                 </label>
             `).join('');
 
-            // Lỗi
+            // Lỗi (Fix CSS checkbox h-5 w-5 chuẩn Tailwind)
             const faultContainer = document.getElementById('faults-container');
             faultContainer.innerHTML = Object.entries(FAULTS).map(([key, data]) => `
-                <label class="flex items-center space-x-3 cursor-pointer group">
-                    <input type="checkbox" name="faults" value="${key}" class="rounded text-red-600 focus:ring-red-500 w-4.5 h-4.5 border-red-300 cursor-pointer">
-                    <span class="text-sm text-slate-700 group-hover:text-red-800 font-medium">${data.label}</span>
+                <label class="flex items-start space-x-3 cursor-pointer group">
+                    <input type="checkbox" name="faults" value="${key}" class="mt-0.5 rounded text-red-600 focus:ring-red-500 w-5 h-5 border-red-300 cursor-pointer transition-colors">
+                    <span class="text-sm leading-relaxed text-slate-700 group-hover:text-red-800 font-medium">${data.label}</span>
                 </label>
             `).join('');
         }
