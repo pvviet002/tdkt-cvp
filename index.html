@@ -19,12 +19,15 @@
                 <span class="w-2 h-2 rounded-full bg-yellow-500"></span> Đang tải...
             </p>
         </div>
-        <nav class="flex-1 px-4 space-y-2">
+        <nav class="flex-1 px-4 space-y-2 overflow-y-auto">
             <button onclick="switchTab('danhsach')" id="tab-danhsach" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600">
                 <i data-lucide="users" class="w-5 h-5"></i> <span class="ml-3">Danh sách Xét duyệt</span>
             </button>
             <button onclick="switchTab('ketqua')" id="tab-ketqua" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700">
                 <i data-lucide="bar-chart-2" class="w-5 h-5"></i> <span class="ml-3">Kết quả thi Tỉnh</span>
+            </button>
+            <button onclick="switchTab('ketquaqg')" id="tab-ketquaqg" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700 text-left leading-tight">
+                <i data-lucide="globe" class="w-5 h-5 shrink-0"></i> <span class="ml-3">Kết quả thi Quốc gia</span>
             </button>
             <button onclick="switchTab('quyche')" id="tab-quyche" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700">
                 <i data-lucide="file-text" class="w-5 h-5"></i> <span class="ml-3">Quy chế Đặc cách</span>
@@ -120,7 +123,7 @@
             <!-- TAB: KẾT QUẢ THI TỈNH -->
             <div id="view-ketqua" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
                 <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
-                    <h2 class="text-lg font-bold">Thống kê Kết quả thi HSG Cấp Tỉnh</h2>
+                    <h2 class="text-lg font-bold text-blue-900">Thống kê Kết quả thi HSG Cấp Tỉnh</h2>
                     <button onclick="openPasteExamModal()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
                         <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập từ Excel
                     </button>
@@ -130,7 +133,7 @@
                     <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="bar-chart-2" class="w-8 h-8"></i>
                     </div>
-                    <p class="text-lg font-medium">Chưa có dữ liệu kết quả thi.</p>
+                    <p class="text-lg font-medium">Chưa có dữ liệu kết quả thi Tỉnh.</p>
                     <p class="text-sm mt-1">Hãy copy bảng thống kê từ Excel và bấm nút "Nhập từ Excel" để dán vào đây.</p>
                 </div>
 
@@ -151,6 +154,45 @@
                             </tr>
                         </thead>
                         <tbody id="exam-tbody" class="divide-y">
+                            <!-- Dữ liệu render bằng JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: KẾT QUẢ THI QUỐC GIA -->
+            <div id="view-ketquaqg" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
+                <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
+                    <h2 class="text-lg font-bold text-purple-900">Thống kê Kết quả thi HSG Quốc Gia</h2>
+                    <button onclick="openPasteExamQGModal()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
+                        <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập từ Excel
+                    </button>
+                </div>
+                
+                <div id="exam-qg-empty-state" class="hidden p-12 text-center text-slate-500">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="globe" class="w-8 h-8 text-purple-500"></i>
+                    </div>
+                    <p class="text-lg font-medium">Chưa có dữ liệu kết quả thi Quốc gia.</p>
+                    <p class="text-sm mt-1">Hãy copy bảng thống kê từ Excel và bấm nút "Nhập từ Excel" để dán vào đây.</p>
+                </div>
+
+                <div id="exam-qg-table-container" class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-purple-50/50 text-slate-600 border-b border-purple-100">
+                                <th class="p-4 font-bold text-purple-900">Môn thi</th>
+                                <th class="p-3 font-semibold text-center border-l border-slate-200">Tổng TS</th>
+                                <th class="p-3 font-semibold text-center text-red-600">Giải Nhất</th>
+                                <th class="p-3 font-semibold text-center text-blue-600">Giải Nhì</th>
+                                <th class="p-3 font-semibold text-center text-green-600">Giải Ba</th>
+                                <th class="p-3 font-semibold text-center text-orange-600">Giải KK</th>
+                                <th class="p-3 font-semibold text-center border-l border-slate-200 bg-emerald-50 text-emerald-700">Tổng giải</th>
+                                <th class="p-3 font-semibold text-center bg-purple-100/50 border-l border-slate-200 text-purple-800">Tỉ lệ (ko KK)</th>
+                                <th class="p-3 font-semibold text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exam-qg-tbody" class="divide-y">
                             <!-- Dữ liệu render bằng JS -->
                         </tbody>
                     </table>
@@ -282,20 +324,20 @@
         </div>
     </div>
 
-    <!-- MODAL NHẬP KẾT QUẢ THI TỪ EXCEL -->
+    <!-- MODAL NHẬP KẾT QUẢ THI TỈNH TỪ EXCEL -->
     <div id="paste-exam-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800">Nhập bảng thống kê từ Excel</h2>
+                <h2 class="text-xl font-bold text-slate-800">Nhập bảng thống kê Tỉnh từ Excel</h2>
                 <button onclick="closePasteExamModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
             </div>
             
             <div class="p-6 overflow-y-auto space-y-4">
                 <div class="bg-emerald-50 text-emerald-800 p-4 rounded-xl text-sm border border-emerald-100">
                     <p class="font-bold mb-1">Hướng dẫn:</p>
-                    <p>Hãy copy bảng kết quả thống kê các môn từ phần mềm Excel và dán vào đây. Cấu trúc cột yêu cầu:</p>
+                    <p>Hãy copy bảng kết quả thống kê Tỉnh các môn từ phần mềm Excel và dán vào đây. Cấu trúc cột yêu cầu:</p>
                     <p class="font-mono mt-2 bg-white px-3 py-2 rounded-lg inline-block text-emerald-900 border border-emerald-200 font-medium overflow-hidden max-w-full text-ellipsis whitespace-nowrap">Môn thi | Tổng TS | Giải Nhất | Giải Nhì | Giải Ba | Giải KK | Tổng giải | Xịt | Tỉ lệ</p>
-                    <p class="mt-2 text-xs italic text-emerald-600">* Nếu bạn nhập môn đã có sẵn, hệ thống sẽ tự động cập nhật số liệu mới nhất.</p>
+                    <p class="mt-2 text-xs italic text-emerald-600">* Yêu cầu bảng có 9 cột dữ liệu.</p>
                 </div>
 
                 <textarea id="paste-exam-textarea" rows="8" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-mono text-sm leading-relaxed" placeholder="Dán dữ liệu thống kê từ Excel vào đây..."></textarea>
@@ -306,6 +348,36 @@
             <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
                 <button type="button" onclick="closePasteExamModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
                 <button id="paste-exam-btn" type="button" onclick="processPastedExamData()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
+                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NHẬP KẾT QUẢ THI QUỐC GIA TỪ EXCEL -->
+    <div id="paste-exam-qg-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-purple-50">
+                <h2 class="text-xl font-bold text-purple-900">Nhập bảng thống kê Quốc Gia từ Excel</h2>
+                <button onclick="closePasteExamQGModal()" class="text-purple-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-4">
+                <div class="bg-purple-50 text-purple-800 p-4 rounded-xl text-sm border border-purple-100">
+                    <p class="font-bold mb-1">Hướng dẫn:</p>
+                    <p>Hãy copy bảng kết quả Quốc Gia từ phần mềm Excel và dán vào đây. Cấu trúc cột dựa theo mẫu:</p>
+                    <p class="font-mono mt-2 bg-white px-3 py-2 rounded-lg inline-block text-purple-900 border border-purple-200 font-medium overflow-hidden max-w-full text-ellipsis whitespace-nowrap">Môn thi | Tổng số TS dự thi | Giải Nhất | Giải Nhì | Giải Ba | Giải KK | Tổng giải | Tỉ lệ (ko tính KK)</p>
+                    <p class="mt-2 text-xs italic text-purple-600">* Yêu cầu bảng có 8 cột dữ liệu (Không có cột Xịt).</p>
+                </div>
+
+                <textarea id="paste-exam-qg-textarea" rows="8" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono text-sm leading-relaxed" placeholder="Dán dữ liệu thống kê Quốc gia từ Excel vào đây..."></textarea>
+                
+                <p id="paste-exam-qg-error" class="hidden text-red-600 text-sm font-medium mt-2 bg-red-50 p-3 rounded-lg border border-red-100"></p>
+            </div>
+
+            <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
+                <button type="button" onclick="closePasteExamQGModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
+                <button id="paste-exam-qg-btn" type="button" onclick="processPastedExamQGData()" class="px-5 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
                     <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
                 </button>
             </div>
@@ -340,13 +412,15 @@
 
         // --- BIẾN TOÀN CỤC ---
         let staffList = [];
-        let examResultsList = []; // Mảng chứa dữ liệu thi
+        let examResultsList = []; // Mảng chứa dữ liệu thi tỉnh
+        let examQGResultsList = []; // Mảng chứa dữ liệu thi quốc gia
         let editingStaff = null;
         let db = null;
         let auth = null;
         let user = null;
         let confirmDeleteId = null;
         let confirmDeleteExamId = null;
+        let confirmDeleteExamQGId = null;
 
         // --- KHỞI TẠO FIREBASE & RENDER GIAO DIỆN ---
         const isCloudEnabled = typeof __firebase_config !== 'undefined' && __firebase_config;
@@ -380,20 +454,23 @@
                     }
                 });
             } else {
-                // Chế độ Offline/Local (Không có backend)
+                // Chế độ Offline/Local
                 document.getElementById('cloud-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Chế độ Offline`;
                 document.getElementById('loader').classList.add('hidden');
                 
-                // Nạp data mẫu (nếu thích) hoặc mảng rỗng
                 staffList = [
                     { id: "1", name: 'Nguyễn Văn A', subject: 'Toán', group: 'G1', achievements: ['nhat_qg'], faults: [], note: 'Giáo viên chính' },
                     { id: "2", name: 'Trần Thị B', subject: 'Ngữ văn', group: 'G2', achievements: [], faults: ['loi_noi_quy'], note: '' }
                 ];
                 examResultsList = [
-                    { id: 'Toán', subject: 'Toán', total: '30', first: '2', second: '6', third: '10', consolation: '10', totalPrizes: '28', fails: '2', ratio: '0.9333333' }
+                    { id: 'Toán', subject: 'Toán', total: '30', first: '2', second: '6', third: '10', consolation: '10', totalPrizes: '28', fails: '2', ratio: '93.3%' }
+                ];
+                examQGResultsList = [
+                    { id: 'Vật lí', subject: 'Vật lí', total: '10', first: '1', second: '2', third: '3', consolation: '2', totalPrizes: '8', ratio: '60%' }
                 ];
                 renderApp();
                 renderExamApp();
+                renderExamQGApp();
             }
         }
 
@@ -409,11 +486,11 @@
                 document.getElementById('loader').classList.add('hidden');
                 renderApp();
             }, (error) => {
-                console.error("Lỗi khi tải dữ liệu nhân sự:", error);
+                console.error("Lỗi tải dữ liệu nhân sự:", error);
                 document.getElementById('loader').classList.add('hidden');
             });
 
-            // Tải danh sách kết quả thi
+            // Tải danh sách kết quả thi Tỉnh
             const examRef = collection(db, 'artifacts', appId, 'users', user.uid, 'examData');
             onSnapshot(examRef, (snapshot) => {
                 examResultsList = [];
@@ -422,7 +499,19 @@
                 });
                 renderExamApp();
             }, (error) => {
-                console.error("Lỗi khi tải dữ liệu kết quả thi:", error);
+                console.error("Lỗi tải dữ liệu thi Tỉnh:", error);
+            });
+
+            // Tải danh sách kết quả thi Quốc gia
+            const examQGRef = collection(db, 'artifacts', appId, 'users', user.uid, 'examDataQG');
+            onSnapshot(examQGRef, (snapshot) => {
+                examQGResultsList = [];
+                snapshot.forEach(doc => {
+                    examQGResultsList.push({ id: doc.id, ...doc.data() });
+                });
+                renderExamQGApp();
+            }, (error) => {
+                console.error("Lỗi tải dữ liệu thi Quốc gia:", error);
             });
         }
 
@@ -527,7 +616,7 @@
             lucide.createIcons();
         }
 
-        // --- CÁC HÀM XỬ LÝ LOGIC BẢNG KẾT QUẢ THI ---
+        // --- CÁC HÀM XỬ LÝ LOGIC BẢNG KẾT QUẢ THI TỈNH ---
         function renderExamApp() {
             const tbody = document.getElementById('exam-tbody');
             const emptyState = document.getElementById('exam-empty-state');
@@ -546,7 +635,6 @@
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 transition-colors';
                     
-                    // Xử lý hiển thị Tỉ lệ cho đẹp nếu nó là số thập phân (VD: 0.9333 -> 93.3%)
                     let displayRatio = item.ratio;
                     let numRatio = parseFloat(item.ratio);
                     if (!isNaN(numRatio) && numRatio <= 1 && item.ratio.indexOf('%') === -1 && item.ratio.length > 3) {
@@ -590,17 +678,71 @@
             lucide.createIcons();
         }
 
+        // --- CÁC HÀM XỬ LÝ LOGIC BẢNG KẾT QUẢ THI QUỐC GIA ---
+        function renderExamQGApp() {
+            const tbody = document.getElementById('exam-qg-tbody');
+            const emptyState = document.getElementById('exam-qg-empty-state');
+            const tableContainer = document.getElementById('exam-qg-table-container');
+
+            tbody.innerHTML = '';
+
+            if (examQGResultsList.length === 0) {
+                emptyState.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+
+                examQGResultsList.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-purple-50/30 transition-colors';
+                    
+                    let displayRatio = item.ratio;
+                    let numRatio = parseFloat(item.ratio);
+                    if (!isNaN(numRatio) && numRatio <= 1 && item.ratio.indexOf('%') === -1 && item.ratio.length > 3) {
+                        displayRatio = (numRatio * 100).toFixed(1) + '%';
+                    }
+                    
+                    let actionHtml = '';
+                    if (confirmDeleteExamQGId === item.id) {
+                        actionHtml = `
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-xs text-red-600 font-medium">Xóa?</span>
+                                <button onclick="confirmDeleteExamQG('${item.id}')" class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Có</button>
+                                <button onclick="cancelDeleteExamQG()" class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300">Hủy</button>
+                            </div>
+                        `;
+                    } else {
+                        actionHtml = `
+                            <div class="flex items-center justify-end gap-3">
+                                <button onclick="requestDeleteExamQG('${item.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors" title="Xóa dữ liệu môn này">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    tr.innerHTML = `
+                        <td class="p-4 font-bold text-slate-700">${item.subject}</td>
+                        <td class="p-3 text-center border-l border-slate-200 font-medium text-slate-800">${item.total}</td>
+                        <td class="p-3 text-center text-red-600 font-semibold">${item.first}</td>
+                        <td class="p-3 text-center text-blue-600 font-semibold">${item.second}</td>
+                        <td class="p-3 text-center text-green-600 font-semibold">${item.third}</td>
+                        <td class="p-3 text-center text-orange-600 font-semibold">${item.consolation}</td>
+                        <td class="p-3 text-center border-l border-slate-200 bg-emerald-50/70 font-bold text-emerald-700">${item.totalPrizes}</td>
+                        <td class="p-3 text-center bg-purple-100/30 border-l border-slate-200 font-bold text-purple-800">${displayRatio}</td>
+                        <td class="p-3 text-right">${actionHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            lucide.createIcons();
+        }
+
+
         // --- CÁC HÀM XÓA ---
-        window.requestDelete = function(id) {
-            confirmDeleteId = id;
-            renderApp();
-        }
-
-        window.cancelDelete = function() {
-            confirmDeleteId = null;
-            renderApp();
-        }
-
+        window.requestDelete = function(id) { confirmDeleteId = id; renderApp(); }
+        window.cancelDelete = function() { confirmDeleteId = null; renderApp(); }
         window.confirmDelete = async function(id) {
             if (isCloudEnabled && user) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', id));
@@ -611,16 +753,8 @@
             confirmDeleteId = null;
         }
 
-        window.requestDeleteExam = function(id) {
-            confirmDeleteExamId = id;
-            renderExamApp();
-        }
-
-        window.cancelDeleteExam = function() {
-            confirmDeleteExamId = null;
-            renderExamApp();
-        }
-
+        window.requestDeleteExam = function(id) { confirmDeleteExamId = id; renderExamApp(); }
+        window.cancelDeleteExam = function() { confirmDeleteExamId = null; renderExamApp(); }
         window.confirmDeleteExam = async function(id) {
             if (isCloudEnabled && user) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'examData', id));
@@ -629,6 +763,18 @@
                 renderExamApp();
             }
             confirmDeleteExamId = null;
+        }
+
+        window.requestDeleteExamQG = function(id) { confirmDeleteExamQGId = id; renderExamQGApp(); }
+        window.cancelDeleteExamQG = function() { confirmDeleteExamQGId = null; renderExamQGApp(); }
+        window.confirmDeleteExamQG = async function(id) {
+            if (isCloudEnabled && user) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'examDataQG', id));
+            } else {
+                examQGResultsList = examQGResultsList.filter(s => s.id !== id);
+                renderExamQGApp();
+            }
+            confirmDeleteExamQGId = null;
         }
 
         // --- CÁC HÀM FORM & MODAL ---
@@ -700,10 +846,7 @@
             document.getElementById('paste-error').classList.add('hidden');
             document.getElementById('paste-modal').classList.remove('hidden');
         }
-
-        window.closePasteModal = function() {
-            document.getElementById('paste-modal').classList.add('hidden');
-        }
+        window.closePasteModal = function() { document.getElementById('paste-modal').classList.add('hidden'); }
 
         window.processPastedData = async function() {
             const text = document.getElementById('paste-textarea').value.trim();
@@ -731,37 +874,26 @@
                 const group = cols[2]?.trim() || 'G1';
                 
                 let achievements = [];
-                if (cols[3]) {
-                    achievements = cols[3].split(',').map(a => a.trim()).filter(a => Object.keys(ACHIEVEMENTS).includes(a));
-                }
+                if (cols[3]) { achievements = cols[3].split(',').map(a => a.trim()).filter(a => Object.keys(ACHIEVEMENTS).includes(a)); }
 
                 let faults = [];
-                if (cols[4]) {
-                    faults = cols[4].split(',').map(f => f.trim()).filter(f => Object.keys(FAULTS).includes(f));
-                }
+                if (cols[4]) { faults = cols[4].split(',').map(f => f.trim()).filter(f => Object.keys(FAULTS).includes(f)); }
 
                 const note = cols[5]?.trim() || '';
 
                 newStaffs.push({
                     id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-                    name,
-                    subject,
-                    group,
-                    achievements,
-                    faults,
-                    note,
+                    name, subject, group, achievements, faults, note,
                     updatedAt: new Date().toISOString()
                 });
             });
 
             if (newStaffs.length === 0) {
                 errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Vui lòng kiểm tra lại cấu trúc cột hoặc sao chép đúng từ Excel!";
-                errorEl.classList.remove('hidden');
-                return;
+                errorEl.classList.remove('hidden'); return;
             }
 
-            btn.innerText = 'Đang lưu...';
-            btn.disabled = true;
+            btn.innerText = 'Đang lưu...'; btn.disabled = true;
 
             try {
                 if (isCloudEnabled && user) {
@@ -778,12 +910,10 @@
                 closePasteModal();
             } catch (err) {
                 console.error(err);
-                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!";
-                errorEl.classList.remove('hidden');
+                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!"; errorEl.classList.remove('hidden');
             } finally {
                 btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
-                btn.disabled = false;
-                lucide.createIcons();
+                btn.disabled = false; lucide.createIcons();
             }
         }
         
@@ -793,10 +923,7 @@
             document.getElementById('paste-exam-error').classList.add('hidden');
             document.getElementById('paste-exam-modal').classList.remove('hidden');
         }
-
-        window.closePasteExamModal = function() {
-            document.getElementById('paste-exam-modal').classList.add('hidden');
-        }
+        window.closePasteExamModal = function() { document.getElementById('paste-exam-modal').classList.add('hidden'); }
 
         window.processPastedExamData = async function() {
             const text = document.getElementById('paste-exam-textarea').value.trim();
@@ -804,25 +931,20 @@
             const btn = document.getElementById('paste-exam-btn');
             errorEl.classList.add('hidden');
 
-            if (!text) {
-                errorEl.innerText = "Vui lòng dán dữ liệu thống kê vào ô trống!";
-                errorEl.classList.remove('hidden');
-                return;
-            }
+            if (!text) { errorEl.innerText = "Vui lòng dán dữ liệu thống kê vào ô trống!"; errorEl.classList.remove('hidden'); return; }
 
             const rows = text.split('\n');
             const newResults = [];
 
             rows.forEach(row => {
                 const cols = row.split('\t');
-                if (cols.length < 8) return; // Cần lấy tối thiểu đến cột Xịt
+                if (cols.length < 8) return; 
 
                 const subject = cols[0].trim();
-                // Bỏ qua dòng tiêu đề nếu copy nhầm
                 if (!subject || subject.toLowerCase().includes('môn thi') || subject.toLowerCase().includes('tổng ts')) return;
 
                 newResults.push({
-                    id: subject, // Dùng tên môn làm ID để tự động đè/cập nhật dữ liệu cũ của môn đó
+                    id: subject,
                     subject: subject,
                     total: cols[1]?.trim() || '0',
                     first: cols[2]?.trim() || '0',
@@ -837,13 +959,11 @@
             });
 
             if (newResults.length === 0) {
-                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Đảm bảo bạn copy đúng bảng có tối thiểu 8 cột kết quả thi.";
-                errorEl.classList.remove('hidden');
-                return;
+                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Đảm bảo bạn copy đúng bảng có 9 cột kết quả thi Tỉnh.";
+                errorEl.classList.remove('hidden'); return;
             }
 
-            btn.innerText = 'Đang lưu...';
-            btn.disabled = true;
+            btn.innerText = 'Đang lưu...'; btn.disabled = true;
 
             try {
                 if (isCloudEnabled && user) {
@@ -854,7 +974,6 @@
                     });
                     await batch.commit();
                 } else {
-                    // Chế độ Offline: Gộp mảng, môn nào trùng thì lấy dữ liệu mới nhập
                     const map = new Map();
                     examResultsList.forEach(item => map.set(item.id, item));
                     newResults.forEach(item => map.set(item.id, item));
@@ -864,12 +983,83 @@
                 closePasteExamModal();
             } catch (err) {
                 console.error(err);
-                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!";
-                errorEl.classList.remove('hidden');
+                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!"; errorEl.classList.remove('hidden');
             } finally {
                 btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
-                btn.disabled = false;
-                lucide.createIcons();
+                btn.disabled = false; lucide.createIcons();
+            }
+        }
+
+        // --- MODAL DÁN KẾT QUẢ THI QUỐC GIA ---
+        window.openPasteExamQGModal = function() {
+            document.getElementById('paste-exam-qg-textarea').value = '';
+            document.getElementById('paste-exam-qg-error').classList.add('hidden');
+            document.getElementById('paste-exam-qg-modal').classList.remove('hidden');
+        }
+        window.closePasteExamQGModal = function() { document.getElementById('paste-exam-qg-modal').classList.add('hidden'); }
+
+        window.processPastedExamQGData = async function() {
+            const text = document.getElementById('paste-exam-qg-textarea').value.trim();
+            const errorEl = document.getElementById('paste-exam-qg-error');
+            const btn = document.getElementById('paste-exam-qg-btn');
+            errorEl.classList.add('hidden');
+
+            if (!text) { errorEl.innerText = "Vui lòng dán dữ liệu thống kê vào ô trống!"; errorEl.classList.remove('hidden'); return; }
+
+            const rows = text.split('\n');
+            const newResults = [];
+
+            rows.forEach(row => {
+                const cols = row.split('\t');
+                if (cols.length < 8) return; 
+
+                const subject = cols[0].trim();
+                // Bỏ qua dòng tiêu đề nếu copy nhầm
+                if (!subject || subject.toLowerCase().includes('môn thi') || subject.toLowerCase().includes('ts dự thi')) return;
+
+                newResults.push({
+                    id: subject,
+                    subject: subject,
+                    total: cols[1]?.trim() || '0',
+                    first: cols[2]?.trim() || '0',
+                    second: cols[3]?.trim() || '0',
+                    third: cols[4]?.trim() || '0',
+                    consolation: cols[5]?.trim() || '0',
+                    totalPrizes: cols[6]?.trim() || '0',
+                    ratio: cols[7]?.trim() || '', // Chỉ 8 cột
+                    updatedAt: new Date().toISOString()
+                });
+            });
+
+            if (newResults.length === 0) {
+                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Đảm bảo bạn copy đúng bảng có 8 cột kết quả thi Quốc Gia.";
+                errorEl.classList.remove('hidden'); return;
+            }
+
+            btn.innerText = 'Đang lưu...'; btn.disabled = true;
+
+            try {
+                if (isCloudEnabled && user) {
+                    const batch = writeBatch(db);
+                    newResults.forEach(item => {
+                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'examDataQG', item.id);
+                        batch.set(docRef, item);
+                    });
+                    await batch.commit();
+                } else {
+                    const map = new Map();
+                    examQGResultsList.forEach(item => map.set(item.id, item));
+                    newResults.forEach(item => map.set(item.id, item));
+                    examQGResultsList = Array.from(map.values());
+                    renderExamQGApp();
+                }
+                closePasteExamQGModal();
+            } catch (err) {
+                console.error(err);
+                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!"; errorEl.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
+                btn.disabled = false; lucide.createIcons();
             }
         }
 
@@ -906,15 +1096,15 @@
 
         // --- ĐIỀU HƯỚNG TAB ---
         window.switchTab = function(tabName) {
-            const tabs = ['danhsach', 'ketqua', 'quyche'];
+            const tabs = ['danhsach', 'ketqua', 'ketquaqg', 'quyche'];
             tabs.forEach(tab => {
                 const btn = document.getElementById(`tab-${tab}`);
                 const view = document.getElementById(`view-${tab}`);
                 if (tab === tabName) {
-                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600";
+                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600 text-left leading-tight";
                     view.classList.remove('hidden');
                 } else {
-                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700";
+                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700 text-left leading-tight";
                     view.classList.add('hidden');
                 }
             });
