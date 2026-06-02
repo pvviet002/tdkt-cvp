@@ -23,6 +23,9 @@
             <button onclick="switchTab('danhsach')" id="tab-danhsach" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600">
                 <i data-lucide="users" class="w-5 h-5"></i> <span class="ml-3">Danh sách Xét duyệt</span>
             </button>
+            <button onclick="switchTab('ketqua')" id="tab-ketqua" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i> <span class="ml-3">Kết quả thi Tỉnh</span>
+            </button>
             <button onclick="switchTab('quyche')" id="tab-quyche" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700">
                 <i data-lucide="file-text" class="w-5 h-5"></i> <span class="ml-3">Quy chế Đặc cách</span>
             </button>
@@ -73,7 +76,7 @@
         <!-- CONTENT AREA -->
         <main class="flex-1 overflow-auto p-6">
             
-            <!-- TAB: DANH SÁCH -->
+            <!-- TAB: DANH SÁCH XÉT DUYỆT -->
             <div id="view-danhsach" class="bg-white rounded-xl shadow-sm border flex flex-col h-full">
                 <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
                     <h2 class="text-lg font-bold">Danh sách Viên chức & Xếp loại dự kiến</h2>
@@ -108,6 +111,46 @@
                             </tr>
                         </thead>
                         <tbody id="staff-tbody" class="divide-y text-sm">
+                            <!-- Dữ liệu render bằng JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: KẾT QUẢ THI TỈNH -->
+            <div id="view-ketqua" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
+                <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
+                    <h2 class="text-lg font-bold">Thống kê Kết quả thi HSG Cấp Tỉnh</h2>
+                    <button onclick="openPasteExamModal()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
+                        <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập từ Excel
+                    </button>
+                </div>
+                
+                <div id="exam-empty-state" class="hidden p-12 text-center text-slate-500">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="bar-chart-2" class="w-8 h-8"></i>
+                    </div>
+                    <p class="text-lg font-medium">Chưa có dữ liệu kết quả thi.</p>
+                    <p class="text-sm mt-1">Hãy copy bảng thống kê từ Excel và bấm nút "Nhập từ Excel" để dán vào đây.</p>
+                </div>
+
+                <div id="exam-table-container" class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 border-b">
+                                <th class="p-4 font-bold">Môn thi</th>
+                                <th class="p-3 font-semibold text-center border-l border-slate-200">Tổng TS</th>
+                                <th class="p-3 font-semibold text-center text-red-600">Giải Nhất</th>
+                                <th class="p-3 font-semibold text-center text-blue-600">Giải Nhì</th>
+                                <th class="p-3 font-semibold text-center text-green-600">Giải Ba</th>
+                                <th class="p-3 font-semibold text-center text-orange-600">Giải KK</th>
+                                <th class="p-3 font-semibold text-center border-l border-slate-200 bg-emerald-50 text-emerald-700">Tổng giải</th>
+                                <th class="p-3 font-semibold text-center bg-slate-100 text-slate-600">Xịt</th>
+                                <th class="p-3 font-semibold text-center bg-blue-50 border-l border-slate-200 text-blue-800">Tỉ lệ</th>
+                                <th class="p-3 font-semibold text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exam-tbody" class="divide-y">
                             <!-- Dữ liệu render bằng JS -->
                         </tbody>
                     </table>
@@ -152,7 +195,7 @@
         </main>
     </div>
 
-    <!-- MODAL THÊM / SỬA -->
+    <!-- MODAL THÊM / SỬA NHÂN SỰ -->
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
@@ -209,7 +252,7 @@
         </div>
     </div>
 
-    <!-- MODAL NHẬP TỪ EXCEL -->
+    <!-- MODAL NHẬP NHÂN SỰ TỪ EXCEL -->
     <div id="paste-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
@@ -233,6 +276,36 @@
             <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
                 <button type="button" onclick="closePasteModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
                 <button id="paste-btn" type="button" onclick="processPastedData()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
+                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NHẬP KẾT QUẢ THI TỪ EXCEL -->
+    <div id="paste-exam-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800">Nhập bảng thống kê từ Excel</h2>
+                <button onclick="closePasteExamModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-4">
+                <div class="bg-emerald-50 text-emerald-800 p-4 rounded-xl text-sm border border-emerald-100">
+                    <p class="font-bold mb-1">Hướng dẫn:</p>
+                    <p>Hãy copy bảng kết quả thống kê các môn từ phần mềm Excel và dán vào đây. Cấu trúc cột yêu cầu:</p>
+                    <p class="font-mono mt-2 bg-white px-3 py-2 rounded-lg inline-block text-emerald-900 border border-emerald-200 font-medium overflow-hidden max-w-full text-ellipsis whitespace-nowrap">Môn thi | Tổng TS | Giải Nhất | Giải Nhì | Giải Ba | Giải KK | Tổng giải | Xịt | Tỉ lệ</p>
+                    <p class="mt-2 text-xs italic text-emerald-600">* Nếu bạn nhập môn đã có sẵn, hệ thống sẽ tự động cập nhật số liệu mới nhất.</p>
+                </div>
+
+                <textarea id="paste-exam-textarea" rows="8" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-mono text-sm leading-relaxed" placeholder="Dán dữ liệu thống kê từ Excel vào đây..."></textarea>
+                
+                <p id="paste-exam-error" class="hidden text-red-600 text-sm font-medium mt-2 bg-red-50 p-3 rounded-lg border border-red-100"></p>
+            </div>
+
+            <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
+                <button type="button" onclick="closePasteExamModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
+                <button id="paste-exam-btn" type="button" onclick="processPastedExamData()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
                     <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
                 </button>
             </div>
@@ -267,11 +340,13 @@
 
         // --- BIẾN TOÀN CỤC ---
         let staffList = [];
+        let examResultsList = []; // Mảng chứa dữ liệu thi
         let editingStaff = null;
         let db = null;
         let auth = null;
         let user = null;
         let confirmDeleteId = null;
+        let confirmDeleteExamId = null;
 
         // --- KHỞI TẠO FIREBASE & RENDER GIAO DIỆN ---
         const isCloudEnabled = typeof __firebase_config !== 'undefined' && __firebase_config;
@@ -314,11 +389,16 @@
                     { id: "1", name: 'Nguyễn Văn A', subject: 'Toán', group: 'G1', achievements: ['nhat_qg'], faults: [], note: 'Giáo viên chính' },
                     { id: "2", name: 'Trần Thị B', subject: 'Ngữ văn', group: 'G2', achievements: [], faults: ['loi_noi_quy'], note: '' }
                 ];
+                examResultsList = [
+                    { id: 'Toán', subject: 'Toán', total: '30', first: '2', second: '6', third: '10', consolation: '10', totalPrizes: '28', fails: '2', ratio: '0.9333333' }
+                ];
                 renderApp();
+                renderExamApp();
             }
         }
 
         function loadDataFromCloud() {
+            // Tải danh sách nhân sự
             const staffRef = collection(db, 'artifacts', appId, 'users', user.uid, 'staffData');
             onSnapshot(staffRef, (snapshot) => {
                 staffList = [];
@@ -329,12 +409,24 @@
                 document.getElementById('loader').classList.add('hidden');
                 renderApp();
             }, (error) => {
-                console.error("Lỗi khi tải dữ liệu:", error);
+                console.error("Lỗi khi tải dữ liệu nhân sự:", error);
                 document.getElementById('loader').classList.add('hidden');
+            });
+
+            // Tải danh sách kết quả thi
+            const examRef = collection(db, 'artifacts', appId, 'users', user.uid, 'examData');
+            onSnapshot(examRef, (snapshot) => {
+                examResultsList = [];
+                snapshot.forEach(doc => {
+                    examResultsList.push({ id: doc.id, ...doc.data() });
+                });
+                renderExamApp();
+            }, (error) => {
+                console.error("Lỗi khi tải dữ liệu kết quả thi:", error);
             });
         }
 
-        // --- CÁC HÀM XỬ LÝ LOGIC & DOM ---
+        // --- CÁC HÀM XỬ LÝ LOGIC DANH SÁCH NHÂN SỰ ---
         function evaluateStaff(staff) {
             const faults = staff.faults || [];
             const achievements = staff.achievements || [];
@@ -361,7 +453,6 @@
             const emptyState = document.getElementById('empty-state');
             const tableContainer = document.getElementById('table-container');
 
-            // Tính toán thống kê
             let counts = { HTXSNV: 0, HTTNV: 0, HTNV: 0, KHTNV: 0 };
             tbody.innerHTML = '';
 
@@ -428,7 +519,6 @@
                 });
             }
 
-            // Cập nhật số liệu trên header
             document.getElementById('stat-htxsnv').innerText = counts.HTXSNV;
             document.getElementById('stat-httnv').innerText = counts.HTTNV;
             document.getElementById('stat-htnv').innerText = counts.HTNV;
@@ -437,13 +527,115 @@
             lucide.createIcons();
         }
 
+        // --- CÁC HÀM XỬ LÝ LOGIC BẢNG KẾT QUẢ THI ---
+        function renderExamApp() {
+            const tbody = document.getElementById('exam-tbody');
+            const emptyState = document.getElementById('exam-empty-state');
+            const tableContainer = document.getElementById('exam-table-container');
+
+            tbody.innerHTML = '';
+
+            if (examResultsList.length === 0) {
+                emptyState.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+
+                examResultsList.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    
+                    // Xử lý hiển thị Tỉ lệ cho đẹp nếu nó là số thập phân (VD: 0.9333 -> 93.3%)
+                    let displayRatio = item.ratio;
+                    let numRatio = parseFloat(item.ratio);
+                    if (!isNaN(numRatio) && numRatio <= 1 && item.ratio.indexOf('%') === -1 && item.ratio.length > 3) {
+                        displayRatio = (numRatio * 100).toFixed(1) + '%';
+                    }
+                    
+                    let actionHtml = '';
+                    if (confirmDeleteExamId === item.id) {
+                        actionHtml = `
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-xs text-red-600 font-medium">Xóa?</span>
+                                <button onclick="confirmDeleteExam('${item.id}')" class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Có</button>
+                                <button onclick="cancelDeleteExam()" class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300">Hủy</button>
+                            </div>
+                        `;
+                    } else {
+                        actionHtml = `
+                            <div class="flex items-center justify-end gap-3">
+                                <button onclick="requestDeleteExam('${item.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors" title="Xóa dữ liệu môn này">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    tr.innerHTML = `
+                        <td class="p-4 font-bold text-slate-700">${item.subject}</td>
+                        <td class="p-3 text-center border-l border-slate-200 font-medium text-slate-800">${item.total}</td>
+                        <td class="p-3 text-center text-red-600 font-semibold">${item.first}</td>
+                        <td class="p-3 text-center text-blue-600 font-semibold">${item.second}</td>
+                        <td class="p-3 text-center text-green-600 font-semibold">${item.third}</td>
+                        <td class="p-3 text-center text-orange-600 font-semibold">${item.consolation}</td>
+                        <td class="p-3 text-center border-l border-slate-200 bg-emerald-50/70 font-bold text-emerald-700">${item.totalPrizes}</td>
+                        <td class="p-3 text-center bg-slate-100/70 text-slate-500 font-medium">${item.fails}</td>
+                        <td class="p-3 text-center bg-blue-50/70 border-l border-slate-200 font-bold text-blue-800">${displayRatio}</td>
+                        <td class="p-3 text-right">${actionHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        // --- CÁC HÀM XÓA ---
+        window.requestDelete = function(id) {
+            confirmDeleteId = id;
+            renderApp();
+        }
+
+        window.cancelDelete = function() {
+            confirmDeleteId = null;
+            renderApp();
+        }
+
+        window.confirmDelete = async function(id) {
+            if (isCloudEnabled && user) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', id));
+            } else {
+                staffList = staffList.filter(s => s.id !== id);
+                renderApp();
+            }
+            confirmDeleteId = null;
+        }
+
+        window.requestDeleteExam = function(id) {
+            confirmDeleteExamId = id;
+            renderExamApp();
+        }
+
+        window.cancelDeleteExam = function() {
+            confirmDeleteExamId = null;
+            renderExamApp();
+        }
+
+        window.confirmDeleteExam = async function(id) {
+            if (isCloudEnabled && user) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'examData', id));
+            } else {
+                examResultsList = examResultsList.filter(s => s.id !== id);
+                renderExamApp();
+            }
+            confirmDeleteExamId = null;
+        }
+
         // --- CÁC HÀM FORM & MODAL ---
         function renderFormOptions() {
-            // Nhóm
             const groupSelect = document.getElementById('staff-group');
             groupSelect.innerHTML = Object.entries(GROUPS).map(([key, val]) => `<option value="${key}">${val}</option>`).join('');
 
-            // Thành tích (Fix CSS checkbox h-5 w-5 chuẩn Tailwind)
             const achContainer = document.getElementById('achievements-container');
             achContainer.innerHTML = Object.entries(ACHIEVEMENTS).map(([key, data]) => `
                 <label class="flex items-start space-x-3 cursor-pointer group">
@@ -452,7 +644,6 @@
                 </label>
             `).join('');
 
-            // Lỗi (Fix CSS checkbox h-5 w-5 chuẩn Tailwind)
             const faultContainer = document.getElementById('faults-container');
             faultContainer.innerHTML = Object.entries(FAULTS).map(([key, data]) => `
                 <label class="flex items-start space-x-3 cursor-pointer group">
@@ -469,7 +660,41 @@
             document.getElementById('staff-id').value = '';
             document.getElementById('modal').classList.remove('hidden');
         }
+        
+        window.editStaff = function(id) {
+            editingStaff = staffList.find(s => s.id === id);
+            if (!editingStaff) return;
+            
+            document.getElementById('modal-title').innerText = 'Cập nhật Thông tin';
+            document.getElementById('staff-id').value = editingStaff.id;
+            document.getElementById('staff-name').value = editingStaff.name;
+            document.getElementById('staff-subject').value = editingStaff.subject;
+            document.getElementById('staff-group').value = editingStaff.group;
+            document.getElementById('staff-note').value = editingStaff.note || '';
 
+            const form = document.getElementById('staff-form');
+            form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            if (editingStaff.achievements) {
+                editingStaff.achievements.forEach(ach => {
+                    const cb = form.querySelector(`input[name="achievements"][value="${ach}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+            if (editingStaff.faults) {
+                editingStaff.faults.forEach(fault => {
+                    const cb = form.querySelector(`input[name="faults"][value="${fault}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        // --- MODAL DÁN NHÂN SỰ ---
         window.openPasteModal = function() {
             document.getElementById('paste-textarea').value = '';
             document.getElementById('paste-error').classList.add('hidden');
@@ -497,10 +722,9 @@
 
             rows.forEach(row => {
                 const cols = row.split('\t');
-                if (cols.length < 3) return; // Cần ít nhất tên, môn, nhóm
+                if (cols.length < 3) return;
 
                 const name = cols[0].trim();
-                // Bỏ qua dòng tiêu đề
                 if (!name || name.toLowerCase().includes('họ và tên')) return;
 
                 const subject = cols[1]?.trim() || '';
@@ -508,7 +732,6 @@
                 
                 let achievements = [];
                 if (cols[3]) {
-                    // Cắt các mã cách nhau bằng dấu phẩy và chỉ giữ lại những mã hợp lệ
                     achievements = cols[3].split(',').map(a => a.trim()).filter(a => Object.keys(ACHIEVEMENTS).includes(a));
                 }
 
@@ -542,7 +765,6 @@
 
             try {
                 if (isCloudEnabled && user) {
-                    // Dùng writeBatch để đẩy hàng loạt lên Cloud an toàn và đồng bộ
                     const batch = writeBatch(db);
                     newStaffs.forEach(staff => {
                         const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', staff.id);
@@ -550,7 +772,6 @@
                     });
                     await batch.commit();
                 } else {
-                    // Chế độ Offline
                     staffList = [...staffList, ...newStaffs];
                     renderApp();
                 }
@@ -565,7 +786,94 @@
                 lucide.createIcons();
             }
         }
+        
+        // --- MODAL DÁN KẾT QUẢ THI TỈNH ---
+        window.openPasteExamModal = function() {
+            document.getElementById('paste-exam-textarea').value = '';
+            document.getElementById('paste-exam-error').classList.add('hidden');
+            document.getElementById('paste-exam-modal').classList.remove('hidden');
+        }
 
+        window.closePasteExamModal = function() {
+            document.getElementById('paste-exam-modal').classList.add('hidden');
+        }
+
+        window.processPastedExamData = async function() {
+            const text = document.getElementById('paste-exam-textarea').value.trim();
+            const errorEl = document.getElementById('paste-exam-error');
+            const btn = document.getElementById('paste-exam-btn');
+            errorEl.classList.add('hidden');
+
+            if (!text) {
+                errorEl.innerText = "Vui lòng dán dữ liệu thống kê vào ô trống!";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const rows = text.split('\n');
+            const newResults = [];
+
+            rows.forEach(row => {
+                const cols = row.split('\t');
+                if (cols.length < 8) return; // Cần lấy tối thiểu đến cột Xịt
+
+                const subject = cols[0].trim();
+                // Bỏ qua dòng tiêu đề nếu copy nhầm
+                if (!subject || subject.toLowerCase().includes('môn thi') || subject.toLowerCase().includes('tổng ts')) return;
+
+                newResults.push({
+                    id: subject, // Dùng tên môn làm ID để tự động đè/cập nhật dữ liệu cũ của môn đó
+                    subject: subject,
+                    total: cols[1]?.trim() || '0',
+                    first: cols[2]?.trim() || '0',
+                    second: cols[3]?.trim() || '0',
+                    third: cols[4]?.trim() || '0',
+                    consolation: cols[5]?.trim() || '0',
+                    totalPrizes: cols[6]?.trim() || '0',
+                    fails: cols[7]?.trim() || '0',
+                    ratio: cols[8]?.trim() || '',
+                    updatedAt: new Date().toISOString()
+                });
+            });
+
+            if (newResults.length === 0) {
+                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Đảm bảo bạn copy đúng bảng có tối thiểu 8 cột kết quả thi.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.innerText = 'Đang lưu...';
+            btn.disabled = true;
+
+            try {
+                if (isCloudEnabled && user) {
+                    const batch = writeBatch(db);
+                    newResults.forEach(item => {
+                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'examData', item.id);
+                        batch.set(docRef, item);
+                    });
+                    await batch.commit();
+                } else {
+                    // Chế độ Offline: Gộp mảng, môn nào trùng thì lấy dữ liệu mới nhập
+                    const map = new Map();
+                    examResultsList.forEach(item => map.set(item.id, item));
+                    newResults.forEach(item => map.set(item.id, item));
+                    examResultsList = Array.from(map.values());
+                    renderExamApp();
+                }
+                closePasteExamModal();
+            } catch (err) {
+                console.error(err);
+                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!";
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        // --- XỬ LÝ LƯU FORM NHÂN SỰ ---
         document.getElementById('staff-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -585,7 +893,6 @@
                 const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', staffId);
                 await setDoc(docRef, newStaff);
             } else {
-                // Offline mode
                 if (editingStaff) {
                     const index = staffList.findIndex(s => s.id === editingStaff.id);
                     staffList[index] = { id: staffId, ...newStaff };
@@ -597,45 +904,20 @@
             closeModal();
         });
 
-        // --- XỬ LÝ XÓA ---
-        window.requestDelete = function(id) {
-            confirmDeleteId = id;
-            renderApp();
-        }
-
-        window.cancelDelete = function() {
-            confirmDeleteId = null;
-            renderApp();
-        }
-
-        window.confirmDelete = async function(id) {
-            if (isCloudEnabled && user) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', id));
-            } else {
-                staffList = staffList.filter(s => s.id !== id);
-                renderApp();
-            }
-            confirmDeleteId = null;
-        }
-
         // --- ĐIỀU HƯỚNG TAB ---
         window.switchTab = function(tabName) {
-            const btnDs = document.getElementById('tab-danhsach');
-            const btnQc = document.getElementById('tab-quyche');
-            const viewDs = document.getElementById('view-danhsach');
-            const viewQc = document.getElementById('view-quyche');
-
-            if (tabName === 'danhsach') {
-                btnDs.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600";
-                btnQc.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700";
-                viewDs.classList.remove('hidden');
-                viewQc.classList.add('hidden');
-            } else {
-                btnQc.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600";
-                btnDs.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700";
-                viewQc.classList.remove('hidden');
-                viewDs.classList.add('hidden');
-            }
+            const tabs = ['danhsach', 'ketqua', 'quyche'];
+            tabs.forEach(tab => {
+                const btn = document.getElementById(`tab-${tab}`);
+                const view = document.getElementById(`view-${tab}`);
+                if (tab === tabName) {
+                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600";
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700";
+                    view.classList.add('hidden');
+                }
+            });
         }
 
         // Khởi động app
