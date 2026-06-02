@@ -4,34 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Quản lý Thi đua</title>
-    <!-- Tích hợp Tailwind CSS và Form Plugin để fix giao diện Checkbox/Select -->
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <!-- Tích hợp Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Tùy chỉnh thanh cuộn cho gọn gàng */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-900 h-screen flex overflow-hidden">
 
     <!-- SIDEBAR -->
     <div class="w-64 bg-slate-800 text-white flex flex-col shrink-0">
-        <div class="p-6">
+        <div class="p-6 pb-2 border-b border-slate-700">
             <h1 class="text-xl font-bold leading-tight">THPT Chuyên Vĩnh Phúc</h1>
-            <p id="cloud-status" class="text-sm text-slate-400 mt-2 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-yellow-500"></span> Đang tải...
+            <p id="cloud-status" class="text-sm text-slate-400 mt-2 flex items-center gap-2 mb-4">
+                <span class="w-2 h-2 rounded-full bg-yellow-500"></span> Đang kết nối...
             </p>
         </div>
-        <nav class="flex-1 px-4 space-y-2 overflow-y-auto">
-            <button onclick="switchTab('danhsach')" id="tab-danhsach" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600">
-                <i data-lucide="users" class="w-5 h-5"></i> <span class="ml-3">Danh sách Xét duyệt</span>
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto py-4">
+            
+            <div class="text-[11px] font-bold text-slate-400 mb-2 mt-2 px-2 uppercase tracking-wider">Thi đua Giáo viên</div>
+            <button onclick="switchTab('thidua')" id="tab-thidua" class="flex items-center w-full px-4 py-2.5 rounded-lg transition-colors bg-blue-600 text-left">
+                <i data-lucide="award" class="w-5 h-5 shrink-0"></i> <span class="ml-3 font-medium">Thống kê Thi đua</span>
             </button>
-            <button onclick="switchTab('ketqua')" id="tab-ketqua" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700">
-                <i data-lucide="bar-chart-2" class="w-5 h-5"></i> <span class="ml-3">Kết quả thi Tỉnh</span>
+
+            <div class="text-[11px] font-bold text-slate-400 mb-2 mt-6 px-2 uppercase tracking-wider">Kỳ thi Cấp Tỉnh</div>
+            <button onclick="switchTab('ds-tinh')" id="tab-ds-tinh" class="flex items-center w-full px-4 py-2.5 rounded-lg transition-colors hover:bg-slate-700 text-left">
+                <i data-lucide="users" class="w-5 h-5 shrink-0"></i> <span class="ml-3 font-medium">DS Kết quả Tỉnh</span>
             </button>
-            <button onclick="switchTab('ketquaqg')" id="tab-ketquaqg" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700 text-left leading-tight">
-                <i data-lucide="globe" class="w-5 h-5 shrink-0"></i> <span class="ml-3">Kết quả thi Quốc gia</span>
+            <button onclick="switchTab('tk-tinh')" id="tab-tk-tinh" class="flex items-center w-full px-4 py-2.5 rounded-lg transition-colors hover:bg-slate-700 text-left">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 shrink-0 text-emerald-400"></i> <span class="ml-3 font-medium">Thống kê Tỉnh</span>
             </button>
-            <button onclick="switchTab('quyche')" id="tab-quyche" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700">
-                <i data-lucide="file-text" class="w-5 h-5"></i> <span class="ml-3">Quy chế Đặc cách</span>
+
+            <div class="text-[11px] font-bold text-slate-400 mb-2 mt-6 px-2 uppercase tracking-wider">Kỳ thi Quốc Gia</div>
+            <button onclick="switchTab('ds-qg')" id="tab-ds-qg" class="flex items-center w-full px-4 py-2.5 rounded-lg transition-colors hover:bg-slate-700 text-left">
+                <i data-lucide="globe" class="w-5 h-5 shrink-0"></i> <span class="ml-3 font-medium">DS Kết quả QG</span>
             </button>
+            <button onclick="switchTab('tk-qg')" id="tab-tk-qg" class="flex items-center w-full px-4 py-2.5 rounded-lg transition-colors hover:bg-slate-700 text-left">
+                <i data-lucide="pie-chart" class="w-5 h-5 shrink-0 text-purple-400"></i> <span class="ml-3 font-medium">Thống kê QG</span>
+            </button>
+
+            <div class="text-[11px] font-bold text-slate-400 mb-2 mt-6 px-2 uppercase tracking-wider">Hệ thống</div>
+            <button onclick="switchTab('quyche')" id="tab-quyche" class="flex items-center w-full px-4 py-2.5 rounded-lg transition-colors hover:bg-slate-700 text-left">
+                <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i> <span class="ml-3 font-medium">Quy chế Đặc cách</span>
+            </button>
+
         </nav>
     </div>
 
@@ -46,160 +66,198 @@
             </div>
         </div>
 
-        <!-- HEADER STATS -->
-        <header class="bg-white shadow-sm border-b p-6 grid grid-cols-4 gap-4 shrink-0">
+        <!-- HEADER STATS (Dành riêng cho Thi đua) -->
+        <header id="header-stats" class="bg-white shadow-sm border-b p-6 grid grid-cols-4 gap-4 shrink-0 transition-all">
             <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-purple-600 font-medium">Xuất sắc (HTXSNV)</p>
-                    <p id="stat-htxsnv" class="text-3xl font-bold text-purple-900">0</p>
-                </div>
+                <div><p class="text-sm text-purple-600 font-medium">Xuất sắc (HTXSNV)</p><p id="stat-htxsnv" class="text-3xl font-bold text-purple-900">0</p></div>
                 <i data-lucide="award" class="text-purple-300 w-10 h-10"></i>
             </div>
             <div class="bg-green-50 p-4 rounded-xl border border-green-100 flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-green-600 font-medium">Tốt (HTTNV)</p>
-                    <p id="stat-httnv" class="text-3xl font-bold text-green-900">0</p>
-                </div>
+                <div><p class="text-sm text-green-600 font-medium">Tốt (HTTNV)</p><p id="stat-httnv" class="text-3xl font-bold text-green-900">0</p></div>
             </div>
             <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100 flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-yellow-600 font-medium">Hoàn thành (HTNV)</p>
-                    <p id="stat-htnv" class="text-3xl font-bold text-yellow-900">0</p>
-                </div>
+                <div><p class="text-sm text-yellow-600 font-medium">Hoàn thành (HTNV)</p><p id="stat-htnv" class="text-3xl font-bold text-yellow-900">0</p></div>
             </div>
             <div class="bg-red-50 p-4 rounded-xl border border-red-100 flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-red-600 font-medium">Không HT (KHTNV)</p>
-                    <p id="stat-khtnv" class="text-3xl font-bold text-red-900">0</p>
-                </div>
+                <div><p class="text-sm text-red-600 font-medium">Không HT (KHTNV)</p><p id="stat-khtnv" class="text-3xl font-bold text-red-900">0</p></div>
                 <i data-lucide="alert-triangle" class="text-red-300 w-10 h-10"></i>
             </div>
         </header>
 
         <!-- CONTENT AREA -->
-        <main class="flex-1 overflow-auto p-6">
+        <main class="flex-1 overflow-auto p-6 bg-slate-100/50">
             
-            <!-- TAB: DANH SÁCH XÉT DUYỆT -->
-            <div id="view-danhsach" class="bg-white rounded-xl shadow-sm border flex flex-col h-full">
+            <!-- 1. TAB: THI ĐUA KHEN THƯỞNG GIÁO VIÊN -->
+            <div id="view-thidua" class="bg-white rounded-xl shadow-sm border flex flex-col h-full">
                 <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
-                    <h2 class="text-lg font-bold">Danh sách Viên chức & Xếp loại dự kiến</h2>
+                    <h2 class="text-lg font-bold text-slate-800">Thống kê Tổng điểm Xét Thi đua Giáo viên</h2>
                     <div class="flex gap-2">
-                        <button onclick="openPasteModal()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
-                            <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập từ Excel
+                        <button onclick="openPasteStaffModal()" class="bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
+                            <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Dán Excel
                         </button>
                         <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2 shadow-sm">
-                            + Thêm nhân sự
+                            <i data-lucide="plus" class="w-4 h-4"></i> Thêm GV
                         </button>
                     </div>
                 </div>
                 
                 <div id="empty-state" class="hidden p-12 text-center text-slate-500">
-                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="users" class="w-8 h-8"></i>
-                    </div>
-                    <p class="text-lg font-medium">Chưa có dữ liệu nào được lưu.</p>
-                    <p class="text-sm mt-1">Hãy bấm nút "Thêm nhân sự" để bắt đầu nhập dữ liệu.</p>
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="users" class="w-8 h-8"></i></div>
+                    <p class="text-lg font-medium">Chưa có dữ liệu giáo viên.</p>
                 </div>
 
                 <div id="table-container" class="overflow-x-auto flex-1">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 text-slate-500 text-sm border-b">
-                                <th class="p-4 font-semibold w-1/5">Họ và tên</th>
-                                <th class="p-4 font-semibold w-1/5">Nhóm / Môn</th>
-                                <th class="p-4 font-semibold w-1/5">Thành tích</th>
-                                <th class="p-4 font-semibold w-1/5">Vi phạm</th>
-                                <th class="p-4 font-semibold">Xếp loại</th>
-                                <th class="p-4 font-semibold text-right">Thao tác</th>
+                                <th class="p-4 font-semibold w-2/12">Họ tên Giáo viên</th>
+                                <th class="p-4 font-semibold w-2/12">Nhóm / Môn</th>
+                                <th class="p-4 font-semibold w-4/12">Các tiêu chí xét (Thành tích & Vi phạm)</th>
+                                <th class="p-4 font-semibold w-1/12 text-center">Tổng điểm</th>
+                                <th class="p-4 font-semibold w-2/12 text-center">Xếp loại</th>
+                                <th class="p-4 font-semibold w-1/12 text-right">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="staff-tbody" class="divide-y text-sm">
-                            <!-- Dữ liệu render bằng JS -->
+                            <!-- JS Render -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: KẾT QUẢ THI TỈNH -->
-            <div id="view-ketqua" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
+            <!-- 2. TAB: DANH SÁCH HSG TỈNH -->
+            <div id="view-ds-tinh" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
                 <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
-                    <h2 class="text-lg font-bold text-blue-900">Thống kê Kết quả thi HSG Cấp Tỉnh</h2>
-                    <button onclick="openPasteExamModal()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
-                        <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập từ Excel
-                    </button>
+                    <h2 class="text-lg font-bold text-emerald-800">Danh sách Kết quả HSG Cấp Tỉnh</h2>
+                    <div class="flex gap-3">
+                        <button onclick="clearAllStudents('tinh')" class="text-red-500 hover:text-red-700 px-3 py-2 text-sm font-medium transition flex items-center gap-2">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Xóa tất cả
+                        </button>
+                        <button onclick="openPasteStudentModal('tinh')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition font-medium flex items-center gap-2 shadow-sm">
+                            <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập danh sách từ Excel
+                        </button>
+                    </div>
                 </div>
                 
-                <div id="exam-empty-state" class="hidden p-12 text-center text-slate-500">
-                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="bar-chart-2" class="w-8 h-8"></i>
-                    </div>
-                    <p class="text-lg font-medium">Chưa có dữ liệu kết quả thi Tỉnh.</p>
-                    <p class="text-sm mt-1">Hãy copy bảng thống kê từ Excel và bấm nút "Nhập từ Excel" để dán vào đây.</p>
+                <div id="ds-tinh-empty" class="hidden p-12 text-center text-slate-500">
+                    <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="users" class="w-8 h-8 text-emerald-500"></i></div>
+                    <p class="text-lg font-medium">Chưa có danh sách học sinh cấp Tỉnh.</p>
+                    <p class="text-sm mt-1">Bấm "Nhập danh sách từ Excel" để dán dữ liệu thô vào đây.</p>
                 </div>
 
-                <div id="exam-table-container" class="overflow-x-auto flex-1">
+                <div id="ds-tinh-table" class="overflow-x-auto flex-1">
                     <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b">
-                                <th class="p-4 font-bold">Môn thi</th>
-                                <th class="p-3 font-semibold text-center border-l border-slate-200">Tổng TS</th>
-                                <th class="p-3 font-semibold text-center text-red-600">Giải Nhất</th>
-                                <th class="p-3 font-semibold text-center text-blue-600">Giải Nhì</th>
-                                <th class="p-3 font-semibold text-center text-green-600">Giải Ba</th>
-                                <th class="p-3 font-semibold text-center text-orange-600">Giải KK</th>
-                                <th class="p-3 font-semibold text-center border-l border-slate-200 bg-emerald-50 text-emerald-700">Tổng giải</th>
-                                <th class="p-3 font-semibold text-center bg-slate-100 text-slate-600">Xịt</th>
-                                <th class="p-3 font-semibold text-center bg-blue-50 border-l border-slate-200 text-blue-800">Tỉ lệ</th>
-                                <th class="p-3 font-semibold text-right">Thao tác</th>
+                        <thead class="bg-emerald-50 text-emerald-800 border-b border-emerald-100 sticky top-0">
+                            <tr>
+                                <th class="p-3 font-semibold w-16 text-center">STT</th>
+                                <th class="p-3 font-semibold">Họ và tên Học sinh</th>
+                                <th class="p-3 font-semibold">Môn thi</th>
+                                <th class="p-3 font-semibold">Giải đạt được</th>
+                                <th class="p-3 font-semibold text-right">Xóa</th>
                             </tr>
                         </thead>
-                        <tbody id="exam-tbody" class="divide-y">
-                            <!-- Dữ liệu render bằng JS -->
+                        <tbody id="ds-tinh-tbody" class="divide-y divide-emerald-50">
+                            <!-- JS Render -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: KẾT QUẢ THI QUỐC GIA -->
-            <div id="view-ketquaqg" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
+            <!-- 3. TAB: THỐNG KÊ TỈNH -->
+            <div id="view-tk-tinh" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
+                <div class="p-5 border-b bg-emerald-50/50 sticky top-0 z-10 rounded-t-xl">
+                    <h2 class="text-lg font-bold text-emerald-900">Bảng Thống kê HSG Tỉnh</h2>
+                    <p class="text-sm text-emerald-700 mt-1">Được tính toán tự động dựa trên Danh sách Kết quả Tỉnh bạn đã nhập.</p>
+                </div>
+                <div class="overflow-x-auto flex-1 p-4">
+                    <table class="w-full text-left border-collapse text-sm border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                        <thead class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                            <tr>
+                                <th class="p-3 font-bold border-r border-slate-200">Môn thi</th>
+                                <th class="p-3 font-bold text-center border-r border-slate-200">Tổng TS</th>
+                                <th class="p-3 font-bold text-center text-red-600 border-r border-slate-200">Nhất</th>
+                                <th class="p-3 font-bold text-center text-blue-600 border-r border-slate-200">Nhì</th>
+                                <th class="p-3 font-bold text-center text-green-600 border-r border-slate-200">Ba</th>
+                                <th class="p-3 font-bold text-center text-orange-600 border-r border-slate-200">KK</th>
+                                <th class="p-3 font-bold text-center bg-emerald-100 border-r border-slate-200">Tổng giải</th>
+                                <th class="p-3 font-bold text-center bg-slate-200 border-r border-slate-200">Xịt</th>
+                                <th class="p-3 font-bold text-center bg-blue-100 text-blue-900">Tỉ lệ Đạt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tk-tinh-tbody" class="divide-y divide-slate-200">
+                            <!-- JS Render -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. TAB: DANH SÁCH HSG QUỐC GIA -->
+            <div id="view-ds-qg" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
                 <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
-                    <h2 class="text-lg font-bold text-purple-900">Thống kê Kết quả thi HSG Quốc Gia</h2>
-                    <button onclick="openPasteExamQGModal()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
-                        <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập từ Excel
-                    </button>
+                    <h2 class="text-lg font-bold text-purple-800">Danh sách Kết quả HSG Quốc Gia</h2>
+                    <div class="flex gap-3">
+                        <button onclick="clearAllStudents('qg')" class="text-red-500 hover:text-red-700 px-3 py-2 text-sm font-medium transition flex items-center gap-2">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Xóa tất cả
+                        </button>
+                        <button onclick="openPasteStudentModal('qg')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition font-medium flex items-center gap-2 shadow-sm">
+                            <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập danh sách từ Excel
+                        </button>
+                    </div>
                 </div>
                 
-                <div id="exam-qg-empty-state" class="hidden p-12 text-center text-slate-500">
-                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="globe" class="w-8 h-8 text-purple-500"></i>
-                    </div>
-                    <p class="text-lg font-medium">Chưa có dữ liệu kết quả thi Quốc gia.</p>
-                    <p class="text-sm mt-1">Hãy copy bảng thống kê từ Excel và bấm nút "Nhập từ Excel" để dán vào đây.</p>
+                <div id="ds-qg-empty" class="hidden p-12 text-center text-slate-500">
+                    <div class="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="globe" class="w-8 h-8 text-purple-500"></i></div>
+                    <p class="text-lg font-medium">Chưa có danh sách học sinh Quốc gia.</p>
+                    <p class="text-sm mt-1">Bấm "Nhập danh sách từ Excel" để dán dữ liệu thô vào đây.</p>
                 </div>
 
-                <div id="exam-qg-table-container" class="overflow-x-auto flex-1">
+                <div id="ds-qg-table" class="overflow-x-auto flex-1">
                     <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-purple-50/50 text-slate-600 border-b border-purple-100">
-                                <th class="p-4 font-bold text-purple-900">Môn thi</th>
-                                <th class="p-3 font-semibold text-center border-l border-slate-200">Tổng TS</th>
-                                <th class="p-3 font-semibold text-center text-red-600">Giải Nhất</th>
-                                <th class="p-3 font-semibold text-center text-blue-600">Giải Nhì</th>
-                                <th class="p-3 font-semibold text-center text-green-600">Giải Ba</th>
-                                <th class="p-3 font-semibold text-center text-orange-600">Giải KK</th>
-                                <th class="p-3 font-semibold text-center border-l border-slate-200 bg-emerald-50 text-emerald-700">Tổng giải</th>
-                                <th class="p-3 font-semibold text-center bg-purple-100/50 border-l border-slate-200 text-purple-800">Tỉ lệ (ko KK)</th>
-                                <th class="p-3 font-semibold text-right">Thao tác</th>
+                        <thead class="bg-purple-50 text-purple-800 border-b border-purple-100 sticky top-0">
+                            <tr>
+                                <th class="p-3 font-semibold w-16 text-center">STT</th>
+                                <th class="p-3 font-semibold">Họ và tên Học sinh</th>
+                                <th class="p-3 font-semibold">Môn thi</th>
+                                <th class="p-3 font-semibold">Giải đạt được</th>
+                                <th class="p-3 font-semibold text-right">Xóa</th>
                             </tr>
                         </thead>
-                        <tbody id="exam-qg-tbody" class="divide-y">
-                            <!-- Dữ liệu render bằng JS -->
+                        <tbody id="ds-qg-tbody" class="divide-y divide-purple-50">
+                            <!-- JS Render -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: QUY CHẾ -->
+            <!-- 5. TAB: THỐNG KÊ QUỐC GIA -->
+            <div id="view-tk-qg" class="hidden bg-white rounded-xl shadow-sm border flex flex-col h-full">
+                <div class="p-5 border-b bg-purple-50/50 sticky top-0 z-10 rounded-t-xl">
+                    <h2 class="text-lg font-bold text-purple-900">Bảng Thống kê HSG Quốc Gia</h2>
+                    <p class="text-sm text-purple-700 mt-1">Được tính toán tự động dựa trên Danh sách Quốc gia bạn đã nhập.</p>
+                </div>
+                <div class="overflow-x-auto flex-1 p-4">
+                    <table class="w-full text-left border-collapse text-sm border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                        <thead class="bg-slate-100 text-slate-700 border-b border-slate-300">
+                            <tr>
+                                <th class="p-3 font-bold border-r border-slate-200">Môn thi</th>
+                                <th class="p-3 font-bold text-center border-r border-slate-200">Tổng TS</th>
+                                <th class="p-3 font-bold text-center text-red-600 border-r border-slate-200">Nhất</th>
+                                <th class="p-3 font-bold text-center text-blue-600 border-r border-slate-200">Nhì</th>
+                                <th class="p-3 font-bold text-center text-green-600 border-r border-slate-200">Ba</th>
+                                <th class="p-3 font-bold text-center text-orange-600 border-r border-slate-200">KK</th>
+                                <th class="p-3 font-bold text-center bg-purple-100 border-r border-slate-200">Tổng giải</th>
+                                <th class="p-3 font-bold text-center bg-slate-200 border-r border-slate-200">Xịt</th>
+                                <th class="p-3 font-bold text-center bg-pink-100 text-pink-900">Tỉ lệ (Ko KK)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tk-qg-tbody" class="divide-y divide-slate-200">
+                            <!-- JS Render -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. TAB: QUY CHẾ -->
             <div id="view-quyche" class="hidden bg-white p-8 rounded-xl shadow-sm border max-w-4xl mx-auto">
                 <h2 class="text-2xl font-bold mb-6 text-slate-800 border-b pb-4">Quy chế Đánh giá & Đặc cách (Trích xuất từ QĐ 139/QĐ-CVP)</h2>
                 
@@ -209,26 +267,8 @@
                             <i data-lucide="award" class="mr-2 w-5 h-5"></i> Đặc cách Hoàn thành xuất sắc nhiệm vụ (HTXSNV)
                         </h3>
                         <div class="bg-purple-50 p-5 rounded-xl border border-purple-100 space-y-4 shadow-sm">
-                            <p class="leading-relaxed"><strong>1. Đối với HSG Quốc gia:</strong> Có học sinh đạt giải Nhất HSG quốc gia thì cả giáo viên chính, phụ được Hội đồng thi đua xem xét đặc cách HTXSNV (nếu không vi phạm Pháp luật và số lỗi về thực hiện nội quy nền nếp không vượt quá quy định).</p>
-                            <p class="leading-relaxed"><strong>2. Đối với kỳ thi ĐH:</strong> Giáo viên có học sinh đạt thủ khoa toàn quốc các khối xét tuyển đại học (A, A1, B, C, D01, D07) thì Hội đồng thi đua xem xét đặc cách HTXSNV cho cả 3 giáo viên bộ môn (nếu không vi phạm Pháp luật...).</p>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h3 class="font-bold text-lg text-slate-800 mb-4 border-l-4 border-blue-500 pl-3">Phân nhóm Đánh giá (Điều 8)</h3>
-                        <div class="grid gap-4 md:grid-cols-3">
-                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                                <div class="font-bold text-blue-700 mb-2">Nhóm 1</div>
-                                <p class="text-sm">Giáo viên giảng dạy môn chuyên.</p>
-                            </div>
-                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                                <div class="font-bold text-blue-700 mb-2">Nhóm 2</div>
-                                <p class="text-sm">Giáo viên không giảng dạy môn chuyên.</p>
-                            </div>
-                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                                <div class="font-bold text-blue-700 mb-2">Nhóm 3</div>
-                                <p class="text-sm">Cán bộ, nhân viên hành chính.</p>
-                            </div>
+                            <p class="leading-relaxed"><strong>1. Đối với HSG Quốc gia:</strong> Có học sinh đạt giải Nhất HSG quốc gia thì cả giáo viên chính, phụ được Hội đồng thi đua xem xét đặc cách HTXSNV.</p>
+                            <p class="leading-relaxed"><strong>2. Đối với kỳ thi ĐH:</strong> Giáo viên có học sinh đạt thủ khoa toàn quốc các khối xét tuyển đại học (A, A1, B, C, D01, D07) thì Hội đồng thi đua xem xét đặc cách HTXSNV cho cả 3 giáo viên bộ môn.</p>
                         </div>
                     </section>
                 </div>
@@ -237,158 +277,94 @@
         </main>
     </div>
 
-    <!-- MODAL THÊM / SỬA NHÂN SỰ -->
-    <div id="modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <!-- ================= MODALS ================= -->
+
+    <!-- MODAL THÊM / SỬA GIÁO VIÊN -->
+    <div id="modal-staff" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 id="modal-title" class="text-xl font-bold text-slate-800">Thêm Nhân sự mới</h2>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
+                <h2 id="modal-staff-title" class="text-xl font-bold text-slate-800">Thêm Giáo viên</h2>
+                <button onclick="closeModal('modal-staff')" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
             </div>
             
             <form id="staff-form" class="p-6 overflow-y-auto space-y-6">
                 <input type="hidden" id="staff-id" name="id">
-                
                 <div class="grid grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Họ và tên</label>
-                        <input type="text" id="staff-name" name="name" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Ví dụ: Nguyễn Văn A">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Môn / Chức vụ</label>
-                        <input type="text" id="staff-subject" name="subject" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Ví dụ: Toán">
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nhóm xét thi đua</label>
-                        <select id="staff-group" name="group" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                            <!-- Render bằng JS -->
-                        </select>
-                    </div>
+                    <div><label class="block text-sm font-semibold mb-1.5">Họ và tên</label><input type="text" id="staff-name" name="name" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg"></div>
+                    <div><label class="block text-sm font-semibold mb-1.5">Môn / Chức vụ</label><input type="text" id="staff-subject" name="subject" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg"></div>
+                    <div class="col-span-2"><label class="block text-sm font-semibold mb-1.5">Nhóm xét thi đua</label><select id="staff-group" name="group" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg"></select></div>
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold mb-2 text-emerald-700">Thành tích (Tiêu chí Đặc cách)</label>
-                        <div id="achievements-container" class="grid grid-cols-1 gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100/50">
-                            <!-- Render bằng JS -->
-                        </div>
+                        <label class="block text-sm font-semibold mb-2 text-emerald-700">Thành tích (Cộng điểm)</label>
+                        <div id="achievements-container" class="grid grid-cols-1 gap-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100/50"></div>
                     </div>
-
                     <div>
-                        <label class="block text-sm font-semibold mb-2 text-red-700">Vi phạm / Kỷ luật (Tiêu chí phủ quyết)</label>
-                        <div id="faults-container" class="grid grid-cols-1 gap-3 p-4 bg-red-50 rounded-xl border border-red-100/50">
-                            <!-- Render bằng JS -->
-                        </div>
+                        <label class="block text-sm font-semibold mb-2 text-red-700">Vi phạm (Trừ điểm)</label>
+                        <div id="faults-container" class="grid grid-cols-1 gap-2 p-4 bg-red-50 rounded-xl border border-red-100/50"></div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ghi chú thêm</label>
-                    <input type="text" id="staff-note" name="note" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Giáo viên chính / Phụ...">
-                </div>
-
-                <div class="flex justify-end space-x-3 pt-6 border-t mt-4">
-                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
-                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm hover:shadow">Lưu thông tin</button>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeModal('modal-staff')" class="px-5 py-2.5 border rounded-lg hover:bg-slate-50">Hủy</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Lưu</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL NHẬP NHÂN SỰ TỪ EXCEL -->
-    <div id="paste-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+    <!-- MODAL DÁN DANH SÁCH GIÁO VIÊN TỪ EXCEL -->
+    <div id="modal-paste-staff" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800">Nhập danh sách từ Excel</h2>
-                <button onclick="closePasteModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
+                <h2 class="text-xl font-bold">Nhập Giáo viên từ Excel</h2>
+                <button onclick="closeModal('modal-paste-staff')" class="text-slate-400 hover:text-red-500 text-2xl leading-none">&times;</button>
             </div>
-            
-            <div class="p-6 overflow-y-auto space-y-4">
-                <div class="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm border border-blue-100">
-                    <p class="font-bold mb-1">Hướng dẫn:</p>
-                    <p>Hãy copy vùng dữ liệu từ Excel và dán (Ctrl + V) vào ô bên dưới. Dữ liệu cần có các cột theo đúng thứ tự sau:</p>
-                    <p class="font-mono mt-2 bg-white px-3 py-2 rounded-lg inline-block text-blue-900 border border-blue-200 font-medium">Họ và tên | Môn | Nhóm | Thành tích (Mã) | Vi phạm (Mã) | Ghi chú</p>
-                    <p class="mt-2 text-xs italic text-blue-600">* Hệ thống sẽ tự động bỏ qua dòng tiêu đề (Họ và tên) nếu có.</p>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-600">Dán dữ liệu với cấu trúc: <strong class="text-blue-600">Họ tên | Môn | Nhóm | Thành tích(Mã) | Vi phạm(Mã) | Ghi chú</strong></p>
+                <textarea id="paste-staff-text" rows="8" class="w-full p-3 border rounded-lg font-mono text-sm" placeholder="Dán dữ liệu..."></textarea>
+                <p id="paste-staff-error" class="hidden text-red-600 text-sm bg-red-50 p-2 rounded"></p>
+            </div>
+            <div class="p-6 border-t bg-slate-50 flex justify-end space-x-3">
+                <button onclick="closeModal('modal-paste-staff')" class="px-5 py-2 border rounded-lg">Hủy</button>
+                <button onclick="processPastedStaff()" class="px-5 py-2 bg-blue-600 text-white rounded-lg">Nhập dữ liệu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DÁN DANH SÁCH HỌC SINH TỪ EXCEL (DÙNG CHUNG CHO TỈNH & QG) -->
+    <div id="modal-paste-student" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col">
+            <div id="paste-student-header" class="p-6 border-b flex justify-between items-center bg-emerald-50">
+                <h2 id="paste-student-title" class="text-xl font-bold text-emerald-900">Nhập Danh sách Học sinh</h2>
+                <button onclick="closeModal('modal-paste-student')" class="text-slate-400 hover:text-red-500 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="bg-slate-100 p-4 rounded-xl text-sm border border-slate-200 text-slate-700">
+                    <p class="font-bold mb-2 text-slate-800">Hướng dẫn Dán dữ liệu (Copy trực tiếp từ Excel):</p>
+                    <p class="mb-1">- <strong>Cách 1 (Chuẩn):</strong> Dán bảng có chứa dòng tiêu đề. Hệ thống sẽ tự tìm cột <code class="bg-white px-1 border rounded text-blue-600">Họ và tên</code>, <code class="bg-white px-1 border rounded text-blue-600">Môn</code>, <code class="bg-white px-1 border rounded text-blue-600">Giải</code> để trích xuất.</p>
+                    <p>- <strong>Cách 2 (Nhanh):</strong> Chỉ copy đúng 3 cột sát nhau theo thứ tự: <code class="bg-white px-1 border rounded text-purple-600">Họ và tên | Môn | Giải</code>.</p>
+                    <p class="mt-2 text-xs italic text-red-500">* Các bạn không đạt giải (Xịt) cứ để trống ô Giải, hệ thống vẫn sẽ ghi nhận để tính Tỉ lệ.</p>
                 </div>
-
-                <textarea id="paste-textarea" rows="8" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono text-sm leading-relaxed" placeholder="Dán dữ liệu Excel vào đây..."></textarea>
-                
-                <p id="paste-error" class="hidden text-red-600 text-sm font-medium mt-2 bg-red-50 p-3 rounded-lg border border-red-100"></p>
+                <textarea id="paste-student-text" rows="10" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 outline-none font-mono text-sm" placeholder="Nhấn Ctrl+V để dán dữ liệu Excel vào đây..."></textarea>
+                <p id="paste-student-error" class="hidden text-red-600 text-sm font-medium bg-red-50 p-3 rounded-lg"></p>
             </div>
-
-            <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
-                <button type="button" onclick="closePasteModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
-                <button id="paste-btn" type="button" onclick="processPastedData()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
-                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
+            <div class="p-6 border-t bg-slate-50 flex justify-end space-x-3">
+                <button onclick="closeModal('modal-paste-student')" class="px-5 py-2.5 border rounded-lg font-medium text-slate-700 hover:bg-slate-100">Hủy</button>
+                <button id="btn-process-student" onclick="processPastedStudent()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 shadow flex items-center gap-2">
+                    <i data-lucide="upload" class="w-4 h-4"></i> Lưu Danh sách
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL NHẬP KẾT QUẢ THI TỈNH TỪ EXCEL -->
-    <div id="paste-exam-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-800">Nhập bảng thống kê Tỉnh từ Excel</h2>
-                <button onclick="closePasteExamModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto space-y-4">
-                <div class="bg-emerald-50 text-emerald-800 p-4 rounded-xl text-sm border border-emerald-100">
-                    <p class="font-bold mb-1">Hướng dẫn:</p>
-                    <p>Hãy copy bảng kết quả thống kê Tỉnh các môn từ phần mềm Excel và dán vào đây. Cấu trúc cột yêu cầu:</p>
-                    <p class="font-mono mt-2 bg-white px-3 py-2 rounded-lg inline-block text-emerald-900 border border-emerald-200 font-medium overflow-hidden max-w-full text-ellipsis whitespace-nowrap">Môn thi | Tổng TS | Giải Nhất | Giải Nhì | Giải Ba | Giải KK | Tổng giải | Xịt | Tỉ lệ</p>
-                    <p class="mt-2 text-xs italic text-emerald-600">* Yêu cầu bảng có 9 cột dữ liệu.</p>
-                </div>
 
-                <textarea id="paste-exam-textarea" rows="8" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-mono text-sm leading-relaxed" placeholder="Dán dữ liệu thống kê từ Excel vào đây..."></textarea>
-                
-                <p id="paste-exam-error" class="hidden text-red-600 text-sm font-medium mt-2 bg-red-50 p-3 rounded-lg border border-red-100"></p>
-            </div>
-
-            <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
-                <button type="button" onclick="closePasteExamModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
-                <button id="paste-exam-btn" type="button" onclick="processPastedExamData()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
-                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL NHẬP KẾT QUẢ THI QUỐC GIA TỪ EXCEL -->
-    <div id="paste-exam-qg-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-6 border-b flex justify-between items-center bg-purple-50">
-                <h2 class="text-xl font-bold text-purple-900">Nhập bảng thống kê Quốc Gia từ Excel</h2>
-                <button onclick="closePasteExamQGModal()" class="text-purple-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto space-y-4">
-                <div class="bg-purple-50 text-purple-800 p-4 rounded-xl text-sm border border-purple-100">
-                    <p class="font-bold mb-1">Hướng dẫn:</p>
-                    <p>Hãy copy bảng kết quả Quốc Gia từ phần mềm Excel và dán vào đây. Cấu trúc cột dựa theo mẫu:</p>
-                    <p class="font-mono mt-2 bg-white px-3 py-2 rounded-lg inline-block text-purple-900 border border-purple-200 font-medium overflow-hidden max-w-full text-ellipsis whitespace-nowrap">Môn thi | Tổng số TS dự thi | Giải Nhất | Giải Nhì | Giải Ba | Giải KK | Tổng giải | Tỉ lệ (ko tính KK)</p>
-                    <p class="mt-2 text-xs italic text-purple-600">* Yêu cầu bảng có 8 cột dữ liệu (Không có cột Xịt).</p>
-                </div>
-
-                <textarea id="paste-exam-qg-textarea" rows="8" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono text-sm leading-relaxed" placeholder="Dán dữ liệu thống kê Quốc gia từ Excel vào đây..."></textarea>
-                
-                <p id="paste-exam-qg-error" class="hidden text-red-600 text-sm font-medium mt-2 bg-red-50 p-3 rounded-lg border border-red-100"></p>
-            </div>
-
-            <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
-                <button type="button" onclick="closePasteExamQGModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
-                <button id="paste-exam-qg-btn" type="button" onclick="processPastedExamQGData()" class="px-5 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
-                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CODE LOGIC -->
+    <!-- CODE LOGIC JS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CẤU HÌNH DATA ---
         const GROUPS = {
@@ -400,29 +376,24 @@
         const ACHIEVEMENTS = {
             'nhat_qg': { label: 'Có HS đạt Giải Nhất QG', points: 100, isSpecial: true },
             'thu_khoa_dh': { label: 'Có HS đạt Thủ khoa ĐH (A, A1, B, C, D01, D07)', points: 100, isSpecial: true },
-            'lao_dong_tt': { label: 'Lao động tiên tiến', points: 10, isSpecial: false },
-            'hstt': { label: 'Có HS đạt giải Tỉnh', points: 20, isSpecial: false }
+            'hstt': { label: 'Có HS đạt giải Tỉnh', points: 20, isSpecial: false },
+            'lao_dong_tt': { label: 'Lao động tiên tiến', points: 10, isSpecial: false }
         };
 
         const FAULTS = {
-            'loi_noi_quy': { label: 'Vi phạm nội quy, nền nếp', severity: 'minor' },
-            'vuot_loi': { label: 'Số lỗi vượt quá quy định', severity: 'major' },
-            'phap_luat': { label: 'Vi phạm Pháp luật', severity: 'critical' }
+            'loi_noi_quy': { label: 'Vi phạm nội quy, nền nếp', points: -10, severity: 'minor' },
+            'vuot_loi': { label: 'Số lỗi vượt quá quy định', points: -30, severity: 'major' },
+            'phap_luat': { label: 'Vi phạm Pháp luật', points: -100, severity: 'critical' }
         };
 
-        // --- BIẾN TOÀN CỤC ---
+        // --- STATE BIẾN ---
         let staffList = [];
-        let examResultsList = []; // Mảng chứa dữ liệu thi tỉnh
-        let examQGResultsList = []; // Mảng chứa dữ liệu thi quốc gia
-        let editingStaff = null;
-        let db = null;
-        let auth = null;
-        let user = null;
-        let confirmDeleteId = null;
-        let confirmDeleteExamId = null;
-        let confirmDeleteExamQGId = null;
-
-        // --- KHỞI TẠO FIREBASE & RENDER GIAO DIỆN ---
+        let studentTinhList = [];
+        let studentQGList = [];
+        
+        let db = null, auth = null, user = null;
+        let currentStudentPasteType = 'tinh'; // 'tinh' | 'qg'
+        
         const isCloudEnabled = typeof __firebase_config !== 'undefined' && __firebase_config;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'thidua-app-id';
 
@@ -431,20 +402,14 @@
             lucide.createIcons();
 
             if (isCloudEnabled) {
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
+                const app = initializeApp(JSON.parse(__firebase_config));
                 auth = getAuth(app);
                 db = getFirestore(app);
 
                 try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (error) {
-                    console.error("Lỗi xác thực:", error);
-                }
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                    else await signInAnonymously(auth);
+                } catch (e) { console.error("Lỗi Auth:", e); }
 
                 onAuthStateChanged(auth, (currentUser) => {
                     user = currentUser;
@@ -454,663 +419,339 @@
                     }
                 });
             } else {
-                // Chế độ Offline/Local
                 document.getElementById('cloud-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Chế độ Offline`;
                 document.getElementById('loader').classList.add('hidden');
-                
+                // Fake Data
                 staffList = [
-                    { id: "1", name: 'Nguyễn Văn A', subject: 'Toán', group: 'G1', achievements: ['nhat_qg'], faults: [], note: 'Giáo viên chính' },
+                    { id: "1", name: 'Nguyễn Văn A', subject: 'Toán', group: 'G1', achievements: ['nhat_qg'], faults: [], note: '' },
                     { id: "2", name: 'Trần Thị B', subject: 'Ngữ văn', group: 'G2', achievements: [], faults: ['loi_noi_quy'], note: '' }
                 ];
-                examResultsList = [
-                    { id: 'Toán', subject: 'Toán', total: '30', first: '2', second: '6', third: '10', consolation: '10', totalPrizes: '28', fails: '2', ratio: '93.3%' }
+                studentTinhList = [
+                    { id: "s1", name: 'Phạm Hải Đăng', subject: 'Tin học', prize: 'Nhất' },
+                    { id: "s2", name: 'Nguyễn Bích Huệ', subject: 'Địa lí', prize: 'Nhì' },
+                    { id: "s3", name: 'Lê Quang Anh', subject: 'Hóa học', prize: '' } // xịt
                 ];
-                examQGResultsList = [
-                    { id: 'Vật lí', subject: 'Vật lí', total: '10', first: '1', second: '2', third: '3', consolation: '2', totalPrizes: '8', ratio: '60%' }
-                ];
-                renderApp();
-                renderExamApp();
-                renderExamQGApp();
+                renderAll();
             }
         }
 
         function loadDataFromCloud() {
-            // Tải danh sách nhân sự
-            const staffRef = collection(db, 'artifacts', appId, 'users', user.uid, 'staffData');
-            onSnapshot(staffRef, (snapshot) => {
-                staffList = [];
-                snapshot.forEach(doc => {
-                    staffList.push({ id: doc.id, ...doc.data() });
-                });
-                staffList.sort((a, b) => a.group.localeCompare(b.group));
-                document.getElementById('loader').classList.add('hidden');
-                renderApp();
-            }, (error) => {
-                console.error("Lỗi tải dữ liệu nhân sự:", error);
+            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'staffData'), (snap) => {
+                staffList = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b)=>a.group.localeCompare(b.group));
+                renderStaffApp();
                 document.getElementById('loader').classList.add('hidden');
             });
-
-            // Tải danh sách kết quả thi Tỉnh
-            const examRef = collection(db, 'artifacts', appId, 'users', user.uid, 'examData');
-            onSnapshot(examRef, (snapshot) => {
-                examResultsList = [];
-                snapshot.forEach(doc => {
-                    examResultsList.push({ id: doc.id, ...doc.data() });
-                });
-                renderExamApp();
-            }, (error) => {
-                console.error("Lỗi tải dữ liệu thi Tỉnh:", error);
+            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'studentTinhData'), (snap) => {
+                studentTinhList = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderDsTinh(); renderTkTinh();
             });
-
-            // Tải danh sách kết quả thi Quốc gia
-            const examQGRef = collection(db, 'artifacts', appId, 'users', user.uid, 'examDataQG');
-            onSnapshot(examQGRef, (snapshot) => {
-                examQGResultsList = [];
-                snapshot.forEach(doc => {
-                    examQGResultsList.push({ id: doc.id, ...doc.data() });
-                });
-                renderExamQGApp();
-            }, (error) => {
-                console.error("Lỗi tải dữ liệu thi Quốc gia:", error);
+            onSnapshot(collection(db, 'artifacts', appId, 'users', user.uid, 'studentQGData'), (snap) => {
+                studentQGList = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderDsQG(); renderTkQG();
             });
         }
 
-        // --- CÁC HÀM XỬ LÝ LOGIC DANH SÁCH NHÂN SỰ ---
+        function renderAll() { renderStaffApp(); renderDsTinh(); renderTkTinh(); renderDsQG(); renderTkQG(); }
+
+        // ================= LOGIC THI ĐUA GIÁO VIÊN =================
         function evaluateStaff(staff) {
             const faults = staff.faults || [];
             const achievements = staff.achievements || [];
+            let totalPoints = 0;
 
-            const hasCriticalFault = faults.some(f => FAULTS[f]?.severity === 'critical');
-            const hasMajorFault = faults.some(f => FAULTS[f]?.severity === 'major');
-            const hasSpecialAchievement = achievements.some(a => ACHIEVEMENTS[a]?.isSpecial);
+            achievements.forEach(a => totalPoints += (ACHIEVEMENTS[a]?.points || 0));
+            faults.forEach(f => totalPoints += (FAULTS[f]?.points || 0)); // negative numbers
 
-            if (hasCriticalFault) return { rating: 'KHTNV', label: 'Không HT nhiệm vụ', color: 'bg-red-100 text-red-800 border-red-200' };
-            if (hasSpecialAchievement && !hasMajorFault && !hasCriticalFault) {
-                return { rating: 'HTXSNV_DC', label: 'HT Xuất sắc NV (Đặc cách)', color: 'bg-purple-100 text-purple-800 font-bold border-purple-300' };
-            }
-            if (achievements.length > 0 && faults.length === 0) {
-                return { rating: 'HTTNV', label: 'Hoàn thành Tốt NV', color: 'bg-green-100 text-green-800 border-green-200' };
-            }
-            if (faults.length > 0 && !hasMajorFault) {
-                return { rating: 'HTNV', label: 'Hoàn thành NV', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' };
-            }
-            return { rating: 'HTNV', label: 'Hoàn thành NV', color: 'bg-gray-100 text-gray-800 border-gray-200' };
+            const hasCritical = faults.some(f => FAULTS[f]?.severity === 'critical');
+            const hasMajor = faults.some(f => FAULTS[f]?.severity === 'major');
+            const hasSpecial = achievements.some(a => ACHIEVEMENTS[a]?.isSpecial);
+
+            let rating = 'HTNV', label = 'Hoàn thành NV', color = 'bg-gray-100 text-gray-800';
+            if (hasCritical) { rating='KHTNV'; label='Không HT nhiệm vụ'; color='bg-red-100 text-red-800'; }
+            else if (hasSpecial && !hasMajor) { rating='HTXSNV'; label='HT Xuất sắc NV'; color='bg-purple-100 text-purple-800 font-bold'; }
+            else if (achievements.length > 0 && faults.length === 0) { rating='HTTNV'; label='Hoàn thành Tốt NV'; color='bg-green-100 text-green-800'; }
+            else if (faults.length > 0 && !hasMajor) { rating='HTNV'; label='Hoàn thành NV'; color='bg-yellow-100 text-yellow-800'; }
+
+            return { totalPoints, rating, label, color };
         }
 
-        function renderApp() {
+        function renderStaffApp() {
             const tbody = document.getElementById('staff-tbody');
-            const emptyState = document.getElementById('empty-state');
-            const tableContainer = document.getElementById('table-container');
+            if(staffList.length===0) { document.getElementById('empty-state').classList.remove('hidden'); document.getElementById('table-container').classList.add('hidden'); }
+            else { document.getElementById('empty-state').classList.add('hidden'); document.getElementById('table-container').classList.remove('hidden'); }
 
             let counts = { HTXSNV: 0, HTTNV: 0, HTNV: 0, KHTNV: 0 };
             tbody.innerHTML = '';
-
-            if (staffList.length === 0) {
-                emptyState.classList.remove('hidden');
-                tableContainer.classList.add('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                tableContainer.classList.remove('hidden');
-
-                staffList.forEach(staff => {
-                    const evalRes = evaluateStaff(staff);
-                    
-                    if (evalRes.rating.includes('HTXSNV')) counts.HTXSNV++;
-                    else if (evalRes.rating === 'HTTNV') counts.HTTNV++;
-                    else if (evalRes.rating === 'KHTNV') counts.KHTNV++;
-                    else counts.HTNV++;
-
-                    const achievementsHtml = (staff.achievements || []).length > 0 
-                        ? `<ul class="list-disc pl-4 text-emerald-700 space-y-1">` + staff.achievements.map(a => `<li>${ACHIEVEMENTS[a]?.label}</li>`).join('') + `</ul>`
-                        : `<span class="text-slate-300">-</span>`;
-
-                    const faultsHtml = (staff.faults || []).length > 0 
-                        ? `<ul class="list-disc pl-4 text-red-600 space-y-1 font-medium">` + staff.faults.map(f => `<li>${FAULTS[f]?.label}</li>`).join('') + `</ul>`
-                        : `<span class="text-slate-300">-</span>`;
-
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50 transition-colors';
-                    
-                    let actionHtml = '';
-                    if (confirmDeleteId === staff.id) {
-                        actionHtml = `
-                            <div class="flex items-center justify-end gap-2">
-                                <span class="text-xs text-red-600 font-medium">Xóa?</span>
-                                <button onclick="confirmDelete('${staff.id}')" class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Có</button>
-                                <button onclick="cancelDelete()" class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300">Hủy</button>
-                            </div>
-                        `;
-                    } else {
-                        actionHtml = `
-                            <div class="flex items-center justify-end gap-3">
-                                <button onclick="editStaff('${staff.id}')" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">Sửa</button>
-                                <button onclick="requestDelete('${staff.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors" title="Xóa">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    tr.innerHTML = `
-                        <td class="p-4 font-medium">${staff.name}</td>
-                        <td class="p-4">
-                            <span class="block text-[11px] font-bold tracking-wide text-blue-700 bg-blue-100 w-max px-2 py-1 rounded mb-1">${GROUPS[staff.group]}</span>
-                            <span class="text-slate-600 font-medium">${staff.subject}</span>
+            staffList.forEach(s => {
+                const ev = evaluateStaff(s);
+                if(ev.rating==='HTXSNV') counts.HTXSNV++; else if(ev.rating==='HTTNV') counts.HTTNV++; else if(ev.rating==='KHTNV') counts.KHTNV++; else counts.HTNV++;
+                
+                const achHtml = (s.achievements||[]).map(a => `<div class="text-emerald-700 text-xs mb-1 font-medium">+ ${ACHIEVEMENTS[a]?.label}</div>`).join('');
+                const fltHtml = (s.faults||[]).map(f => `<div class="text-red-600 text-xs mb-1 font-medium">- ${FAULTS[f]?.label}</div>`).join('');
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-bold text-slate-700">${s.name}</td>
+                        <td class="p-4"><span class="text-[11px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded mr-1">${GROUPS[s.group].split(' ')[0]}</span> <span class="font-medium text-slate-600">${s.subject}</span></td>
+                        <td class="p-4">${achHtml} ${fltHtml} ${(!achHtml && !fltHtml) ? '<span class="text-slate-300">-</span>' : ''}</td>
+                        <td class="p-4 text-center"><span class="text-lg font-bold ${ev.totalPoints >= 0 ? 'text-blue-600' : 'text-red-600'}">${ev.totalPoints > 0 ? '+'+ev.totalPoints : ev.totalPoints}</span></td>
+                        <td class="p-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs border border-current/20 ${ev.color}">${ev.label}</span></td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteStaff('${s.id}')" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </td>
-                        <td class="p-4">${achievementsHtml}</td>
-                        <td class="p-4">${faultsHtml}</td>
-                        <td class="p-4">
-                            <span class="px-3 py-1.5 rounded-full text-xs border ${evalRes.color}">${evalRes.label}</span>
-                        </td>
-                        <td class="p-4 text-right">${actionHtml}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-
+                    </tr>`;
+            });
             document.getElementById('stat-htxsnv').innerText = counts.HTXSNV;
             document.getElementById('stat-httnv').innerText = counts.HTTNV;
             document.getElementById('stat-htnv').innerText = counts.HTNV;
             document.getElementById('stat-khtnv').innerText = counts.KHTNV;
-            
             lucide.createIcons();
         }
 
-        // --- CÁC HÀM XỬ LÝ LOGIC BẢNG KẾT QUẢ THI TỈNH ---
-        function renderExamApp() {
-            const tbody = document.getElementById('exam-tbody');
-            const emptyState = document.getElementById('exam-empty-state');
-            const tableContainer = document.getElementById('exam-table-container');
+        window.deleteStaff = async function(id) {
+            if(!confirm('Xóa giáo viên này?')) return;
+            if(isCloudEnabled) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', id));
+            else { staffList = staffList.filter(s => s.id !== id); renderStaffApp(); }
+        }
 
-            tbody.innerHTML = '';
+        // ================= LOGIC HỌC SINH TỈNH / QUỐC GIA =================
+        function generateStats(list) {
+            const map = {};
+            list.forEach(s => {
+                if(!map[s.subject]) map[s.subject] = { subject: s.subject, total: 0, first: 0, second: 0, third: 0, kk: 0 };
+                map[s.subject].total++;
+                const p = (s.prize || '').toLowerCase().trim();
+                if(p==='nhất' || p==='nhat') map[s.subject].first++;
+                else if(p==='nhì' || p==='nhi') map[s.subject].second++;
+                else if(p==='ba') map[s.subject].third++;
+                else if(p==='kk' || p.includes('khuyến khích') || p.includes('khuyen khich')) map[s.subject].kk++;
+            });
+            return Object.values(map).map(i => {
+                i.totalPrizes = i.first + i.second + i.third + i.kk;
+                i.fails = i.total - i.totalPrizes;
+                i.ratio = i.total > 0 ? ((i.totalPrizes / i.total) * 100).toFixed(1) + '%' : '0%';
+                i.ratioNoKK = i.total > 0 ? (((i.first + i.second + i.third) / i.total) * 100).toFixed(1) + '%' : '0%';
+                return i;
+            }).sort((a,b)=>a.subject.localeCompare(b.subject));
+        }
 
-            if (examResultsList.length === 0) {
-                emptyState.classList.remove('hidden');
-                tableContainer.classList.add('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                tableContainer.classList.remove('hidden');
-
-                examResultsList.forEach(item => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50 transition-colors';
-                    
-                    let displayRatio = item.ratio;
-                    let numRatio = parseFloat(item.ratio);
-                    if (!isNaN(numRatio) && numRatio <= 1 && item.ratio.indexOf('%') === -1 && item.ratio.length > 3) {
-                        displayRatio = (numRatio * 100).toFixed(1) + '%';
-                    }
-                    
-                    let actionHtml = '';
-                    if (confirmDeleteExamId === item.id) {
-                        actionHtml = `
-                            <div class="flex items-center justify-end gap-2">
-                                <span class="text-xs text-red-600 font-medium">Xóa?</span>
-                                <button onclick="confirmDeleteExam('${item.id}')" class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Có</button>
-                                <button onclick="cancelDeleteExam()" class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300">Hủy</button>
-                            </div>
-                        `;
-                    } else {
-                        actionHtml = `
-                            <div class="flex items-center justify-end gap-3">
-                                <button onclick="requestDeleteExam('${item.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors" title="Xóa dữ liệu môn này">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    tr.innerHTML = `
-                        <td class="p-4 font-bold text-slate-700">${item.subject}</td>
-                        <td class="p-3 text-center border-l border-slate-200 font-medium text-slate-800">${item.total}</td>
-                        <td class="p-3 text-center text-red-600 font-semibold">${item.first}</td>
-                        <td class="p-3 text-center text-blue-600 font-semibold">${item.second}</td>
-                        <td class="p-3 text-center text-green-600 font-semibold">${item.third}</td>
-                        <td class="p-3 text-center text-orange-600 font-semibold">${item.consolation}</td>
-                        <td class="p-3 text-center border-l border-slate-200 bg-emerald-50/70 font-bold text-emerald-700">${item.totalPrizes}</td>
-                        <td class="p-3 text-center bg-slate-100/70 text-slate-500 font-medium">${item.fails}</td>
-                        <td class="p-3 text-center bg-blue-50/70 border-l border-slate-200 font-bold text-blue-800">${displayRatio}</td>
-                        <td class="p-3 text-right">${actionHtml}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
+        function renderDsTinh() {
+            const tbody = document.getElementById('ds-tinh-tbody');
+            if(studentTinhList.length===0) { document.getElementById('ds-tinh-empty').classList.remove('hidden'); document.getElementById('ds-tinh-table').classList.add('hidden'); }
+            else { document.getElementById('ds-tinh-empty').classList.add('hidden'); document.getElementById('ds-tinh-table').classList.remove('hidden'); }
+            tbody.innerHTML = studentTinhList.map((s,i) => `
+                <tr class="hover:bg-emerald-50/50">
+                    <td class="p-3 text-center text-slate-500">${i+1}</td>
+                    <td class="p-3 font-medium text-slate-800">${s.name}</td>
+                    <td class="p-3 text-slate-600">${s.subject}</td>
+                    <td class="p-3 font-bold text-emerald-700">${s.prize || '<span class="text-slate-300 font-normal">Trượt</span>'}</td>
+                    <td class="p-3 text-right"><button onclick="deleteStudent('${s.id}','tinh')" class="text-red-400 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></td>
+                </tr>`).join('');
             lucide.createIcons();
         }
 
-        // --- CÁC HÀM XỬ LÝ LOGIC BẢNG KẾT QUẢ THI QUỐC GIA ---
-        function renderExamQGApp() {
-            const tbody = document.getElementById('exam-qg-tbody');
-            const emptyState = document.getElementById('exam-qg-empty-state');
-            const tableContainer = document.getElementById('exam-qg-table-container');
+        function renderTkTinh() {
+            const stats = generateStats(studentTinhList);
+            document.getElementById('tk-tinh-tbody').innerHTML = stats.map(i => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-3 font-bold text-slate-700 border-r border-slate-200">${i.subject}</td>
+                    <td class="p-3 text-center border-r border-slate-200 font-medium">${i.total}</td>
+                    <td class="p-3 text-center text-red-600 font-bold border-r border-slate-200">${i.first}</td>
+                    <td class="p-3 text-center text-blue-600 font-bold border-r border-slate-200">${i.second}</td>
+                    <td class="p-3 text-center text-green-600 font-bold border-r border-slate-200">${i.third}</td>
+                    <td class="p-3 text-center text-orange-600 font-bold border-r border-slate-200">${i.kk}</td>
+                    <td class="p-3 text-center bg-emerald-50 text-emerald-800 font-bold border-r border-slate-200">${i.totalPrizes}</td>
+                    <td class="p-3 text-center bg-slate-100 text-slate-500 font-medium border-r border-slate-200">${i.fails}</td>
+                    <td class="p-3 text-center bg-blue-50 text-blue-800 font-bold">${i.ratio}</td>
+                </tr>`).join('');
+        }
 
-            tbody.innerHTML = '';
-
-            if (examQGResultsList.length === 0) {
-                emptyState.classList.remove('hidden');
-                tableContainer.classList.add('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                tableContainer.classList.remove('hidden');
-
-                examQGResultsList.forEach(item => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-purple-50/30 transition-colors';
-                    
-                    let displayRatio = item.ratio;
-                    let numRatio = parseFloat(item.ratio);
-                    if (!isNaN(numRatio) && numRatio <= 1 && item.ratio.indexOf('%') === -1 && item.ratio.length > 3) {
-                        displayRatio = (numRatio * 100).toFixed(1) + '%';
-                    }
-                    
-                    let actionHtml = '';
-                    if (confirmDeleteExamQGId === item.id) {
-                        actionHtml = `
-                            <div class="flex items-center justify-end gap-2">
-                                <span class="text-xs text-red-600 font-medium">Xóa?</span>
-                                <button onclick="confirmDeleteExamQG('${item.id}')" class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Có</button>
-                                <button onclick="cancelDeleteExamQG()" class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300">Hủy</button>
-                            </div>
-                        `;
-                    } else {
-                        actionHtml = `
-                            <div class="flex items-center justify-end gap-3">
-                                <button onclick="requestDeleteExamQG('${item.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors" title="Xóa dữ liệu môn này">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    tr.innerHTML = `
-                        <td class="p-4 font-bold text-slate-700">${item.subject}</td>
-                        <td class="p-3 text-center border-l border-slate-200 font-medium text-slate-800">${item.total}</td>
-                        <td class="p-3 text-center text-red-600 font-semibold">${item.first}</td>
-                        <td class="p-3 text-center text-blue-600 font-semibold">${item.second}</td>
-                        <td class="p-3 text-center text-green-600 font-semibold">${item.third}</td>
-                        <td class="p-3 text-center text-orange-600 font-semibold">${item.consolation}</td>
-                        <td class="p-3 text-center border-l border-slate-200 bg-emerald-50/70 font-bold text-emerald-700">${item.totalPrizes}</td>
-                        <td class="p-3 text-center bg-purple-100/30 border-l border-slate-200 font-bold text-purple-800">${displayRatio}</td>
-                        <td class="p-3 text-right">${actionHtml}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
+        function renderDsQG() {
+            const tbody = document.getElementById('ds-qg-tbody');
+            if(studentQGList.length===0) { document.getElementById('ds-qg-empty').classList.remove('hidden'); document.getElementById('ds-qg-table').classList.add('hidden'); }
+            else { document.getElementById('ds-qg-empty').classList.add('hidden'); document.getElementById('ds-qg-table').classList.remove('hidden'); }
+            tbody.innerHTML = studentQGList.map((s,i) => `
+                <tr class="hover:bg-purple-50/50">
+                    <td class="p-3 text-center text-slate-500">${i+1}</td>
+                    <td class="p-3 font-medium text-slate-800">${s.name}</td>
+                    <td class="p-3 text-slate-600">${s.subject}</td>
+                    <td class="p-3 font-bold text-purple-700">${s.prize || '<span class="text-slate-300 font-normal">Trượt</span>'}</td>
+                    <td class="p-3 text-right"><button onclick="deleteStudent('${s.id}','qg')" class="text-red-400 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></td>
+                </tr>`).join('');
             lucide.createIcons();
         }
 
+        function renderTkQG() {
+            const stats = generateStats(studentQGList);
+            document.getElementById('tk-qg-tbody').innerHTML = stats.map(i => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-3 font-bold text-slate-700 border-r border-slate-200">${i.subject}</td>
+                    <td class="p-3 text-center border-r border-slate-200 font-medium">${i.total}</td>
+                    <td class="p-3 text-center text-red-600 font-bold border-r border-slate-200">${i.first}</td>
+                    <td class="p-3 text-center text-blue-600 font-bold border-r border-slate-200">${i.second}</td>
+                    <td class="p-3 text-center text-green-600 font-bold border-r border-slate-200">${i.third}</td>
+                    <td class="p-3 text-center text-orange-600 font-bold border-r border-slate-200">${i.kk}</td>
+                    <td class="p-3 text-center bg-purple-50 text-purple-800 font-bold border-r border-slate-200">${i.totalPrizes}</td>
+                    <td class="p-3 text-center bg-slate-100 text-slate-500 font-medium border-r border-slate-200">${i.fails}</td>
+                    <td class="p-3 text-center bg-pink-50 text-pink-800 font-bold">${i.ratioNoKK}</td>
+                </tr>`).join('');
+        }
 
-        // --- CÁC HÀM XÓA ---
-        window.requestDelete = function(id) { confirmDeleteId = id; renderApp(); }
-        window.cancelDelete = function() { confirmDeleteId = null; renderApp(); }
-        window.confirmDelete = async function(id) {
-            if (isCloudEnabled && user) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', id));
-            } else {
-                staffList = staffList.filter(s => s.id !== id);
-                renderApp();
+        window.deleteStudent = async function(id, type) {
+            if(isCloudEnabled) await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, type==='tinh'?'studentTinhData':'studentQGData', id));
+            else { 
+                if(type==='tinh') { studentTinhList = studentTinhList.filter(s=>s.id!==id); renderDsTinh(); renderTkTinh(); }
+                else { studentQGList = studentQGList.filter(s=>s.id!==id); renderDsQG(); renderTkQG(); }
             }
-            confirmDeleteId = null;
         }
 
-        window.requestDeleteExam = function(id) { confirmDeleteExamId = id; renderExamApp(); }
-        window.cancelDeleteExam = function() { confirmDeleteExamId = null; renderExamApp(); }
-        window.confirmDeleteExam = async function(id) {
-            if (isCloudEnabled && user) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'examData', id));
+        window.clearAllStudents = async function(type) {
+            if(!confirm('Bạn có chắc chắn muốn XÓA TOÀN BỘ danh sách học sinh này không?')) return;
+            const list = type === 'tinh' ? studentTinhList : studentQGList;
+            if(isCloudEnabled && user) {
+                const batch = writeBatch(db);
+                const colName = type === 'tinh' ? 'studentTinhData' : 'studentQGData';
+                list.forEach(s => batch.delete(doc(db, 'artifacts', appId, 'users', user.uid, colName, s.id)));
+                await batch.commit();
             } else {
-                examResultsList = examResultsList.filter(s => s.id !== id);
-                renderExamApp();
+                if(type==='tinh') studentTinhList = []; else studentQGList = [];
+                renderAll();
             }
-            confirmDeleteExamId = null;
         }
 
-        window.requestDeleteExamQG = function(id) { confirmDeleteExamQGId = id; renderExamQGApp(); }
-        window.cancelDeleteExamQG = function() { confirmDeleteExamQGId = null; renderExamQGApp(); }
-        window.confirmDeleteExamQG = async function(id) {
-            if (isCloudEnabled && user) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'examDataQG', id));
-            } else {
-                examQGResultsList = examQGResultsList.filter(s => s.id !== id);
-                renderExamQGApp();
-            }
-            confirmDeleteExamQGId = null;
-        }
-
-        // --- CÁC HÀM FORM & MODAL ---
-        function renderFormOptions() {
-            const groupSelect = document.getElementById('staff-group');
-            groupSelect.innerHTML = Object.entries(GROUPS).map(([key, val]) => `<option value="${key}">${val}</option>`).join('');
-
-            const achContainer = document.getElementById('achievements-container');
-            achContainer.innerHTML = Object.entries(ACHIEVEMENTS).map(([key, data]) => `
-                <label class="flex items-start space-x-3 cursor-pointer group">
-                    <input type="checkbox" name="achievements" value="${key}" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 w-5 h-5 border-emerald-300 cursor-pointer transition-colors">
-                    <span class="text-sm leading-relaxed group-hover:text-emerald-800 ${data.isSpecial ? 'font-bold text-emerald-900' : 'text-slate-700'}">${data.label}</span>
-                </label>
-            `).join('');
-
-            const faultContainer = document.getElementById('faults-container');
-            faultContainer.innerHTML = Object.entries(FAULTS).map(([key, data]) => `
-                <label class="flex items-start space-x-3 cursor-pointer group">
-                    <input type="checkbox" name="faults" value="${key}" class="mt-0.5 rounded text-red-600 focus:ring-red-500 w-5 h-5 border-red-300 cursor-pointer transition-colors">
-                    <span class="text-sm leading-relaxed text-slate-700 group-hover:text-red-800 font-medium">${data.label}</span>
-                </label>
-            `).join('');
-        }
-
-        window.openModal = function() {
-            editingStaff = null;
-            document.getElementById('staff-form').reset();
-            document.getElementById('modal-title').innerText = 'Thêm Nhân sự mới';
-            document.getElementById('staff-id').value = '';
-            document.getElementById('modal').classList.remove('hidden');
-        }
-        
-        window.editStaff = function(id) {
-            editingStaff = staffList.find(s => s.id === id);
-            if (!editingStaff) return;
+        // ================= XỬ LÝ PASTE DATA HỌC SINH =================
+        window.openPasteStudentModal = function(type) {
+            currentStudentPasteType = type;
+            document.getElementById('paste-student-text').value = '';
+            document.getElementById('paste-student-error').classList.add('hidden');
             
-            document.getElementById('modal-title').innerText = 'Cập nhật Thông tin';
-            document.getElementById('staff-id').value = editingStaff.id;
-            document.getElementById('staff-name').value = editingStaff.name;
-            document.getElementById('staff-subject').value = editingStaff.subject;
-            document.getElementById('staff-group').value = editingStaff.group;
-            document.getElementById('staff-note').value = editingStaff.note || '';
-
-            const form = document.getElementById('staff-form');
-            form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            const header = document.getElementById('paste-student-header');
+            const title = document.getElementById('paste-student-title');
+            if(type === 'tinh') { header.className = "p-6 border-b flex justify-between items-center bg-emerald-50"; title.innerText = "Nhập Danh sách Tỉnh từ Excel"; title.className = "text-xl font-bold text-emerald-900"; }
+            else { header.className = "p-6 border-b flex justify-between items-center bg-purple-50"; title.innerText = "Nhập Danh sách Quốc Gia từ Excel"; title.className = "text-xl font-bold text-purple-900"; }
             
-            if (editingStaff.achievements) {
-                editingStaff.achievements.forEach(ach => {
-                    const cb = form.querySelector(`input[name="achievements"][value="${ach}"]`);
-                    if (cb) cb.checked = true;
-                });
-            }
-            if (editingStaff.faults) {
-                editingStaff.faults.forEach(fault => {
-                    const cb = form.querySelector(`input[name="faults"][value="${fault}"]`);
-                    if (cb) cb.checked = true;
-                });
-            }
-            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal-paste-student').classList.remove('hidden');
         }
 
-        window.closeModal = function() {
-            document.getElementById('modal').classList.add('hidden');
-        }
-
-        // --- MODAL DÁN NHÂN SỰ ---
-        window.openPasteModal = function() {
-            document.getElementById('paste-textarea').value = '';
-            document.getElementById('paste-error').classList.add('hidden');
-            document.getElementById('paste-modal').classList.remove('hidden');
-        }
-        window.closePasteModal = function() { document.getElementById('paste-modal').classList.add('hidden'); }
-
-        window.processPastedData = async function() {
-            const text = document.getElementById('paste-textarea').value.trim();
-            const errorEl = document.getElementById('paste-error');
-            const btn = document.getElementById('paste-btn');
-            errorEl.classList.add('hidden');
-
-            if (!text) {
-                errorEl.innerText = "Vui lòng dán dữ liệu vào ô trống trước khi nhấn nhập!";
-                errorEl.classList.remove('hidden');
-                return;
-            }
+        window.processPastedStudent = async function() {
+            const text = document.getElementById('paste-student-text').value.trim();
+            const errEl = document.getElementById('paste-student-error');
+            const btn = document.getElementById('btn-process-student');
+            errEl.classList.add('hidden');
+            if(!text) return;
 
             const rows = text.split('\n');
+            let nameIdx = -1, subjIdx = -1, prizeIdx = -1;
+            
+            // Auto detect columns from Header row if exists
+            if(rows.length > 0) {
+                const hd = rows[0].toLowerCase().split('\t');
+                hd.forEach((h, i) => {
+                    if(h.includes('họ và tên') || h.includes('họ tên')) nameIdx = i;
+                    if(h.includes('môn') || h === 'môn thi') subjIdx = i;
+                    if(h.includes('giải') || h.includes('xếp giải')) prizeIdx = i;
+                });
+            }
+
+            let startIdx = 0;
+            if(nameIdx !== -1 && subjIdx !== -1 && prizeIdx !== -1) { startIdx = 1; } 
+            else {
+                // Fallback guessing
+                const cols = rows[0].split('\t');
+                if(cols.length >= 10) { nameIdx = 2; prizeIdx = 8; subjIdx = 10; } // 11-col format
+                else { nameIdx = 0; subjIdx = 1; prizeIdx = 2; } // 3-col format
+            }
+
+            const newStudents = [];
+            for(let i = startIdx; i < rows.length; i++) {
+                const cols = rows[i].split('\t');
+                if(cols.length < 2) continue;
+                const name = cols[nameIdx]?.trim() || '';
+                const subject = cols[subjIdx]?.trim() || '';
+                const prize = cols[prizeIdx]?.trim() || '';
+                if(!name || !subject || name.toLowerCase().includes('họ và tên')) continue; // Skip bad rows
+
+                newStudents.push({
+                    id: Date.now().toString() + Math.random().toString(36).substring(2,7),
+                    name, subject, prize, updatedAt: new Date().toISOString()
+                });
+            }
+
+            if(newStudents.length === 0) { errEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Xin kiểm tra lại cấu trúc Excel."; errEl.classList.remove('hidden'); return; }
+
+            btn.disabled = true; btn.innerText = "Đang lưu...";
+            try {
+                if(isCloudEnabled && user) {
+                    const batch = writeBatch(db);
+                    const colName = currentStudentPasteType === 'tinh' ? 'studentTinhData' : 'studentQGData';
+                    // Firestore batch max 500. Split if needed, but usually list is < 200.
+                    newStudents.forEach(s => batch.set(doc(db, 'artifacts', appId, 'users', user.uid, colName, s.id), s));
+                    await batch.commit();
+                } else {
+                    if(currentStudentPasteType === 'tinh') studentTinhList.push(...newStudents);
+                    else studentQGList.push(...newStudents);
+                    renderAll();
+                }
+                closeModal('modal-paste-student');
+            } catch (e) {
+                console.error(e); errEl.innerText = "Lỗi lưu lên Cloud!"; errEl.classList.remove('hidden');
+            } finally { btn.disabled = false; btn.innerHTML = `<i data-lucide="upload" class="w-4 h-4"></i> Lưu Danh sách`; lucide.createIcons(); }
+        }
+
+        // ================= XỬ LÝ PASTE FORM GIÁO VIÊN =================
+        window.openPasteStaffModal = () => { document.getElementById('paste-staff-text').value=''; document.getElementById('paste-staff-error').classList.add('hidden'); document.getElementById('modal-paste-staff').classList.remove('hidden'); }
+        window.processPastedStaff = async function() {
+            const text = document.getElementById('paste-staff-text').value.trim();
+            if(!text) return;
             const newStaffs = [];
-
-            rows.forEach(row => {
-                const cols = row.split('\t');
-                if (cols.length < 3) return;
-
-                const name = cols[0].trim();
-                if (!name || name.toLowerCase().includes('họ và tên')) return;
-
-                const subject = cols[1]?.trim() || '';
-                const group = cols[2]?.trim() || 'G1';
-                
-                let achievements = [];
-                if (cols[3]) { achievements = cols[3].split(',').map(a => a.trim()).filter(a => Object.keys(ACHIEVEMENTS).includes(a)); }
-
-                let faults = [];
-                if (cols[4]) { faults = cols[4].split(',').map(f => f.trim()).filter(f => Object.keys(FAULTS).includes(f)); }
-
-                const note = cols[5]?.trim() || '';
-
-                newStaffs.push({
-                    id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-                    name, subject, group, achievements, faults, note,
-                    updatedAt: new Date().toISOString()
-                });
+            text.split('\n').forEach(row => {
+                const cols = row.split('\t'); if(cols.length < 3) return;
+                const name = cols[0].trim(); if(!name || name.toLowerCase().includes('họ tên')) return;
+                let ach = [], flt = [];
+                if(cols[3]) ach = cols[3].split(',').map(a=>a.trim()).filter(a=>Object.keys(ACHIEVEMENTS).includes(a));
+                if(cols[4]) flt = cols[4].split(',').map(f=>f.trim()).filter(f=>Object.keys(FAULTS).includes(f));
+                newStaffs.push({ id: Date.now().toString()+Math.random().toString(36).substring(2,7), name, subject: cols[1]?.trim()||'', group: cols[2]?.trim()||'G1', achievements: ach, faults: flt, note: cols[5]?.trim()||'', updatedAt: new Date().toISOString() });
             });
-
-            if (newStaffs.length === 0) {
-                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Vui lòng kiểm tra lại cấu trúc cột hoặc sao chép đúng từ Excel!";
-                errorEl.classList.remove('hidden'); return;
-            }
-
-            btn.innerText = 'Đang lưu...'; btn.disabled = true;
-
-            try {
-                if (isCloudEnabled && user) {
-                    const batch = writeBatch(db);
-                    newStaffs.forEach(staff => {
-                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', staff.id);
-                        batch.set(docRef, staff);
-                    });
-                    await batch.commit();
-                } else {
-                    staffList = [...staffList, ...newStaffs];
-                    renderApp();
-                }
-                closePasteModal();
-            } catch (err) {
-                console.error(err);
-                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!"; errorEl.classList.remove('hidden');
-            } finally {
-                btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
-                btn.disabled = false; lucide.createIcons();
-            }
+            if(newStaffs.length===0) return;
+            if(isCloudEnabled && user) {
+                const batch = writeBatch(db);
+                newStaffs.forEach(s => batch.set(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', s.id), s));
+                await batch.commit();
+            } else { staffList.push(...newStaffs); renderStaffApp(); }
+            closeModal('modal-paste-staff');
         }
+
+        // ================= CÁC HÀM FORM CHUNG =================
+        function renderFormOptions() {
+            document.getElementById('staff-group').innerHTML = Object.entries(GROUPS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+            document.getElementById('achievements-container').innerHTML = Object.entries(ACHIEVEMENTS).map(([k,v])=>`<label class="flex items-center space-x-2"><input type="checkbox" name="achievements" value="${k}" class="rounded text-emerald-600"><span class="text-sm font-medium">${v.label} <span class="text-emerald-600">(+${v.points})</span></span></label>`).join('');
+            document.getElementById('faults-container').innerHTML = Object.entries(FAULTS).map(([k,v])=>`<label class="flex items-center space-x-2"><input type="checkbox" name="faults" value="${k}" class="rounded text-red-600"><span class="text-sm font-medium">${v.label} <span class="text-red-600">(${v.points})</span></span></label>`).join('');
+        }
+
+        window.openModal = () => { document.getElementById('staff-form').reset(); document.getElementById('staff-id').value=''; document.getElementById('modal-staff').classList.remove('hidden'); }
+        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); }
         
-        // --- MODAL DÁN KẾT QUẢ THI TỈNH ---
-        window.openPasteExamModal = function() {
-            document.getElementById('paste-exam-textarea').value = '';
-            document.getElementById('paste-exam-error').classList.add('hidden');
-            document.getElementById('paste-exam-modal').classList.remove('hidden');
-        }
-        window.closePasteExamModal = function() { document.getElementById('paste-exam-modal').classList.add('hidden'); }
-
-        window.processPastedExamData = async function() {
-            const text = document.getElementById('paste-exam-textarea').value.trim();
-            const errorEl = document.getElementById('paste-exam-error');
-            const btn = document.getElementById('paste-exam-btn');
-            errorEl.classList.add('hidden');
-
-            if (!text) { errorEl.innerText = "Vui lòng dán dữ liệu thống kê vào ô trống!"; errorEl.classList.remove('hidden'); return; }
-
-            const rows = text.split('\n');
-            const newResults = [];
-
-            rows.forEach(row => {
-                const cols = row.split('\t');
-                if (cols.length < 8) return; 
-
-                const subject = cols[0].trim();
-                if (!subject || subject.toLowerCase().includes('môn thi') || subject.toLowerCase().includes('tổng ts')) return;
-
-                newResults.push({
-                    id: subject,
-                    subject: subject,
-                    total: cols[1]?.trim() || '0',
-                    first: cols[2]?.trim() || '0',
-                    second: cols[3]?.trim() || '0',
-                    third: cols[4]?.trim() || '0',
-                    consolation: cols[5]?.trim() || '0',
-                    totalPrizes: cols[6]?.trim() || '0',
-                    fails: cols[7]?.trim() || '0',
-                    ratio: cols[8]?.trim() || '',
-                    updatedAt: new Date().toISOString()
-                });
-            });
-
-            if (newResults.length === 0) {
-                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Đảm bảo bạn copy đúng bảng có 9 cột kết quả thi Tỉnh.";
-                errorEl.classList.remove('hidden'); return;
-            }
-
-            btn.innerText = 'Đang lưu...'; btn.disabled = true;
-
-            try {
-                if (isCloudEnabled && user) {
-                    const batch = writeBatch(db);
-                    newResults.forEach(item => {
-                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'examData', item.id);
-                        batch.set(docRef, item);
-                    });
-                    await batch.commit();
-                } else {
-                    const map = new Map();
-                    examResultsList.forEach(item => map.set(item.id, item));
-                    newResults.forEach(item => map.set(item.id, item));
-                    examResultsList = Array.from(map.values());
-                    renderExamApp();
-                }
-                closePasteExamModal();
-            } catch (err) {
-                console.error(err);
-                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!"; errorEl.classList.remove('hidden');
-            } finally {
-                btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
-                btn.disabled = false; lucide.createIcons();
-            }
-        }
-
-        // --- MODAL DÁN KẾT QUẢ THI QUỐC GIA ---
-        window.openPasteExamQGModal = function() {
-            document.getElementById('paste-exam-qg-textarea').value = '';
-            document.getElementById('paste-exam-qg-error').classList.add('hidden');
-            document.getElementById('paste-exam-qg-modal').classList.remove('hidden');
-        }
-        window.closePasteExamQGModal = function() { document.getElementById('paste-exam-qg-modal').classList.add('hidden'); }
-
-        window.processPastedExamQGData = async function() {
-            const text = document.getElementById('paste-exam-qg-textarea').value.trim();
-            const errorEl = document.getElementById('paste-exam-qg-error');
-            const btn = document.getElementById('paste-exam-qg-btn');
-            errorEl.classList.add('hidden');
-
-            if (!text) { errorEl.innerText = "Vui lòng dán dữ liệu thống kê vào ô trống!"; errorEl.classList.remove('hidden'); return; }
-
-            const rows = text.split('\n');
-            const newResults = [];
-
-            rows.forEach(row => {
-                const cols = row.split('\t');
-                if (cols.length < 8) return; 
-
-                const subject = cols[0].trim();
-                // Bỏ qua dòng tiêu đề nếu copy nhầm
-                if (!subject || subject.toLowerCase().includes('môn thi') || subject.toLowerCase().includes('ts dự thi')) return;
-
-                newResults.push({
-                    id: subject,
-                    subject: subject,
-                    total: cols[1]?.trim() || '0',
-                    first: cols[2]?.trim() || '0',
-                    second: cols[3]?.trim() || '0',
-                    third: cols[4]?.trim() || '0',
-                    consolation: cols[5]?.trim() || '0',
-                    totalPrizes: cols[6]?.trim() || '0',
-                    ratio: cols[7]?.trim() || '', // Chỉ 8 cột
-                    updatedAt: new Date().toISOString()
-                });
-            });
-
-            if (newResults.length === 0) {
-                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Đảm bảo bạn copy đúng bảng có 8 cột kết quả thi Quốc Gia.";
-                errorEl.classList.remove('hidden'); return;
-            }
-
-            btn.innerText = 'Đang lưu...'; btn.disabled = true;
-
-            try {
-                if (isCloudEnabled && user) {
-                    const batch = writeBatch(db);
-                    newResults.forEach(item => {
-                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'examDataQG', item.id);
-                        batch.set(docRef, item);
-                    });
-                    await batch.commit();
-                } else {
-                    const map = new Map();
-                    examQGResultsList.forEach(item => map.set(item.id, item));
-                    newResults.forEach(item => map.set(item.id, item));
-                    examQGResultsList = Array.from(map.values());
-                    renderExamQGApp();
-                }
-                closePasteExamQGModal();
-            } catch (err) {
-                console.error(err);
-                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!"; errorEl.classList.remove('hidden');
-            } finally {
-                btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
-                btn.disabled = false; lucide.createIcons();
-            }
-        }
-
-        // --- XỬ LÝ LƯU FORM NHÂN SỰ ---
-        document.getElementById('staff-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const staffId = formData.get('id') || Date.now().toString();
-            
-            const newStaff = {
-                name: formData.get('name'),
-                subject: formData.get('subject'),
-                group: formData.get('group'),
-                achievements: formData.getAll('achievements'),
-                faults: formData.getAll('faults'),
-                note: formData.get('note'),
-                updatedAt: new Date().toISOString()
-            };
-
-            if (isCloudEnabled && user) {
-                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', staffId);
-                await setDoc(docRef, newStaff);
-            } else {
-                if (editingStaff) {
-                    const index = staffList.findIndex(s => s.id === editingStaff.id);
-                    staffList[index] = { id: staffId, ...newStaff };
-                } else {
-                    staffList.push({ id: staffId, ...newStaff });
-                }
-                renderApp();
-            }
-            closeModal();
+        document.getElementById('staff-form').addEventListener('submit', async (e) => {
+            e.preventDefault(); const fd = new FormData(e.target);
+            const staffId = fd.get('id') || Date.now().toString();
+            const newStaff = { name: fd.get('name'), subject: fd.get('subject'), group: fd.get('group'), achievements: fd.getAll('achievements'), faults: fd.getAll('faults'), updatedAt: new Date().toISOString() };
+            if(isCloudEnabled && user) await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', staffId), newStaff);
+            else { staffList.push({id: staffId, ...newStaff}); renderStaffApp(); }
+            closeModal('modal-staff');
         });
 
-        // --- ĐIỀU HƯỚNG TAB ---
         window.switchTab = function(tabName) {
-            const tabs = ['danhsach', 'ketqua', 'ketquaqg', 'quyche'];
-            tabs.forEach(tab => {
-                const btn = document.getElementById(`tab-${tab}`);
-                const view = document.getElementById(`view-${tab}`);
-                if (tab === tabName) {
-                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600 text-left leading-tight";
-                    view.classList.remove('hidden');
-                } else {
-                    btn.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700 text-left leading-tight";
-                    view.classList.add('hidden');
-                }
+            const views = ['thidua', 'ds-tinh', 'tk-tinh', 'ds-qg', 'tk-qg', 'quyche'];
+            views.forEach(v => {
+                const btn = document.getElementById(`tab-${v}`);
+                const view = document.getElementById(`view-${v}`);
+                if(v === tabName) { btn.classList.replace('hover:bg-slate-700', 'bg-blue-600'); view.classList.remove('hidden'); } 
+                else { btn.classList.replace('bg-blue-600', 'hover:bg-slate-700'); view.classList.add('hidden'); }
             });
+            if(tabName === 'thidua') document.getElementById('header-stats').classList.remove('hidden');
+            else document.getElementById('header-stats').classList.add('hidden');
         }
 
-        // Khởi động app
         init();
     </script>
 </body>
