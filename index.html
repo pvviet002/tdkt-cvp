@@ -77,9 +77,14 @@
             <div id="view-danhsach" class="bg-white rounded-xl shadow-sm border flex flex-col h-full">
                 <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
                     <h2 class="text-lg font-bold">Danh sách Viên chức & Xếp loại dự kiến</h2>
-                    <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2 shadow-sm">
-                        + Thêm nhân sự
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="openPasteModal()" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 px-4 py-2 rounded-lg transition font-medium flex items-center gap-2 shadow-sm">
+                            <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập từ Excel
+                        </button>
+                        <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2 shadow-sm">
+                            + Thêm nhân sự
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="empty-state" class="hidden p-12 text-center text-slate-500">
@@ -204,11 +209,41 @@
         </div>
     </div>
 
+    <!-- MODAL NHẬP TỪ EXCEL -->
+    <div id="paste-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800">Nhập danh sách từ Excel</h2>
+                <button onclick="closePasteModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-4">
+                <div class="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm border border-blue-100">
+                    <p class="font-bold mb-1">Hướng dẫn:</p>
+                    <p>Hãy copy vùng dữ liệu từ Excel và dán (Ctrl + V) vào ô bên dưới. Dữ liệu cần có các cột theo đúng thứ tự sau:</p>
+                    <p class="font-mono mt-2 bg-white px-3 py-2 rounded-lg inline-block text-blue-900 border border-blue-200 font-medium">Họ và tên | Môn | Nhóm | Thành tích (Mã) | Vi phạm (Mã) | Ghi chú</p>
+                    <p class="mt-2 text-xs italic text-blue-600">* Hệ thống sẽ tự động bỏ qua dòng tiêu đề (Họ và tên) nếu có.</p>
+                </div>
+
+                <textarea id="paste-textarea" rows="8" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono text-sm leading-relaxed" placeholder="Dán dữ liệu Excel vào đây..."></textarea>
+                
+                <p id="paste-error" class="hidden text-red-600 text-sm font-medium mt-2 bg-red-50 p-3 rounded-lg border border-red-100"></p>
+            </div>
+
+            <div class="flex justify-end space-x-3 p-6 border-t bg-slate-50">
+                <button type="button" onclick="closePasteModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
+                <button id="paste-btn" type="button" onclick="processPastedData()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-sm hover:shadow flex items-center gap-2">
+                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- CODE LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CẤU HÌNH DATA ---
         const GROUPS = {
@@ -435,39 +470,100 @@
             document.getElementById('modal').classList.remove('hidden');
         }
 
-        window.closeModal = function() {
-            document.getElementById('modal').classList.add('hidden');
+        window.openPasteModal = function() {
+            document.getElementById('paste-textarea').value = '';
+            document.getElementById('paste-error').classList.add('hidden');
+            document.getElementById('paste-modal').classList.remove('hidden');
         }
 
-        window.editStaff = function(id) {
-            editingStaff = staffList.find(s => s.id === id);
-            if (!editingStaff) return;
-            
-            document.getElementById('modal-title').innerText = 'Cập nhật Thông tin';
-            document.getElementById('staff-id').value = editingStaff.id;
-            document.getElementById('staff-name').value = editingStaff.name;
-            document.getElementById('staff-subject').value = editingStaff.subject;
-            document.getElementById('staff-group').value = editingStaff.group;
-            document.getElementById('staff-note').value = editingStaff.note || '';
+        window.closePasteModal = function() {
+            document.getElementById('paste-modal').classList.add('hidden');
+        }
 
-            // Check checkboxes
-            const form = document.getElementById('staff-form');
-            form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            
-            if (editingStaff.achievements) {
-                editingStaff.achievements.forEach(ach => {
-                    const cb = form.querySelector(`input[name="achievements"][value="${ach}"]`);
-                    if (cb) cb.checked = true;
-                });
-            }
-            if (editingStaff.faults) {
-                editingStaff.faults.forEach(fault => {
-                    const cb = form.querySelector(`input[name="faults"][value="${fault}"]`);
-                    if (cb) cb.checked = true;
-                });
+        window.processPastedData = async function() {
+            const text = document.getElementById('paste-textarea').value.trim();
+            const errorEl = document.getElementById('paste-error');
+            const btn = document.getElementById('paste-btn');
+            errorEl.classList.add('hidden');
+
+            if (!text) {
+                errorEl.innerText = "Vui lòng dán dữ liệu vào ô trống trước khi nhấn nhập!";
+                errorEl.classList.remove('hidden');
+                return;
             }
 
-            document.getElementById('modal').classList.remove('hidden');
+            const rows = text.split('\n');
+            const newStaffs = [];
+
+            rows.forEach(row => {
+                const cols = row.split('\t');
+                if (cols.length < 3) return; // Cần ít nhất tên, môn, nhóm
+
+                const name = cols[0].trim();
+                // Bỏ qua dòng tiêu đề
+                if (!name || name.toLowerCase().includes('họ và tên')) return;
+
+                const subject = cols[1]?.trim() || '';
+                const group = cols[2]?.trim() || 'G1';
+                
+                let achievements = [];
+                if (cols[3]) {
+                    // Cắt các mã cách nhau bằng dấu phẩy và chỉ giữ lại những mã hợp lệ
+                    achievements = cols[3].split(',').map(a => a.trim()).filter(a => Object.keys(ACHIEVEMENTS).includes(a));
+                }
+
+                let faults = [];
+                if (cols[4]) {
+                    faults = cols[4].split(',').map(f => f.trim()).filter(f => Object.keys(FAULTS).includes(f));
+                }
+
+                const note = cols[5]?.trim() || '';
+
+                newStaffs.push({
+                    id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
+                    name,
+                    subject,
+                    group,
+                    achievements,
+                    faults,
+                    note,
+                    updatedAt: new Date().toISOString()
+                });
+            });
+
+            if (newStaffs.length === 0) {
+                errorEl.innerText = "Không tìm thấy dữ liệu hợp lệ. Vui lòng kiểm tra lại cấu trúc cột hoặc sao chép đúng từ Excel!";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.innerText = 'Đang lưu...';
+            btn.disabled = true;
+
+            try {
+                if (isCloudEnabled && user) {
+                    // Dùng writeBatch để đẩy hàng loạt lên Cloud an toàn và đồng bộ
+                    const batch = writeBatch(db);
+                    newStaffs.forEach(staff => {
+                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', staff.id);
+                        batch.set(docRef, staff);
+                    });
+                    await batch.commit();
+                } else {
+                    // Chế độ Offline
+                    staffList = [...staffList, ...newStaffs];
+                    renderApp();
+                }
+                closePasteModal();
+            } catch (err) {
+                console.error(err);
+                errorEl.innerText = "Có lỗi xảy ra khi lưu dữ liệu lên Cloud!";
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = `<i data-lucide="clipboard-paste" class="w-4 h-4"></i> Nhập dữ liệu`;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
         }
 
         document.getElementById('staff-form').addEventListener('submit', async function(e) {
