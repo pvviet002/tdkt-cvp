@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Thi đua</title>
+    <!-- Tích hợp Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tích hợp Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900 h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-slate-800 text-white flex flex-col shrink-0">
+        <div class="p-6">
+            <h1 class="text-xl font-bold leading-tight">THPT Chuyên Vĩnh Phúc</h1>
+            <p id="cloud-status" class="text-sm text-slate-400 mt-2 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-yellow-500"></span> Đang tải...
+            </p>
+        </div>
+        <nav class="flex-1 px-4 space-y-2">
+            <button onclick="switchTab('danhsach')" id="tab-danhsach" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600">
+                <i data-lucide="users" class="w-5 h-5"></i> <span class="ml-3">Danh sách Xét duyệt</span>
+            </button>
+            <button onclick="switchTab('quyche')" id="tab-quyche" class="flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700">
+                <i data-lucide="file-text" class="w-5 h-5"></i> <span class="ml-3">Quy chế Đặc cách</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col overflow-hidden relative">
+        
+        <!-- LOADER -->
+        <div id="loader" class="absolute inset-0 bg-gray-50 z-50 flex items-center justify-center">
+            <div class="text-center">
+                <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600 font-medium">Đang khởi tạo dữ liệu...</p>
+            </div>
+        </div>
+
+        <!-- HEADER STATS -->
+        <header class="bg-white shadow-sm border-b p-6 grid grid-cols-4 gap-4 shrink-0">
+            <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-purple-600 font-medium">Xuất sắc (HTXSNV)</p>
+                    <p id="stat-htxsnv" class="text-3xl font-bold text-purple-900">0</p>
+                </div>
+                <i data-lucide="award" class="text-purple-300 w-10 h-10"></i>
+            </div>
+            <div class="bg-green-50 p-4 rounded-xl border border-green-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-green-600 font-medium">Tốt (HTTNV)</p>
+                    <p id="stat-httnv" class="text-3xl font-bold text-green-900">0</p>
+                </div>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-yellow-600 font-medium">Hoàn thành (HTNV)</p>
+                    <p id="stat-htnv" class="text-3xl font-bold text-yellow-900">0</p>
+                </div>
+            </div>
+            <div class="bg-red-50 p-4 rounded-xl border border-red-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-red-600 font-medium">Không HT (KHTNV)</p>
+                    <p id="stat-khtnv" class="text-3xl font-bold text-red-900">0</p>
+                </div>
+                <i data-lucide="alert-triangle" class="text-red-300 w-10 h-10"></i>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 overflow-auto p-6">
+            
+            <!-- TAB: DANH SÁCH -->
+            <div id="view-danhsach" class="bg-white rounded-xl shadow-sm border flex flex-col h-full">
+                <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-xl">
+                    <h2 class="text-lg font-bold">Danh sách Viên chức & Xếp loại dự kiến</h2>
+                    <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2 shadow-sm">
+                        + Thêm nhân sự
+                    </button>
+                </div>
+                
+                <div id="empty-state" class="hidden p-12 text-center text-slate-500">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="users" class="w-8 h-8"></i>
+                    </div>
+                    <p class="text-lg font-medium">Chưa có dữ liệu nào được lưu.</p>
+                    <p class="text-sm mt-1">Hãy bấm nút "Thêm nhân sự" để bắt đầu nhập dữ liệu.</p>
+                </div>
+
+                <div id="table-container" class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-sm border-b">
+                                <th class="p-4 font-semibold w-1/5">Họ và tên</th>
+                                <th class="p-4 font-semibold w-1/5">Nhóm / Môn</th>
+                                <th class="p-4 font-semibold w-1/5">Thành tích</th>
+                                <th class="p-4 font-semibold w-1/5">Vi phạm</th>
+                                <th class="p-4 font-semibold">Xếp loại</th>
+                                <th class="p-4 font-semibold text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-tbody" class="divide-y text-sm">
+                            <!-- Dữ liệu render bằng JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: QUY CHẾ -->
+            <div id="view-quyche" class="hidden bg-white p-8 rounded-xl shadow-sm border max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800 border-b pb-4">Quy chế Đánh giá & Đặc cách (Trích xuất từ QĐ 139/QĐ-CVP)</h2>
+                
+                <div class="space-y-8 text-gray-700">
+                    <section>
+                        <h3 class="font-bold text-lg text-purple-700 flex items-center mb-3">
+                            <i data-lucide="award" class="mr-2 w-5 h-5"></i> Đặc cách Hoàn thành xuất sắc nhiệm vụ (HTXSNV)
+                        </h3>
+                        <div class="bg-purple-50 p-5 rounded-xl border border-purple-100 space-y-4 shadow-sm">
+                            <p class="leading-relaxed"><strong>1. Đối với HSG Quốc gia:</strong> Có học sinh đạt giải Nhất HSG quốc gia thì cả giáo viên chính, phụ được Hội đồng thi đua xem xét đặc cách HTXSNV (nếu không vi phạm Pháp luật và số lỗi về thực hiện nội quy nền nếp không vượt quá quy định).</p>
+                            <p class="leading-relaxed"><strong>2. Đối với kỳ thi ĐH:</strong> Giáo viên có học sinh đạt thủ khoa toàn quốc các khối xét tuyển đại học (A, A1, B, C, D01, D07) thì Hội đồng thi đua xem xét đặc cách HTXSNV cho cả 3 giáo viên bộ môn (nếu không vi phạm Pháp luật...).</p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-lg text-slate-800 mb-4 border-l-4 border-blue-500 pl-3">Phân nhóm Đánh giá (Điều 8)</h3>
+                        <div class="grid gap-4 md:grid-cols-3">
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <div class="font-bold text-blue-700 mb-2">Nhóm 1</div>
+                                <p class="text-sm">Giáo viên giảng dạy môn chuyên.</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <div class="font-bold text-blue-700 mb-2">Nhóm 2</div>
+                                <p class="text-sm">Giáo viên không giảng dạy môn chuyên.</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <div class="font-bold text-blue-700 mb-2">Nhóm 3</div>
+                                <p class="text-sm">Cán bộ, nhân viên hành chính.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL THÊM / SỬA -->
+    <div id="modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 id="modal-title" class="text-xl font-bold text-slate-800">Thêm Nhân sự mới</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-2xl leading-none">&times;</button>
+            </div>
+            
+            <form id="staff-form" class="p-6 overflow-y-auto space-y-6">
+                <input type="hidden" id="staff-id" name="id">
+                
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Họ và tên</label>
+                        <input type="text" id="staff-name" name="name" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Ví dụ: Nguyễn Văn A">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Môn / Chức vụ</label>
+                        <input type="text" id="staff-subject" name="subject" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Ví dụ: Toán">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nhóm xét thi đua</label>
+                        <select id="staff-group" name="group" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <!-- Render bằng JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-emerald-700">Thành tích (Tiêu chí Đặc cách)</label>
+                        <div id="achievements-container" class="grid grid-cols-1 gap-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100/50">
+                            <!-- Render bằng JS -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-red-700">Vi phạm / Kỷ luật (Tiêu chí phủ quyết)</label>
+                        <div id="faults-container" class="grid grid-cols-1 gap-2 p-4 bg-red-50 rounded-xl border border-red-100/50">
+                            <!-- Render bằng JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ghi chú thêm</label>
+                    <input type="text" id="staff-note" name="note" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Giáo viên chính / Phụ...">
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-6 border-t mt-4">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">Hủy</button>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm hover:shadow">Lưu thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CODE LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- CẤU HÌNH DATA ---
+        const GROUPS = {
+            'G1': 'Nhóm 1 (GV Dạy chuyên)',
+            'G2': 'Nhóm 2 (GV Không dạy chuyên)',
+            'G3': 'Nhóm 3 (Nhân viên/Khác)'
+        };
+
+        const ACHIEVEMENTS = {
+            'nhat_qg': { label: 'Có HS đạt Giải Nhất QG', points: 100, isSpecial: true },
+            'thu_khoa_dh': { label: 'Có HS đạt Thủ khoa ĐH (A, A1, B, C, D01, D07)', points: 100, isSpecial: true },
+            'lao_dong_tt': { label: 'Lao động tiên tiến', points: 10, isSpecial: false },
+            'hstt': { label: 'Có HS đạt giải Tỉnh', points: 20, isSpecial: false }
+        };
+
+        const FAULTS = {
+            'loi_noi_quy': { label: 'Vi phạm nội quy, nền nếp', severity: 'minor' },
+            'vuot_loi': { label: 'Số lỗi vượt quá quy định', severity: 'major' },
+            'phap_luat': { label: 'Vi phạm Pháp luật', severity: 'critical' }
+        };
+
+        // --- BIẾN TOÀN CỤC ---
+        let staffList = [];
+        let editingStaff = null;
+        let db = null;
+        let auth = null;
+        let user = null;
+        let confirmDeleteId = null;
+
+        // --- KHỞI TẠO FIREBASE & RENDER GIAO DIỆN ---
+        const isCloudEnabled = typeof __firebase_config !== 'undefined' && __firebase_config;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'thidua-app-id';
+
+        async function init() {
+            renderFormOptions();
+            lucide.createIcons();
+
+            if (isCloudEnabled) {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Lỗi xác thực:", error);
+                }
+
+                onAuthStateChanged(auth, (currentUser) => {
+                    user = currentUser;
+                    if (user) {
+                        document.getElementById('cloud-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> Đã kết nối Cloud`;
+                        loadDataFromCloud();
+                    }
+                });
+            } else {
+                // Chế độ Offline/Local (Không có backend)
+                document.getElementById('cloud-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Chế độ Offline`;
+                document.getElementById('loader').classList.add('hidden');
+                
+                // Nạp data mẫu (nếu thích) hoặc mảng rỗng
+                staffList = [
+                    { id: "1", name: 'Nguyễn Văn A', subject: 'Toán', group: 'G1', achievements: ['nhat_qg'], faults: [], note: 'Giáo viên chính' },
+                    { id: "2", name: 'Trần Thị B', subject: 'Ngữ văn', group: 'G2', achievements: [], faults: ['loi_noi_quy'], note: '' }
+                ];
+                renderApp();
+            }
+        }
+
+        function loadDataFromCloud() {
+            const staffRef = collection(db, 'artifacts', appId, 'users', user.uid, 'staffData');
+            onSnapshot(staffRef, (snapshot) => {
+                staffList = [];
+                snapshot.forEach(doc => {
+                    staffList.push({ id: doc.id, ...doc.data() });
+                });
+                staffList.sort((a, b) => a.group.localeCompare(b.group));
+                document.getElementById('loader').classList.add('hidden');
+                renderApp();
+            }, (error) => {
+                console.error("Lỗi khi tải dữ liệu:", error);
+                document.getElementById('loader').classList.add('hidden');
+            });
+        }
+
+        // --- CÁC HÀM XỬ LÝ LOGIC & DOM ---
+        function evaluateStaff(staff) {
+            const faults = staff.faults || [];
+            const achievements = staff.achievements || [];
+
+            const hasCriticalFault = faults.some(f => FAULTS[f]?.severity === 'critical');
+            const hasMajorFault = faults.some(f => FAULTS[f]?.severity === 'major');
+            const hasSpecialAchievement = achievements.some(a => ACHIEVEMENTS[a]?.isSpecial);
+
+            if (hasCriticalFault) return { rating: 'KHTNV', label: 'Không HT nhiệm vụ', color: 'bg-red-100 text-red-800 border-red-200' };
+            if (hasSpecialAchievement && !hasMajorFault && !hasCriticalFault) {
+                return { rating: 'HTXSNV_DC', label: 'HT Xuất sắc NV (Đặc cách)', color: 'bg-purple-100 text-purple-800 font-bold border-purple-300' };
+            }
+            if (achievements.length > 0 && faults.length === 0) {
+                return { rating: 'HTTNV', label: 'Hoàn thành Tốt NV', color: 'bg-green-100 text-green-800 border-green-200' };
+            }
+            if (faults.length > 0 && !hasMajorFault) {
+                return { rating: 'HTNV', label: 'Hoàn thành NV', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' };
+            }
+            return { rating: 'HTNV', label: 'Hoàn thành NV', color: 'bg-gray-100 text-gray-800 border-gray-200' };
+        }
+
+        function renderApp() {
+            const tbody = document.getElementById('staff-tbody');
+            const emptyState = document.getElementById('empty-state');
+            const tableContainer = document.getElementById('table-container');
+
+            // Tính toán thống kê
+            let counts = { HTXSNV: 0, HTTNV: 0, HTNV: 0, KHTNV: 0 };
+            tbody.innerHTML = '';
+
+            if (staffList.length === 0) {
+                emptyState.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+
+                staffList.forEach(staff => {
+                    const evalRes = evaluateStaff(staff);
+                    
+                    if (evalRes.rating.includes('HTXSNV')) counts.HTXSNV++;
+                    else if (evalRes.rating === 'HTTNV') counts.HTTNV++;
+                    else if (evalRes.rating === 'KHTNV') counts.KHTNV++;
+                    else counts.HTNV++;
+
+                    const achivementsHtml = (staff.achievements || []).length > 0 
+                        ? `<ul class="list-disc pl-4 text-emerald-700 space-y-1">` + staff.achievements.map(a => `<li>${ACHIEVEMENTS[a]?.label}</li>`).join('') + `</ul>`
+                        : `<span class="text-slate-300">-</span>`;
+
+                    const faultsHtml = (staff.faults || []).length > 0 
+                        ? `<ul class="list-disc pl-4 text-red-600 space-y-1 font-medium">` + staff.faults.map(f => `<li>${FAULTS[f]?.label}</li>`).join('') + `</ul>`
+                        : `<span class="text-slate-300">-</span>`;
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    
+                    let actionHtml = '';
+                    if (confirmDeleteId === staff.id) {
+                        actionHtml = `
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-xs text-red-600 font-medium">Xóa?</span>
+                                <button onclick="confirmDelete('${staff.id}')" class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Có</button>
+                                <button onclick="cancelDelete()" class="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300">Hủy</button>
+                            </div>
+                        `;
+                    } else {
+                        actionHtml = `
+                            <div class="flex items-center justify-end gap-3">
+                                <button onclick="editStaff('${staff.id}')" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">Sửa</button>
+                                <button onclick="requestDelete('${staff.id}')" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors" title="Xóa">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    tr.innerHTML = `
+                        <td class="p-4 font-medium">${staff.name}</td>
+                        <td class="p-4">
+                            <span class="block text-[11px] font-bold tracking-wide text-blue-700 bg-blue-100 w-max px-2 py-1 rounded mb-1">${GROUPS[staff.group]}</span>
+                            <span class="text-slate-600 font-medium">${staff.subject}</span>
+                        </td>
+                        <td class="p-4">${achivementsHtml}</td>
+                        <td class="p-4">${faultsHtml}</td>
+                        <td class="p-4">
+                            <span class="px-3 py-1.5 rounded-full text-xs border ${evalRes.color}">${evalRes.label}</span>
+                        </td>
+                        <td class="p-4 text-right">${actionHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Cập nhật số liệu trên header
+            document.getElementById('stat-htxsnv').innerText = counts.HTXSNV;
+            document.getElementById('stat-httnv').innerText = counts.HTTNV;
+            document.getElementById('stat-htnv').innerText = counts.HTNV;
+            document.getElementById('stat-khtnv').innerText = counts.KHTNV;
+            
+            lucide.createIcons();
+        }
+
+        // --- CÁC HÀM FORM & MODAL ---
+        function renderFormOptions() {
+            // Nhóm
+            const groupSelect = document.getElementById('staff-group');
+            groupSelect.innerHTML = Object.entries(GROUPS).map(([key, val]) => `<option value="${key}">${val}</option>`).join('');
+
+            // Thành tích
+            const achContainer = document.getElementById('achievements-container');
+            achContainer.innerHTML = Object.entries(ACHIEVEMENTS).map(([key, data]) => `
+                <label class="flex items-center space-x-3 cursor-pointer group">
+                    <input type="checkbox" name="achievements" value="${key}" class="rounded text-emerald-600 focus:ring-emerald-500 w-4.5 h-4.5 border-emerald-300 cursor-pointer">
+                    <span class="text-sm group-hover:text-emerald-800 ${data.isSpecial ? 'font-bold text-emerald-900' : 'text-slate-700'}">${data.label}</span>
+                </label>
+            `).join('');
+
+            // Lỗi
+            const faultContainer = document.getElementById('faults-container');
+            faultContainer.innerHTML = Object.entries(FAULTS).map(([key, data]) => `
+                <label class="flex items-center space-x-3 cursor-pointer group">
+                    <input type="checkbox" name="faults" value="${key}" class="rounded text-red-600 focus:ring-red-500 w-4.5 h-4.5 border-red-300 cursor-pointer">
+                    <span class="text-sm text-slate-700 group-hover:text-red-800 font-medium">${data.label}</span>
+                </label>
+            `).join('');
+        }
+
+        window.openModal = function() {
+            editingStaff = null;
+            document.getElementById('staff-form').reset();
+            document.getElementById('modal-title').innerText = 'Thêm Nhân sự mới';
+            document.getElementById('staff-id').value = '';
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        window.editStaff = function(id) {
+            editingStaff = staffList.find(s => s.id === id);
+            if (!editingStaff) return;
+            
+            document.getElementById('modal-title').innerText = 'Cập nhật Thông tin';
+            document.getElementById('staff-id').value = editingStaff.id;
+            document.getElementById('staff-name').value = editingStaff.name;
+            document.getElementById('staff-subject').value = editingStaff.subject;
+            document.getElementById('staff-group').value = editingStaff.group;
+            document.getElementById('staff-note').value = editingStaff.note || '';
+
+            // Check checkboxes
+            const form = document.getElementById('staff-form');
+            form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            if (editingStaff.achievements) {
+                editingStaff.achievements.forEach(ach => {
+                    const cb = form.querySelector(`input[name="achievements"][value="${ach}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+            if (editingStaff.faults) {
+                editingStaff.faults.forEach(fault => {
+                    const cb = form.querySelector(`input[name="faults"][value="${fault}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        document.getElementById('staff-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const staffId = formData.get('id') || Date.now().toString();
+            
+            const newStaff = {
+                name: formData.get('name'),
+                subject: formData.get('subject'),
+                group: formData.get('group'),
+                achievements: formData.getAll('achievements'),
+                faults: formData.getAll('faults'),
+                note: formData.get('note'),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (isCloudEnabled && user) {
+                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', staffId);
+                await setDoc(docRef, newStaff);
+            } else {
+                // Offline mode
+                if (editingStaff) {
+                    const index = staffList.findIndex(s => s.id === editingStaff.id);
+                    staffList[index] = { id: staffId, ...newStaff };
+                } else {
+                    staffList.push({ id: staffId, ...newStaff });
+                }
+                renderApp();
+            }
+            closeModal();
+        });
+
+        // --- XỬ LÝ XÓA ---
+        window.requestDelete = function(id) {
+            confirmDeleteId = id;
+            renderApp();
+        }
+
+        window.cancelDelete = function() {
+            confirmDeleteId = null;
+            renderApp();
+        }
+
+        window.confirmDelete = async function(id) {
+            if (isCloudEnabled && user) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'staffData', id));
+            } else {
+                staffList = staffList.filter(s => s.id !== id);
+                renderApp();
+            }
+            confirmDeleteId = null;
+        }
+
+        // --- ĐIỀU HƯỚNG TAB ---
+        window.switchTab = function(tabName) {
+            const btnDs = document.getElementById('tab-danhsach');
+            const btnQc = document.getElementById('tab-quyche');
+            const viewDs = document.getElementById('view-danhsach');
+            const viewQc = document.getElementById('view-quyche');
+
+            if (tabName === 'danhsach') {
+                btnDs.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600";
+                btnQc.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700";
+                viewDs.classList.remove('hidden');
+                viewQc.classList.add('hidden');
+            } else {
+                btnQc.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors bg-blue-600";
+                btnDs.className = "flex items-center w-full px-4 py-3 rounded-lg transition-colors hover:bg-slate-700";
+                viewQc.classList.remove('hidden');
+                viewDs.classList.add('hidden');
+            }
+        }
+
+        // Khởi động app
+        init();
+    </script>
+</body>
+</html>
