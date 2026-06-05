@@ -60,26 +60,26 @@
         <!-- Header -->
         <header class="mb-12 border-b border-slate-700 pb-6">
             <h1 class="text-4xl font-bold text-white mb-3">Chuyên đề: Duyệt Bitmask</h1>
-            <p class="text-slate-400 text-lg">Duyệt tập con bằng thao tác bit (Bitmask Enumeration)</p>
+            <p class="text-slate-400 text-lg">Phương pháp Duyệt Tập con bằng Thao tác Bit (Bitmask Enumeration)</p>
         </header>
 
         <!-- Phần 1: Tư tưởng cốt lõi -->
         <section class="mb-12">
             <h2 class="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
                 <span class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full text-sm">1</span>
-                Tư tưởng cốt lõi (Core Ideas)
+                Cơ sở lý thuyết (Core Ideas)
             </h2>
             
             <div class="space-y-8 leading-relaxed">
                 
                 <!-- 1.1 Sự tương đương -->
                 <div>
-                    <h3 class="text-xl font-medium text-white mb-3 flex items-center gap-2"><span class="text-blue-400">1.1.</span> Sự tương đương giữa Tập con và Hệ nhị phân</h3>
+                    <h3 class="text-xl font-medium text-white mb-3 flex items-center gap-2"><span class="text-blue-400">1.1.</span> Mối liên hệ giữa Tập con và Biểu diễn Nhị phân</h3>
                     <p class="mb-3">
-                        Giả sử chúng ta có một tập hợp gốc gồm $N$ phần tử. Khi xây dựng một tập con, mỗi phần tử chỉ đứng trước hai sự lựa chọn: <strong>Được chọn vào tập con (1)</strong> hoặc <strong>Không được chọn (0)</strong>. 
+                        Xét một tập hợp gốc gồm $N$ phần tử. Khi thiết lập một cấu hình tập con, mỗi phần tử chỉ mang một trong hai trạng thái khả dĩ: <strong>Thuộc tập con (1)</strong> hoặc <strong>Không thuộc tập con (0)</strong>. Do đó, số lượng cấu hình tập con có thể được tạo ra là $2^N$.
                     </p>
                     <p class="mb-4">
-                        Nếu ta gán mỗi phần tử tương ứng với một bit trong một chuỗi nhị phân độ dài $N$, ta sẽ thiết lập được một <strong>song ánh (1-1 mapping)</strong> hoàn hảo giữa mọi cấu hình tập con và các số nguyên từ $0$ đến $2^N - 1$. Chính vì vậy, ta có thể dùng một số nguyên (gọi là <code>mask</code>) để đại diện cho một tập hợp.
+                        Bằng cách ánh xạ mỗi phần tử tương ứng với một bit trong một chuỗi nhị phân độ dài $N$, ta thiết lập được một song ánh (bijection) giữa tập hợp các cấu hình tập con và tập hợp các số nguyên trong khoảng $[0, 2^N - 1]$. Chức năng đại diện cấu hình này của số nguyên được gọi là kỹ thuật <strong>Bitmask</strong>.
                     </p>
                     
                     <div class="overflow-x-auto rounded-lg border border-slate-700 shadow-lg">
@@ -92,7 +92,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-700/50 text-slate-400 bg-slate-900/50">
-                                <tr class="hover:bg-slate-800/80 transition-colors"><td class="p-3">0</td><td class="p-3 font-mono text-blue-400">000</td><td class="p-3 italic">$\emptyset$ (Tập rỗng, không chọn phần tử nào)</td></tr>
+                                <tr class="hover:bg-slate-800/80 transition-colors"><td class="p-3">0</td><td class="p-3 font-mono text-blue-400">000</td><td class="p-3 italic">$\emptyset$ (Tập rỗng)</td></tr>
                                 <tr class="hover:bg-slate-800/80 transition-colors"><td class="p-3">1</td><td class="p-3 font-mono text-blue-400">001</td><td class="p-3 font-medium text-white">$\{A\}$ <span class="text-slate-500 font-normal">(Chỉ bit 0 bằng 1)</span></td></tr>
                                 <tr class="hover:bg-slate-800/80 transition-colors"><td class="p-3">2</td><td class="p-3 font-mono text-blue-400">010</td><td class="p-3 font-medium text-white">$\{B\}$ <span class="text-slate-500 font-normal">(Chỉ bit 1 bằng 1)</span></td></tr>
                                 <tr class="hover:bg-slate-800/80 transition-colors"><td class="p-3">3</td><td class="p-3 font-mono text-blue-400">011</td><td class="p-3 font-medium text-white">$\{A, B\}$ <span class="text-slate-500 font-normal">(Bit 0 và 1 bằng 1)</span></td></tr>
@@ -105,40 +105,141 @@
 
                 <!-- 1.2 Phép toán Bit -->
                 <div>
-                    <h3 class="text-xl font-medium text-white mb-3 flex items-center gap-2"><span class="text-blue-400">1.2.</span> Các phép toán thao tác Bit (Bitwise Operations)</h3>
-                    <p class="mb-4">Thay vì dùng mảng boolean tốn kém bộ nhớ và thời gian, ta sử dụng trực tiếp các phép toán bit chạy trực tiếp trên thanh ghi của CPU (chỉ mất $O(1)$) để can thiệp vào các trạng thái cấu hình:</p>
+                    <h3 class="text-xl font-medium text-white mb-3 flex items-center gap-2"><span class="text-blue-400">1.2.</span> Các Phép toán Thao tác Bit (Bitwise Operations)</h3>
+                    <p class="mb-4">Thay vì sử dụng cấu trúc mảng đánh dấu (boolean array) tiêu tốn nhiều bộ nhớ, ta có thể áp dụng trực tiếp các phép toán bit. Các thao tác này được thực thi ở mức phần cứng trên thanh ghi của CPU, đảm bảo độ phức tạp thời gian là $O(1)$:</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-slate-800/80 p-4 rounded-lg border border-slate-700 hover:border-blue-500/50 transition-colors">
                             <h4 class="font-bold text-white mb-2 flex items-center gap-2">
                                 <code class="text-blue-400 bg-slate-900 px-2 py-0.5 rounded">&lt;&lt;</code> Phép dịch trái
                             </h4>
-                            <p class="text-sm text-slate-400">Cú pháp <code>1 &lt;&lt; N</code> tương đương với phép tính $2^N$. Ta sử dụng phép toán này để sinh ra <strong>chặn trên</strong> cho vòng lặp chạy qua toàn bộ cấu hình.</p>
+                            <p class="text-sm text-slate-400">Biểu thức <code>1 &lt;&lt; N</code> có giá trị tương đương với phép tính $2^N$. Phép toán này thường được sử dụng để xác định <strong>giới hạn trên</strong> của quá trình sinh cấu hình tổ hợp.</p>
                         </div>
                         
                         <div class="bg-slate-800/80 p-4 rounded-lg border border-slate-700 hover:border-green-500/50 transition-colors">
                             <h4 class="font-bold text-white mb-2 flex items-center gap-2">
                                 <code class="text-green-400 bg-slate-900 px-2 py-0.5 rounded">&amp;</code> Kiểm tra trạng thái phần tử
                             </h4>
-                            <p class="text-sm text-slate-400">Cú pháp <code>mask &amp; (1 &lt;&lt; i)</code>. Biểu thức <code>1 &lt;&lt; i</code> tạo ra một mask phụ chỉ bật duy nhất bit $i$. Phép AND dùng để trích xuất bit đó. Nếu kết quả $\neq 0$, phần tử $i$ <strong>đang được chọn</strong>.</p>
+                            <p class="text-sm text-slate-400">Biểu thức <code>mask &amp; (1 &lt;&lt; i)</code>. Mảng phụ <code>1 &lt;&lt; i</code> đóng vai trò trích xuất riêng biệt bit $i$. Nếu giá trị trả về $\neq 0$, phần tử thứ $i$ <strong>đang tồn tại</strong> trong cấu hình.</p>
                         </div>
 
                         <div class="bg-slate-800/80 p-4 rounded-lg border border-slate-700 hover:border-orange-500/50 transition-colors">
                             <h4 class="font-bold text-white mb-2 flex items-center gap-2">
-                                <code class="text-orange-400 bg-slate-900 px-2 py-0.5 rounded">|</code> Thêm phần tử vào tập (Bật bit)
+                                <code class="text-orange-400 bg-slate-900 px-2 py-0.5 rounded">|</code> Đưa phần tử vào tập hợp (Gán bit)
                             </h4>
-                            <p class="text-sm text-slate-400">Cú pháp <code>mask | (1 &lt;&lt; i)</code>. Phép OR đảm bảo bit thứ $i$ sẽ luôn trở thành $1$ bất chấp trạng thái trước đó của nó. Các phần tử khác giữ nguyên trạng thái.</p>
+                            <p class="text-sm text-slate-400">Biểu thức <code>mask | (1 &lt;&lt; i)</code>. Phép OR thiết lập trạng thái của bit $i$ thành $1$, bất kể trạng thái trước đó. Trạng thái của các phần tử khác được bảo toàn.</p>
                         </div>
 
                         <div class="bg-slate-800/80 p-4 rounded-lg border border-slate-700 hover:border-purple-500/50 transition-colors">
                             <h4 class="font-bold text-white mb-2 flex items-center gap-2">
-                                <code class="text-purple-400 bg-slate-900 px-2 py-0.5 rounded">^</code> và <code class="text-purple-400 bg-slate-900 px-2 py-0.5 rounded">~</code> Xóa / Đảo trạng thái
+                                <code class="text-purple-400 bg-slate-900 px-2 py-0.5 rounded">^</code> và <code class="text-purple-400 bg-slate-900 px-2 py-0.5 rounded">~</code> Loại bỏ / Đảo trạng thái
                             </h4>
                             <p class="text-sm text-slate-400">
-                                - Loại bỏ phần tử $i$: <code>mask &amp; ~(1 &lt;&lt; i)</code><br>
-                                - Đảo ngược (Có thành Không, Không thành Có): <code>mask ^ (1 &lt;&lt; i)</code>
+                                - Cập nhật trạng thái loại bỏ phần tử $i$: <code>mask &amp; ~(1 &lt;&lt; i)</code><br>
+                                - Đảo ngược trạng thái hiện tại của phần tử $i$: <code>mask ^ (1 &lt;&lt; i)</code>
                             </p>
                         </div>
+                    </div>
+
+                    <!-- Các Trick Bitwise Kinh Điển -->
+                    <div class="mt-6 bg-slate-800/60 p-5 rounded-xl border border-slate-600 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-yellow-400"></div>
+                        <h4 class="font-bold text-white mb-5 flex items-center gap-2 text-lg">
+                            <span class="text-yellow-400">⚡</span> Một số Kỹ thuật Thao tác Bit Nâng cao (Dành cho Lập trình Thi đấu)
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center p-3 rounded-lg bg-slate-900/50 hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700">
+                                <code class="text-blue-300 bg-slate-950 px-3 py-1.5 rounded font-mono text-sm border border-slate-700 whitespace-nowrap w-full sm:w-48 text-center shadow-inner">mask & -mask</code>
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    <strong class="text-white block mb-1">Trích xuất bit 1 ở vị trí thấp nhất (LSB):</strong> Bảo toàn bit 1 nằm ngoài cùng bên phải và gán giá trị 0 cho toàn bộ các bit còn lại. Kỹ thuật này mang tính cốt lõi trong cài đặt Cây Fenwick (Binary Indexed Tree). <br><span class="text-slate-400 text-xs">Ví dụ: $10\mathbf{1}00_2 \rightarrow 00\mathbf{1}00_2$.</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center p-3 rounded-lg bg-slate-900/50 hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700">
+                                <code class="text-red-300 bg-slate-950 px-3 py-1.5 rounded font-mono text-sm border border-slate-700 whitespace-nowrap w-full sm:w-48 text-center shadow-inner">mask & (mask - 1)</code>
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    <strong class="text-white block mb-1">Xóa bit 1 ở vị trí thấp nhất:</strong> Chuyển bit 1 nằm ngoài cùng bên phải thành 0. Ứng dụng phổ biến là kiểm tra số lũy thừa của 2: Số nguyên dương $x$ là lũy thừa của 2 khi và chỉ khi <code>(x & (x - 1)) == 0</code>.
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center p-3 rounded-lg bg-slate-900/50 hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700">
+                                <code class="text-green-300 bg-slate-950 px-3 py-1.5 rounded font-mono text-sm border border-slate-700 whitespace-nowrap w-full sm:w-48 text-center shadow-inner">__builtin_popcount(x)</code>
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    <strong class="text-white block mb-1">Đếm số lượng bit 1:</strong> Hàm nội trú (built-in function) của GCC thực thi đếm nhanh số lượng bit 1. Tiện ích này hỗ trợ quản lý kích thước tập con cấu hình (Ví dụ: Giới hạn duyệt các tập con có đúng $K$ phần tử). <br><span class="text-slate-400 text-xs">Lưu ý: Sử dụng biến thể <code>__builtin_popcountll(x)</code> đối với kiểu nguyên 64-bit.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trình mô phỏng các Tuyệt kỹ (8-bit) -->
+                        <div class="mt-8 pt-6 border-t border-slate-700">
+                            <h5 class="text-white font-bold mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                                Mô phỏng Trực quan: Các Kỹ thuật Nâng cao (Hệ 8-bit)
+                            </h5>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                <!-- Box Trái: Điều khiển -->
+                                <div class="md:col-span-5 bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-col gap-4">
+                                    <div>
+                                        <label class="flex justify-between text-sm font-medium text-slate-300 mb-2">
+                                            <span>Giá trị <code>mask</code> ban đầu:</span>
+                                            <span id="trick-mask-val" class="text-blue-400 font-bold text-lg leading-none">20</span>
+                                        </label>
+                                        <input type="range" id="trick-mask-input" min="1" max="255" value="20" class="w-full accent-blue-500 cursor-pointer" oninput="updateTrickPlayground()">
+                                    </div>
+                                    
+                                    <div class="flex-grow">
+                                        <label class="text-sm font-medium text-slate-300 mb-3 block">Lựa chọn Kỹ thuật:</label>
+                                        <div class="flex flex-col gap-2">
+                                            <button onclick="setTrickOp('LSB')" id="btn-trick-LSB" class="trick-op-btn w-full text-left px-3 py-2 text-sm rounded bg-blue-600 text-white font-mono transition-colors border border-blue-500">mask & -mask</button>
+                                            <button onclick="setTrickOp('RM_LSB')" id="btn-trick-RM_LSB" class="trick-op-btn w-full text-left px-3 py-2 text-sm rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-600 font-mono">mask & (mask - 1)</button>
+                                            <button onclick="setTrickOp('POP')" id="btn-trick-POP" class="trick-op-btn w-full text-left px-3 py-2 text-sm rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-600 font-mono">__builtin_popcount</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Box Phải: Hiển thị 8-bit -->
+                                <div class="md:col-span-7 bg-[#0f172a] p-4 rounded-lg border border-slate-700 relative flex flex-col justify-center">
+                                    
+                                    <div class="font-mono text-2xl sm:text-3xl w-full max-w-sm mx-auto">
+                                        
+                                        <!-- Dòng 1: Mask -->
+                                        <div class="flex items-center mb-3">
+                                            <div class="w-20 text-right pr-4 text-slate-500 text-xs sm:text-sm tracking-tighter">mask</div>
+                                            <div class="flex-grow flex justify-between tracking-widest text-blue-300" id="trick-row-mask">
+                                                <!-- Render via JS -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Dòng 2: Phép toán phụ (ẩn nếu là popcount) -->
+                                        <div class="flex items-center mb-4 transition-opacity" id="trick-row-2-container">
+                                            <div class="w-20 text-right pr-4 font-bold text-white text-lg" id="trick-operator-sign">&</div>
+                                            <div class="flex-grow flex justify-between tracking-widest text-slate-400" id="trick-row-aux">
+                                                <!-- Render via JS -->
+                                            </div>
+                                            <div class="w-10 text-left pl-2 text-slate-500 text-xs" id="trick-label-aux"></div>
+                                        </div>
+
+                                        <!-- Đường kẻ ngang -->
+                                        <div class="h-0.5 bg-slate-600 w-full mb-4 rounded" id="trick-divider"></div>
+
+                                        <!-- Dòng 3: Kết quả -->
+                                        <div class="flex items-center">
+                                            <div class="w-20 text-right pr-4 text-slate-500 text-xs sm:text-sm tracking-tighter">Kết quả</div>
+                                            <div class="flex-grow flex justify-between tracking-widest font-bold text-white" id="trick-row-res">
+                                                <!-- Render via JS -->
+                                            </div>
+                                            <div class="w-10 text-left pl-2 text-white text-sm font-bold" id="trick-val-res"></div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-6 bg-slate-800/80 border border-slate-600 rounded p-4 text-sm text-slate-300 leading-relaxed h-32 overflow-y-auto custom-scrollbar" id="trick-explain-box">
+                                        <!-- Render via JS -->
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- Bản chất thao tác Bit (Mô phỏng đặt dọc) -->
@@ -148,9 +249,9 @@
                         <div class="p-6 border-b border-slate-700 bg-slate-800/50">
                             <h4 class="font-bold text-white flex items-center gap-2 text-lg">
                                 <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path></svg>
-                                Bảng Đen: Mô phỏng bản chất thao tác Bit (N=4)
+                                Mô phỏng Trực quan: Bản chất Thao tác Bit Cơ bản (N=4)
                             </h4>
-                            <p class="text-sm text-slate-400 mt-2">Kéo thanh trượt và chọn phép toán để xem cách máy tính đặt dọc và tính toán từng cột bit.</p>
+                            <p class="text-sm text-slate-400 mt-2">Sử dụng thanh trượt và tùy chọn phép toán để quan sát quá trình máy tính thực hiện tính toán trên từng bit tương ứng.</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-0 flex-grow">
@@ -159,7 +260,7 @@
                                 <!-- Input Mask -->
                                 <div>
                                     <label class="flex justify-between text-sm font-medium text-slate-300 mb-2">
-                                        <span>Giá trị <code>mask</code> ban đầu:</span>
+                                        <span>Giá trị cấu hình <code>mask</code>:</span>
                                         <span id="edu-mask-val" class="text-blue-400 font-bold text-lg leading-none">5</span>
                                     </label>
                                     <input type="range" id="edu-mask-input" min="0" max="15" value="5" class="w-full accent-blue-500 cursor-pointer" oninput="updateEduPlayground()">
@@ -168,7 +269,7 @@
                                 <!-- Input i -->
                                 <div>
                                     <label class="flex justify-between text-sm font-medium text-slate-300 mb-2">
-                                        <span>Vị trí bit <code>i</code> cần thao tác:</span>
+                                        <span>Chỉ số bit thao tác <code>i</code>:</span>
                                         <span id="edu-i-val" class="text-green-400 font-bold text-lg leading-none">1</span>
                                     </label>
                                     <input type="range" id="edu-i-input" min="0" max="3" value="1" class="w-full accent-green-500 cursor-pointer" oninput="updateEduPlayground()">
@@ -176,7 +277,7 @@
 
                                 <!-- Chọn Phép Toán -->
                                 <div class="mt-2">
-                                    <label class="text-sm font-medium text-slate-300 mb-3 block">Chọn hành động:</label>
+                                    <label class="text-sm font-medium text-slate-300 mb-3 block">Chỉ thị Phép toán:</label>
                                     <div class="grid grid-cols-2 gap-2">
                                         <button onclick="setEduOp('AND')" id="btn-op-AND" class="edu-op-btn px-3 py-2 text-sm rounded bg-blue-600 text-white font-medium transition-colors border border-blue-500">Kiểm tra (&)</button>
                                         <button onclick="setEduOp('OR')" id="btn-op-OR" class="edu-op-btn px-3 py-2 text-sm rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors border border-transparent">Bật bit (|)</button>
@@ -248,20 +349,20 @@
 
                 <!-- 1.3 Khuôn mẫu Code -->
                 <div>
-                    <h3 class="text-xl font-medium text-white mb-3 flex items-center gap-2"><span class="text-blue-400">1.3.</span> Khuôn mẫu mã thuật toán (Code Pattern)</h3>
-                    <p class="mb-3">Một trong những ưu điểm mạnh nhất của Duyệt Bitmask là code cực kì ngắn gọn và không cần viết đệ quy quay lui (Backtracking). Cấu trúc kinh điển chỉ là 2 vòng lặp lồng nhau:</p>
+                    <h3 class="text-xl font-medium text-white mb-3 flex items-center gap-2"><span class="text-blue-400">1.3.</span> Cấu trúc Cài đặt Thuật toán (Code Pattern)</h3>
+                    <p class="mb-3">Một trong những ưu điểm nổi bật của phương pháp Duyệt Bitmask là tính súc tích trong cài đặt. Thay vì phải sử dụng giải thuật Đệ quy quay lui (Backtracking) phức tạp, quá trình liệt kê tổ hợp tập con được thực hiện thông qua cấu trúc lặp lồng nhau:</p>
                     <div class="rounded-lg overflow-hidden shadow-lg border border-slate-700">
-<pre class="!m-0 !bg-slate-900"><code class="language-cpp">// Duyệt qua mọi tập con có thể có (từ 0 đến 2^n - 1)
+<pre class="!m-0 !bg-slate-900"><code class="language-cpp">// Vòng lặp định tuyến mọi trạng thái cấu hình (từ 0 đến 2^n - 1)
 for (int mask = 0; mask < (1 << n); ++mask) {
     
-    // Khởi tạo các biến để lưu kết quả của tập con hiện tại
-    // VD: int currentSum = 0;
+    // Khởi tạo các biến cục bộ lưu trữ tính chất của tập con
+    // Ví dụ: int currentSum = 0;
 
-    // Duyệt qua từng phần tử của mảng để kiểm tra xem nó có nằm trong 'mask' hay không
+    // Xét các bit định danh của phần tử
     for (int i = 0; i < n; ++i) {
         if (mask & (1 << i)) {
-            // Nếu bit thứ i bật -> Phần tử A[i] thuộc tập con hiện tại
-            // Thực hiện logic xử lý...
+            // Xác nhận bit thứ i mang giá trị 1 -> Phần tử A[i] thuộc tập hợp
+            // Thực thi quy trình logic...
         }
     }
 }</code></pre>
@@ -270,19 +371,19 @@ for (int mask = 0; mask < (1 << n); ++mask) {
                 
                 <!-- 1.4 Đánh giá -->
                 <div class="mt-6 bg-slate-800/50 border-l-4 border-blue-500 p-5 rounded-r-lg shadow-inner">
-                    <h3 class="text-lg font-bold text-white mb-3">1.4. Đánh giá thuật toán & Ứng dụng</h3>
+                    <h3 class="text-lg font-bold text-white mb-3">1.4. Đánh giá Độ phức tạp và Giới hạn Áp dụng</h3>
                     <ul class="space-y-2 text-slate-300">
                         <li class="flex items-start gap-2">
                             <span class="text-blue-400 mt-1">▶</span>
-                            <span><strong>Độ phức tạp thời gian:</strong> Có tổng cộng $2^N$ trạng thái. Với mỗi trạng thái ta cần chạy vòng lặp $N$ bước để giải mã bit. Vậy độ phức tạp tổng quát là $O(2^N \cdot N)$.</span>
+                            <span><strong>Độ phức tạp thời gian:</strong> Quá trình yêu cầu duyệt qua $2^N$ trạng thái. Ứng với mỗi trạng thái, chu trình lặp $N$ bước được thực hiện nhằm giải mã cấu hình. Vì vậy, độ phức tạp thời gian tổng quát là $\mathcal{O}(2^N \cdot N)$.</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-blue-400 mt-1">▶</span>
-                            <span><strong>Độ phức tạp không gian:</strong> Thuật toán sử dụng trực tiếp các số nguyên duyệt tuần tự nên chỉ tốn $O(1)$ bộ nhớ phụ, cực kì tối ưu.</span>
+                            <span><strong>Độ phức tạp không gian:</strong> Cấu trúc lặp vận hành trực tiếp trên kiểu dữ liệu số nguyên, do đó chi phí bộ nhớ phụ chỉ ở mức $\mathcal{O}(1)$, đạt hiệu quả tối ưu cao.</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-blue-400 mt-1">▶</span>
-                            <span><strong>Giới hạn áp dụng (Cực kì quan trọng):</strong> Vì là thuật toán hàm mũ (Exponential), kỹ thuật này chỉ khả thi trong thời gian quy định (thường là 1 giây) khi $N \le 20$. Tại $N=20$, số phép toán vào khoảng $20 \times 2^{20} \approx 2 \times 10^7$ (vẫn qua tốt). Nếu $N \ge 30$, thuật toán chắc chắn sẽ bị quá thời gian (TLE).</span>
+                            <span><strong>Giới hạn áp dụng (Quan trọng):</strong> Vì thuật toán có độ phức tạp hàm mũ (Exponential), kỹ thuật này thường chỉ khả thi trong thời gian giới hạn (khoảng 1 giây) đối với quy mô bài toán $N \le 20$. Tại giá trị $N=20$, số lượng thao tác kiểm tra xấp xỉ $20 \times 2^{20} \approx 2 \times 10^7$, hoàn toàn nằm trong ngưỡng an toàn. Nếu $N \ge 30$, phương pháp này sẽ dẫn đến lỗi vượt quá thời gian quy định (Time Limit Exceeded - TLE).</span>
                         </li>
                     </ul>
                 </div>
@@ -294,22 +395,22 @@ for (int mask = 0; mask < (1 << n); ++mask) {
         <section class="mb-12">
             <h2 class="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
                 <span class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full text-sm">2</span>
-                Bài toán kinh điển: Tổng tập con (Subset Sum)
+                Bài toán Minh họa: Tổng Tập con (Subset Sum)
             </h2>
 
             <div class="bg-slate-800/50 p-6 rounded-lg border border-slate-700 mb-6">
-                <h3 class="font-bold text-white mb-2 text-lg">Đề bài:</h3>
-                <p class="mb-4">Cho mảng $A$ gồm $N$ số nguyên dương và số nguyên $S$. Hỏi có tồn tại một tập con nào của $A$ có tổng các phần tử đúng bằng $S$ hay không? In ra <code>YES</code> nếu có, ngược lại in ra <code>NO</code>.</p>
+                <h3 class="font-bold text-white mb-2 text-lg">Phát biểu bài toán:</h3>
+                <p class="mb-4">Cho dãy $A$ gồm $N$ số nguyên dương và số nguyên $S$. Yêu cầu xác định xem có tồn tại tập con nào của dãy $A$ có tổng các phần tử bằng đúng $S$ hay không. Trả về <code>YES</code> nếu có, ngược lại trả về <code>NO</code>.</p>
                 
                 <h3 class="font-bold text-white mb-2">Ví dụ mẫu:</h3>
                 <div class="bg-slate-900 p-4 rounded font-mono text-sm border border-slate-700 text-slate-400">
-                    <div><span class="text-slate-500">Input:</span> $N = 4, S = 5$<br>Mảng $A = [3, 1, 4, 2]$</div>
+                    <div><span class="text-slate-500">Input:</span> $N = 4, S = 5$<br>Dãy $A = [3, 1, 4, 2]$</div>
                     <div class="mt-2"><span class="text-slate-500">Output:</span> YES</div>
-                    <div class="mt-2 text-xs italic text-slate-500">Giải thích: Tập con gồm các phần tử {1, 4} có tổng bằng 5.</div>
+                    <div class="mt-2 text-xs italic text-slate-500 font-sans">Ghi chú: Tập con gồm các phần tử $\{1, 4\}$ mang lại kết quả tổng bằng 5.</div>
                 </div>
             </div>
 
-            <h3 class="text-lg font-medium text-white mb-3">Mã nguồn C++:</h3>
+            <h3 class="text-lg font-medium text-white mb-3">Mã nguồn cài đặt (C++):</h3>
             <div class="rounded-lg overflow-hidden shadow-lg border border-slate-700 mb-10">
 <pre class="!m-0 !bg-slate-900"><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
 using namespace std;
@@ -324,7 +425,7 @@ int main() {
     for (int mask = 0; mask < (1 << n); ++mask) {
         int sum = 0;
         for (int i = 0; i < n; ++i)
-            if (mask & (1 << i)) sum += a[i]; // Kiểm tra xem bit thứ i của mask có bật (bằng 1) không
+            if (mask & (1 << i)) sum += a[i]; // Ghi nhận giá trị nếu phần tử thuộc tập con
 
         if (sum == S) found = true;
     }
@@ -338,7 +439,7 @@ int main() {
 
             <!-- Simulator Section -->
             <h3 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Trình mô phỏng (Interactive Simulator)</h3>
-            <p class="mb-6 text-sm text-slate-400">Mô phỏng bài toán với $N=4$, mảng $A = [3, 1, 4, 2]$, mục tiêu $S=5$. <br><em class="text-blue-400">Lưu ý: Để đồng bộ với biểu diễn chuỗi nhị phân (bit $0$ ở ngoài cùng bên phải), mảng được vẽ theo thứ tự từ $A[3]$ đến $A[0]$ (từ trái sang phải).</em></p>
+            <p class="mb-6 text-sm text-slate-400">Tiến trình mô phỏng thuật toán ứng với $N=4$, dãy $A = [3, 1, 4, 2]$, giá trị mục tiêu $S=5$. <br><em class="text-blue-400">Lưu ý: Nhằm đồng bộ với nguyên tắc biểu diễn chuỗi nhị phân (bit 0 nằm ở vị trí biên phải), cấu trúc mảng được minh họa theo thứ tự giảm dần từ $A[3]$ đến $A[0]$ (trái sang phải).</em></p>
 
             <div class="bg-slate-800 border border-slate-600 rounded-xl p-6 shadow-2xl">
                 <!-- Status Header -->
@@ -348,7 +449,7 @@ int main() {
                         <div class="text-3xl font-bold text-white">5</div>
                     </div>
                     <div class="text-center w-1/3 border-x border-slate-700">
-                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Mask hiện tại</div>
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Mask định danh</div>
                         <div class="text-3xl font-bold text-blue-400" id="sim-mask-val">0</div>
                     </div>
                     <div class="text-center w-1/3">
@@ -390,24 +491,214 @@ int main() {
                 <div class="flex justify-center gap-4 border-t border-slate-700 pt-6">
                     <button onclick="resetSim()" class="px-6 py-2.5 rounded bg-slate-700 hover:bg-slate-600 text-white font-medium transition-colors flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                        Chơi lại
+                        Reset
                     </button>
                     <button id="btn-next" onclick="nextSim()" class="px-6 py-2.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors shadow-lg shadow-blue-500/30 flex items-center gap-2">
-                        Tiếp tục bước nhảy
+                        Next
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
                 </div>
             </div>
         </section>
 
+        <!-- Phần 3: Meet in the middle (Kỹ thuật nâng cao) -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+                <span class="bg-purple-600 text-white w-8 h-8 flex items-center justify-center rounded-full text-sm">3</span>
+                Kỹ thuật Nâng cao: Chia đôi Tập hợp (Meet in the Middle)
+            </h2>
+
+            <div class="space-y-6 leading-relaxed mb-8">
+                <p>
+                    Theo đánh giá tại Mục 1.4, thuật toán Duyệt Bitmask cơ sở chỉ duy trì hiệu năng ổn định đối với trường hợp $N \le 20$. Đối với những bài toán có quy mô hệ thống lớn hơn ($20 < N \le 40$), khối lượng tính toán xấp xỉ $\mathcal{O}(2^{40})$ sẽ gây ra hiện tượng TLE. Nhằm giải quyết hạn chế này, kỹ thuật <strong>Chia đôi Tập hợp (Meet in the Middle)</strong> được giới thiệu như một giải pháp tối ưu không gian trạng thái.
+                </p>
+                
+                <div class="bg-slate-800/80 p-5 rounded-lg border border-purple-500/50">
+                    <h3 class="text-lg font-bold text-white mb-2">Quy trình vận hành:</h3>
+                    <ul class="space-y-3 text-slate-300">
+                        <li><strong>Bước 1: Phân tách Tập hợp.</strong> Phân chia mảng tuyến tính ban đầu thành hai khối riêng biệt có kích thước xấp xỉ tương đương: Khối Trái ($\lfloor N/2 \rfloor$ phần tử) và Khối Phải ($\lceil N/2 \rceil$ phần tử). Kích thước tối đa của mỗi tập lúc này suy giảm về ngưỡng $20$.</li>
+                        <li><strong>Bước 2: Phát sinh Cấu hình.</strong> Triển khai quy trình Duyệt Bitmask để thiết lập tập con và tổng tương ứng trên từng khối độc lập. Hệ thống ghi nhận kết quả vào hai mảng lưu trữ <code>sum_left</code> và <code>sum_right</code>. Thao tác này tiêu tốn chi phí thời gian không đáng kể so với phương pháp gốc.</li>
+                        <li><strong>Bước 3: Tìm kiếm và Khớp nối.</strong> Sắp xếp mảng <code>sum_left</code> theo chiều tăng dần giá trị. Ứng với từng phần tử $S_{right}$ trong cấu trúc mảng <code>sum_right</code>, áp dụng thuật toán Tìm kiếm Nhị phân (Binary Search) trên mảng <code>sum_left</code> để truy xuất đoạn giá trị phần bù $S_{left}$ thỏa mãn điều kiện tích hợp.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bài toán thực hành: SUMK -->
+            <div class="bg-[#0f172a] p-6 rounded-lg border border-slate-700 shadow-xl mb-6">
+                <div class="border-b border-slate-700 pb-3 mb-4">
+                    <h3 class="font-bold text-white text-xl text-center uppercase tracking-wide text-purple-400">Bài toán: Tổng bằng K [SUMK]</h3>
+                </div>
+                
+                <h4 class="font-semibold text-white mb-2">Phát biểu bài toán</h4>
+                <p class="mb-4 text-slate-300">Cho dãy gồm $n$ phần tử. Yêu cầu xác định số lượng phương án trích xuất tập con từ dãy sao cho tổng các phần tử cấu thành đúng bằng giá trị mục tiêu $k$.</p>
+                
+                <h4 class="font-semibold text-white mb-2">Dữ liệu vào (Input)</h4>
+                <ul class="list-disc pl-5 mb-4 text-slate-400">
+                    <li>Dòng 1: Ghi hai số nguyên $n, k$; $(1 \leq n \leq 40 ; 1 \leq k \leq 10^9)$.</li>
+                    <li>Dòng 2: Ghi $n$ số nguyên $a_1, a_2, ..., a_n$ $(1 \leq a_i \leq 10^9)$.</li>
+                </ul>
+
+                <h4 class="font-semibold text-white mb-2">Dữ liệu ra (Output)</h4>
+                <p class="mb-6 text-slate-300">Ghi nhận một số nguyên duy nhất đại diện cho tổng số phương án tạo cấu hình thỏa mãn điều kiện.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 p-4 rounded font-mono text-sm border border-slate-700 text-slate-400">
+                        <div class="text-slate-500 mb-1 border-b border-slate-800 pb-1">Input (Ví dụ)</div>
+                        <div class="text-white">
+                            4 5<br>
+                            1 2 3 4
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded font-mono text-sm border border-slate-700 text-slate-400 relative">
+                        <div class="text-slate-500 mb-1 border-b border-slate-800 pb-1">Output</div>
+                        <div class="text-white font-bold text-lg text-green-400">2</div>
+                        
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-xs italic text-slate-500 font-sans">
+                            <strong>Ghi chú:</strong> Tồn tại 2 cấu hình tập con có giá trị tổng tương đương 5: $(1,4)$ và $(2,3)$.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-medium text-white mb-3">Mã nguồn C++ ứng dụng Chia đôi Tập hợp:</h3>
+            <div class="rounded-lg overflow-hidden shadow-lg border border-slate-700">
+<pre class="!m-0 !bg-slate-900"><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, k, a[45], n1, n2;
+long long ans;
+vector&lt;long long&gt; sum_left, sum_right;
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(0);
+    
+    cin >> n >> k;
+    for (int i = 0; i < n; ++i) cin >> a[i];
+
+    // Phân tách mảng dữ liệu gốc
+    n1 = n / 2;
+    n2 = n - n1;
+
+    // Thiết lập không gian trạng thái tổng cho Khối Trái
+    for (int mask = 0; mask < (1 << n1); ++mask) {
+        long long s = 0;
+        for (int i = 0; i < n1; ++i)
+            if (mask & (1 << i)) s += a[i];
+        sum_left.push_back(s);
+    }
+
+    // Thiết lập không gian trạng thái tổng cho Khối Phải
+    for (int mask = 0; mask < (1 << n2); ++mask) {
+        long long s = 0;
+        for (int i = 0; i < n2; ++i)
+            if (mask & (1 << i)) s += a[n1 + i]; // Xử lý khoảng bù chỉ số n1
+        sum_right.push_back(s);
+    }
+
+    // Sắp xếp dữ liệu tập sum_left chuẩn bị cho thao tác Tìm kiếm
+    sort(sum_left.begin(), sum_left.end());
+
+    // Thuật toán Gặp nhau ở giữa (Đối sánh hai nửa)
+    for (long long sr : sum_right) {
+        long long target = k - sr; // Định lượng phần bù mục tiêu
+        
+        // Sử dụng nhị phân (upper_bound, lower_bound) xác định tần suất xuất hiện phần bù
+        auto it1 = lower_bound(sum_left.begin(), sum_left.end(), target);
+        auto it2 = upper_bound(sum_left.begin(), sum_left.end(), target);
+        
+        ans += (it2 - it1);
+    }
+
+    cout << ans << "\n";
+    return 0;
+}</code></pre>
+            </div>
+            
+            <div class="mt-4 bg-slate-800/50 p-4 border border-slate-700 rounded text-slate-300 text-sm">
+                <strong class="text-white">Phân tích Mức tiêu thụ Hiệu năng:</strong> 
+                <br>
+                - Chi phí sinh tổ hợp cho hai khối: $\mathcal{O}(2^{N/2}) + \mathcal{O}(2^{N/2})$.<br>
+                - Chi phí sắp xếp Khối Trái: $\mathcal{O}(2^{N/2} \log(2^{N/2})) \approx \mathcal{O}(N \cdot 2^{N/2})$.<br>
+                - Chi phí tìm kiếm đối chiếu: $\mathcal{O}(2^{N/2} \log(2^{N/2})) \approx \mathcal{O}(N \cdot 2^{N/2})$.<br>
+                Đánh giá tại ngưỡng biên độ lớn nhất $N=40$, khối lượng thao tác đạt giá trị khoảng $40 \cdot 2^{20} \approx 4 \times 10^7$ chu kỳ tính toán, cho phép thực thi trơn tru trong mức thời hạn tiêu chuẩn 1 giây.
+            </div>
+
+            <!-- Trình mô phỏng Meet in the middle -->
+            <h3 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2 mt-10">Mô phỏng Thuật toán Chia đôi Tập hợp</h3>
+            <p class="mb-6 text-sm text-slate-400">Theo dõi tiến trình với mô hình rút gọn $N=4, K=5$, phân bổ dãy tham chiếu $A = [1, 2, 3, 4]$.</p>
+
+            <div class="bg-slate-800 border border-slate-600 rounded-xl p-6 shadow-2xl">
+                <!-- Header Stats -->
+                <div class="flex justify-between items-center mb-6 bg-slate-900 p-4 rounded-lg border border-slate-700">
+                    <div class="text-center w-1/3">
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Mục tiêu (K)</div>
+                        <div class="text-3xl font-bold text-white">5</div>
+                    </div>
+                    <div class="text-center w-1/3 border-x border-slate-700">
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Tham số mục tiêu bù</div>
+                        <div class="text-3xl font-bold text-blue-400" id="mitm-target-val">-</div>
+                    </div>
+                    <div class="text-center w-1/3">
+                        <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">Lượng phương án</div>
+                        <div class="text-3xl font-bold text-green-400 transition-colors duration-300" id="mitm-ans-val">0</div>
+                    </div>
+                </div>
+
+                <!-- Visual Arrays -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Left Array -->
+                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                        <div class="text-center mb-4">
+                            <h4 class="font-bold text-purple-400 text-lg">Khối Trái</h4>
+                            <p class="text-xs text-slate-400 mt-1">Tập khởi tạo: $\{1, 2\}$ &rarr; Tổ hợp tổng: $\emptyset, \{1\}, \{2\}, \{1,2\}$</p>
+                            <p class="text-sm font-medium text-slate-300 mt-2">Mảng <code class="text-purple-300">sum_left</code> (Đã sắp xếp):</p>
+                        </div>
+                        <div class="flex justify-center gap-2 flex-wrap" id="mitm-left-container">
+                            <!-- JS Render -->
+                        </div>
+                    </div>
+
+                    <!-- Right Array -->
+                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                        <div class="text-center mb-4">
+                            <h4 class="font-bold text-orange-400 text-lg">Khối Phải</h4>
+                            <p class="text-xs text-slate-400 mt-1">Tập khởi tạo: $\{3, 4\}$ &rarr; Tổ hợp tổng: $\emptyset, \{3\}, \{4\}, \{3,4\}$</p>
+                            <p class="text-sm font-medium text-slate-300 mt-2">Mảng <code class="text-orange-300">sum_right</code>:</p>
+                        </div>
+                        <div class="flex justify-center gap-2 flex-wrap" id="mitm-right-container">
+                            <!-- JS Render -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Box -->
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 h-32 overflow-y-auto custom-scrollbar font-mono text-sm leading-relaxed mb-6" id="mitm-log-box">
+                    <!-- JS Render -->
+                </div>
+
+                <!-- Controls -->
+                <div class="flex justify-center gap-4 border-t border-slate-700 pt-6">
+                    <button onclick="resetMitm()" class="px-6 py-2.5 rounded bg-slate-700 hover:bg-slate-600 text-white font-medium transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Reset
+                    </button>
+                    <button id="btn-mitm-next" onclick="nextMitm()" class="px-6 py-2.5 rounded bg-purple-600 hover:bg-purple-500 text-white font-medium transition-colors shadow-lg shadow-purple-500/30 flex items-center gap-2">
+                        Next
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
         <!-- Visit Counter Footer -->
         <footer class="mt-16 border-t border-slate-700 pt-8 text-center flex flex-col items-center">
             <div class="inline-flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-full border border-slate-700 shadow-sm transition hover:shadow-md hover:border-slate-600">
                 <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                <span class="text-sm text-slate-400">Lượt truy cập của bạn:</span>
+                <span class="text-sm text-slate-400">Lượt truy cập chuyên đề:</span>
                 <span id="visit-counter" class="text-sm font-bold text-white bg-blue-600 px-2.5 py-0.5 rounded shadow-inner shadow-blue-800/50">...</span>
             </div>
-            <p class="mt-4 text-xs text-slate-600">&copy; 2026 Code Tutorial. Thiết kế cho việc tự học Thuật toán.</p>
+            <p class="mt-4 text-xs text-slate-600">&copy; 2026 Tài liệu Lập trình Chuyên sâu. Biên soạn cho hệ sinh thái tự đào tạo Thuật toán.</p>
         </footer>
 
     </div>
@@ -477,36 +768,36 @@ int main() {
             }
 
             // Construct Logs
-            let logsHtml = `<div class="mb-2 text-blue-300">▶ Đang xét mask = <strong>${currentMask}</strong> (Nhị phân: <strong class="tracking-widest">${binaryString}</strong>)</div>`;
+            let logsHtml = `<div class="mb-2 text-blue-300">▶ Đang kiểm tra cấu hình mask = <strong>${currentMask}</strong> (Mã nhị phân: <strong class="tracking-widest">${binaryString}</strong>)</div>`;
             
             if (activeIndices.length > 0) {
                 logsHtml += `<div class="mb-2 pl-3 border-l-2 border-slate-600 text-slate-300">
-                    - Các bit bằng 1: Bit ${activeIndices.join(', ')}<br>
-                    - Phần tử chọn tương ứng: ${activeValues.join(', ')}
+                    - Danh sách bit mang giá trị 1: Bit ${activeIndices.join(', ')}<br>
+                    - Phần tử cấu trúc tương ứng: ${activeValues.join(', ')}
                 </div>`;
             } else {
                 logsHtml += `<div class="mb-2 pl-3 border-l-2 border-slate-600 text-slate-500 italic">
-                    - Tất cả các bit bằng 0 (Tập rỗng)
+                    - Toàn bộ bit mang giá trị 0 (Đại diện Tập rỗng)
                 </div>`;
             }
 
-            logsHtml += `<div class="mb-2">▶ Tổng hiện tại = <strong>${currentSum}</strong></div>`;
+            logsHtml += `<div class="mb-2">▶ Tổng giá trị hiện hành = <strong>${currentSum}</strong></div>`;
 
             // Result Logic
             if (currentSum === targetS) {
-                logsHtml += `<div class="text-green-400 font-bold mt-2 animate-pulse">🎉 ${currentSum} == ${targetS} (Khớp mục tiêu!) - Trả về YES.</div>`;
+                logsHtml += `<div class="text-green-400 font-bold mt-2 animate-pulse">Trạng thái xác thực: ${currentSum} == ${targetS}. Thỏa mãn điều kiện bài toán. Phương thức trả về: YES.</div>`;
                 resultBox.className = "md:col-span-1 h-40 flex flex-col items-center justify-center p-4 rounded-lg border border-green-500 bg-green-900/30 text-center transition-all duration-300";
                 resultBox.innerHTML = `
                     <div class="text-green-400 mb-2"><svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
-                    <div class="text-green-300 font-bold text-lg leading-tight">Tìm thấy tập con!</div>
-                    <div class="text-green-400/80 text-sm mt-1">mask = ${currentMask}</div>
+                    <div class="text-green-300 font-bold text-lg leading-tight">Phát hiện cấu hình hợp lệ</div>
+                    <div class="text-green-400/80 text-sm mt-1">Hệ số mask = ${currentMask}</div>
                 `;
             } else {
-                logsHtml += `<div class="text-red-400 mt-2">❌ ${currentSum} $\\neq$ ${targetS} (Không khớp) &rarr; Tiếp tục.</div>`;
+                logsHtml += `<div class="text-red-400 mt-2">Trạng thái đối sánh: ${currentSum} $\\neq$ ${targetS}. Hệ thống tiếp tục duyệt vòng lặp.</div>`;
                 resultBox.className = "md:col-span-1 h-40 flex flex-col items-center justify-center p-4 rounded-lg border border-slate-700 bg-slate-800/50 text-center transition-all duration-300";
                 resultBox.innerHTML = `
                     <div class="text-slate-500 mb-2"><svg class="w-8 h-8 mx-auto animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
-                    <div class="text-slate-400 font-medium text-sm">Đang tìm kiếm...</div>
+                    <div class="text-slate-400 font-medium text-sm">Đang quét không gian trạng thái...</div>
                 `;
             }
 
@@ -523,15 +814,15 @@ int main() {
             if (currentMask >= (1 << totalN) - 1) {
                 isDone = true;
                 btnNext.classList.add('opacity-50', 'cursor-not-allowed');
-                btnNext.innerHTML = 'Đã duyệt xong';
+                btnNext.innerHTML = 'Tiến trình hoàn tất';
                 if(currentSum !== targetS) {
-                    resultBox.innerHTML = `<div class="text-red-400 font-bold text-lg">Kết thúc!</div><div class="text-slate-400 text-sm mt-1">Không tìm thấy tập con.</div>`;
+                    resultBox.innerHTML = `<div class="text-red-400 font-bold text-lg">Hoàn tất kiểm tra</div><div class="text-slate-400 text-sm mt-1">Không ghi nhận cấu hình phù hợp.</div>`;
                     resultBox.className = "md:col-span-1 h-40 flex flex-col items-center justify-center p-4 rounded-lg border border-red-500 bg-red-900/30 text-center transition-all duration-300";
                 }
             } else {
                 isDone = false;
                 btnNext.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnNext.innerHTML = `Tiếp tục bước nhảy <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                btnNext.innerHTML = `Next <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
             }
         }
 
@@ -560,7 +851,150 @@ int main() {
             }
         }
 
-        // --- Logic for Educational Bitwise Simulation ---
+        // --- Logic for Advanced Bitwise Tricks Simulator ---
+        let currentTrickOp = 'LSB';
+
+        function toBin8(num) {
+            return (num >>> 0).toString(2).padStart(8, '0');
+        }
+
+        function setTrickOp(op) {
+            currentTrickOp = op;
+            document.querySelectorAll('.trick-op-btn').forEach(btn => {
+                btn.className = "trick-op-btn w-full text-left px-3 py-2 text-sm rounded bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-600 font-mono";
+            });
+            const activeBtn = document.getElementById(`btn-trick-${op}`);
+            activeBtn.className = "trick-op-btn w-full text-left px-3 py-2 text-sm rounded bg-blue-600 text-white font-mono transition-colors border border-blue-500 shadow-md";
+            
+            updateTrickPlayground();
+        }
+
+        function renderBitRow(binStr, highlightLogic) {
+            let html = '';
+            for(let i = 0; i < 8; i++) {
+                const bit = binStr[i];
+                const isHighlight = highlightLogic ? highlightLogic(i, bit) : false;
+                
+                let classes = "w-6 sm:w-8 h-8 flex items-center justify-center rounded transition-all duration-300 ";
+                if(isHighlight === 'strong') {
+                    classes += "bg-yellow-400 text-slate-900 font-bold scale-110 shadow-[0_0_10px_rgba(250,204,21,0.6)] z-10";
+                } else if(isHighlight === 'dim') {
+                    classes += "text-slate-600";
+                } else if(isHighlight === 'red') {
+                    classes += "bg-red-500 text-white font-bold";
+                } else {
+                    classes += "bg-slate-800 border border-slate-700";
+                }
+                
+                // Thêm khoảng trống nhỏ ở giữa 4 bit để dễ nhìn
+                const extraMargin = (i === 3) ? "mr-2 sm:mr-3" : "";
+                
+                html += `<div class="${classes} ${extraMargin}">${bit}</div>`;
+            }
+            return html;
+        }
+
+        function updateTrickPlayground() {
+            const inputEl = document.getElementById('trick-mask-input');
+            if(!inputEl) return;
+            const mask = parseInt(inputEl.value);
+            document.getElementById('trick-mask-val').innerText = mask;
+
+            const binMask = toBin8(mask);
+            
+            // Tìm bit 1 thấp nhất (Lowest Set Bit - index từ phải sang)
+            let lowestSetBitIndex = -1; // 0..7 from right
+            for(let i = 7; i >= 0; i--) {
+                if(binMask[i] === '1') {
+                    lowestSetBitIndex = 7 - i;
+                    break;
+                }
+            }
+            const lsbStringIndex = 7 - lowestSetBitIndex; // index in string
+
+            const rowAuxContainer = document.getElementById('trick-row-2-container');
+            const divider = document.getElementById('trick-divider');
+            
+            let htmlMask = '';
+            let htmlAux = '';
+            let htmlRes = '';
+            let valRes = 0;
+            let explanation = '';
+
+            if (currentTrickOp === 'LSB') {
+                rowAuxContainer.classList.remove('hidden');
+                divider.classList.remove('hidden');
+
+                const negMask = (-mask) & 255; // Ép về 8-bit
+                const binNeg = toBin8(negMask);
+                valRes = mask & negMask;
+                const binRes = toBin8(valRes);
+
+                document.getElementById('trick-operator-sign').innerText = '&';
+                document.getElementById('trick-label-aux').innerText = '(-mask)';
+
+                htmlMask = renderBitRow(binMask, (i, bit) => i === lsbStringIndex ? 'strong' : '');
+                htmlAux = renderBitRow(binNeg, (i, bit) => i === lsbStringIndex ? 'strong' : '');
+                htmlRes = renderBitRow(binRes, (i, bit) => i === lsbStringIndex ? 'strong' : 'dim');
+
+                explanation = `<strong>Phân tích Kỹ thuật Trích xuất LSB:</strong><br>
+                - Số âm <code>-mask</code> được biểu diễn dựa trên nguyên lý Bù 2 (đảo giá trị toàn bộ bit của phân cực dương và tịnh tiến thêm 1 đơn vị).<br>
+                - Tại quá trình tịnh tiến cộng 1, tập hợp các bit 0 ở dải thấp sẽ bị lật thành 1, quy trình nhớ này kết thúc ngay khi tác động tới bit 1 nguyên thủy đầu tiên.<br>
+                &rarr; Phép giao (AND) sẽ triệt tiêu hoàn toàn đoạn cấu trúc phía trước vị trí nhớ và chỉ bảo toàn <strong>duy nhất 1 bit</strong> (bit tô sáng vàng) nằm ở ngưỡng giá trị nhỏ nhất.`;
+
+            } else if (currentTrickOp === 'RM_LSB') {
+                rowAuxContainer.classList.remove('hidden');
+                divider.classList.remove('hidden');
+
+                const subMask = (mask - 1) & 255;
+                const binSub = toBin8(subMask);
+                valRes = mask & subMask;
+                const binRes = toBin8(valRes);
+
+                document.getElementById('trick-operator-sign').innerText = '&';
+                document.getElementById('trick-label-aux').innerText = '(mask - 1)';
+
+                // Highlight: Các bit bị lật (từ LSB về cuối)
+                htmlMask = renderBitRow(binMask, (i, bit) => i >= lsbStringIndex ? (i === lsbStringIndex ? 'red' : 'strong') : '');
+                htmlAux = renderBitRow(binSub, (i, bit) => i >= lsbStringIndex ? 'strong' : '');
+                htmlRes = renderBitRow(binRes, (i, bit) => ''); // Kết quả
+
+                explanation = `<strong>Phân tích Kỹ thuật Xóa LSB:</strong><br>
+                - Toán tử giảm giá trị (<code>mask - 1</code>) yêu cầu chu kỳ mượn giá trị khởi phát từ vị trí bit 1 thấp nhất (dẫn đến hệ quả hoán vị thành 0). Hệ quả kéo theo là quy trình lật trị số toàn bộ các bit 0 ở khu vực hậu tố thành 1.<br>
+                - Thông qua đối sánh AND với cấu trúc ban đầu, sai biệt ở khoảng bit hậu tố khiến lượng giá trị này bị triệt tiêu hoàn toàn.<br>
+                &rarr; Theo đó, vị trí bit 1 thấp nhất (biểu thị sắc đỏ) <strong>bị loại bỏ</strong> hoàn toàn ra khỏi hệ thống. Thao tác này thường phục vụ vòng lặp đếm bit tối ưu hoặc xác minh chỉ số căn bậc 2.`;
+
+            } else if (currentTrickOp === 'POP') {
+                rowAuxContainer.classList.add('hidden');
+                divider.classList.add('hidden');
+
+                let count = 0;
+                for(let i = 0; i < 8; i++) {
+                    if(binMask[i] === '1') count++;
+                }
+                valRes = count;
+
+                htmlMask = renderBitRow(binMask, (i, bit) => bit === '1' ? 'strong' : 'dim');
+                htmlRes = renderBitRow('        ', () => ''); // Xóa dòng kết quả nhị phân
+
+                explanation = `<strong>Phân tích Hàm Đếm Bit Bật:</strong><br>
+                - Thao tác <code>__builtin_popcount</code> tiến hành ghi nhận độc lập tần suất xuất hiện của các định dạng bit mang giá trị <code>1</code> (những ô đánh dấu màu vàng).<br>
+                - Cơ chế trình biên dịch sẽ gọi các chỉ thị xử lý trực tiếp ở cấp độ phần cứng (như lệnh POPCNT), giúp giảm thiểu độ phức tạp thời gian vận hành xuống ngưỡng tuyến tính tối đa $\\mathcal{O}(1)$ thay vì rà soát lặp thông thường.<br>
+                &rarr; Số lượng điểm bit mang tín hiệu bật trong phiên khảo sát hiện tại là: <strong>${count}</strong>.`;
+            }
+
+            document.getElementById('trick-row-mask').innerHTML = htmlMask;
+            document.getElementById('trick-row-aux').innerHTML = htmlAux;
+            document.getElementById('trick-row-res').innerHTML = htmlRes;
+            
+            const valResEl = document.getElementById('trick-val-res');
+            valResEl.innerText = currentTrickOp === 'POP' ? `=> ${valRes}` : `(${valRes})`;
+            valResEl.className = currentTrickOp === 'POP' ? "w-16 text-left pl-2 text-yellow-400 text-lg font-bold" : "w-10 text-left pl-2 text-white text-sm font-bold";
+
+            document.getElementById('trick-explain-box').innerHTML = explanation;
+        }
+
+        // --- Logic for Educational Bitwise Simulation (Bảng đen cơ bản) ---
         let currentEduOp = 'AND'; // Mặc định là AND
 
         function toBin4(num) {
@@ -632,11 +1066,11 @@ int main() {
                 binRes = toBin4(valRes);
                 opSign = "&";
                 
-                explanation = `<strong>Mục đích: Kiểm tra bit ${i}.</strong><br>
-                Toán tử <code>&</code> (AND) chỉ trả về 1 khi cả hai bit cùng là 1. Mảng phụ <code>(1 << ${i})</code> có tất cả các bit là 0, chỉ duy nhất bit ${i} là 1. <br>
-                - Tại các cột khác: x AND 0 = 0 (bị triệt tiêu hoàn toàn).<br>
-                - <strong>Tại cột ${i}:</strong> <code>${maskBitValue} AND 1 = ${maskBitValue}</code>. Nghĩa là nó bảo tồn chính xác trạng thái của mask gốc. <br>
-                &rarr; Kết quả: ${valRes > 0 ? `<span class="text-green-400">> 0, kết luận phần tử ${i} ĐANG CÓ MẶT trong tập hợp.</span>` : `<span class="text-red-400">== 0, kết luận phần tử ${i} KHÔNG CÓ TRONG tập hợp.</span>`}`;
+                explanation = `<strong>Mục tiêu thao tác: Xác thực tình trạng của bit ${i}.</strong><br>
+                Toán tử <code>&</code> (AND) chỉ trả về 1 khi cả hai toán hạng bit đồng thời bằng 1. Theo cơ chế sinh, mảng phụ <code>(1 << ${i})</code> duy trì lượng giá trị 0 trên toàn cục và chỉ khởi tạo giá trị 1 tại độc nhất điểm ${i}.<br>
+                - Trên các phân khu cột ngoại vi: $x \\text{ AND } 0 = 0$ (tín hiệu bị triệt tiêu).<br>
+                - <strong>Tâm điểm tác động (Cột ${i}):</strong> <code>${maskBitValue} AND 1 = ${maskBitValue}</code>. Nghĩa là đặc tính cấu trúc tại điểm đó được bảo tồn nguyên vẹn tương quan với mask gốc. <br>
+                &rarr; Phân tích chuỗi kết quả: ${valRes > 0 ? `<span class="text-green-400">> 0, xác nhận phần tử có chỉ số ${i} ĐANG HIỆN DIỆN trong cấu hình.</span>` : `<span class="text-red-400">== 0, khẳng định phần tử có chỉ số ${i} KHÔNG CÓ MẶT trong cấu hình.</span>`}`;
                 
                 document.getElementById('edu-operator-sign').className = "w-16 text-right pr-4 font-bold text-blue-400 text-2xl";
 
@@ -648,11 +1082,11 @@ int main() {
                 binRes = toBin4(valRes);
                 opSign = "|";
 
-                explanation = `<strong>Mục đích: Bật bit ${i} (Thêm phần tử vào tập).</strong><br>
-                Toán tử <code>|</code> (OR) trả về 1 nếu có ít nhất một bit là 1.<br>
-                - Tại các cột khác: x OR 0 = x (trạng thái gốc của mask được giữ nguyên).<br>
-                - <strong>Tại cột ${i}:</strong> <code>${maskBitValue} OR 1 = 1</code>. Bất kể bit gốc đang là 0 hay 1, nó sẽ bị "ép" bật lên 1 một cách an toàn.<br>
-                &rarr; Nếu phần tử ${i} đã có sẵn, nó vẫn ở đó. Nếu chưa có, nó đã được thêm vào.`;
+                explanation = `<strong>Mục tiêu thao tác: Gán trạng thái bật đối với bit ${i} (Thao tác quy nạp phần tử).</strong><br>
+                Toán tử <code>|</code> (OR) có mức ưu tiên trả về 1 khi sở hữu tối thiểu một toán hạng bit biểu thị 1.<br>
+                - Trên các phân khu cột ngoại vi: $x \\text{ OR } 0 = x$ (tuyến tính giá trị gốc không bị dịch chuyển).<br>
+                - <strong>Tâm điểm tác động (Cột ${i}):</strong> <code>${maskBitValue} OR 1 = 1</code>. Thao tác áp đặt định dạng lên mức 1, không phụ thuộc vào tiền sử trạng thái gốc.<br>
+                &rarr; Căn cứ vào diễn biến, tiến trình đảm bảo phần tử mang đặc trưng ${i} chắc chắn được sát nhập vào không gian tập hợp.`;
 
                 document.getElementById('edu-operator-sign').className = "w-16 text-right pr-4 font-bold text-orange-400 text-2xl";
 
@@ -664,11 +1098,11 @@ int main() {
                 binRes = toBin4(valRes);
                 opSign = "^";
 
-                explanation = `<strong>Mục đích: Đảo ngược trạng thái bit ${i} (Toggle).</strong><br>
-                Toán tử <code>^</code> (XOR) trả về 1 nếu hai bit KHÁC NHAU.<br>
-                - Tại các cột khác: x XOR 0 = x (giữ nguyên).<br>
-                - <strong>Tại cột ${i}:</strong> <code>${maskBitValue} XOR 1 = ${maskBitValue === 1 ? 0 : 1}</code>. Phép XOR với 1 luôn làm đảo ngược giá trị ban đầu.<br>
-                &rarr; Kết quả: Phần tử ${i} đã bị ${maskBitValue === 1 ? '<span class="text-red-400">ĐÁNH BẬT KHỎI</span>' : '<span class="text-green-400">THÊM VÀO</span>'} tập hợp.`;
+                explanation = `<strong>Mục tiêu thao tác: Khởi động trình nghịch đảo tại bit ${i}.</strong><br>
+                Toán tử <code>^</code> (XOR) giới hạn việc trả giá trị 1 chỉ đối với các tình huống xung đột tham số toán hạng (khác biệt giá trị).<br>
+                - Trên các phân khu cột ngoại vi: $x \\text{ XOR } 0 = x$ (tuyến tính bảo toàn).<br>
+                - <strong>Tâm điểm tác động (Cột ${i}):</strong> <code>${maskBitValue} XOR 1 = ${maskBitValue === 1 ? 0 : 1}</code>. Phép đối xứng XOR cấu thành chu trình đổi dấu cục bộ làm thay đổi luân phiên tham số ban đầu.<br>
+                &rarr; Đánh giá chu kỳ: Trạng thái của phần tử ${i} đã được hệ thống ${maskBitValue === 1 ? '<span class="text-red-400">TRÚT BỎ (LOẠI BỎ)</span>' : '<span class="text-green-400">THU NẠP (BỔ SUNG)</span>'}.`;
 
                 document.getElementById('edu-operator-sign').className = "w-16 text-right pr-4 font-bold text-purple-400 text-2xl";
 
@@ -680,11 +1114,11 @@ int main() {
                 binRes = toBin4(valRes);
                 opSign = "&"; // Vẫn là AND nhưng aux đã bị đảo
 
-                explanation = `<strong>Mục đích: Xóa bit ${i} (Loại bỏ phần tử khỏi tập).</strong><br>
-                Cú pháp <code>mask & ~(1 << i)</code> hoạt động theo 2 bước:<br>
-                1. <code>~</code> đảo ngược mảng phụ thành <code>${binAux}</code> (Tất cả là 1, chỉ riêng bit ${i} là 0).<br>
-                2. Phép AND: Các cột khác <code>x AND 1 = x</code> (giữ nguyên trạng thái). <strong>Riêng cột ${i}:</strong> <code>${maskBitValue} AND 0 = 0</code>.<br>
-                &rarr; Phép toán này đóng vai trò như một "cục tẩy" xóa sạch chỉ duy nhất bit ${i}.`;
+                explanation = `<strong>Mục tiêu thao tác: Tẩy định dạng bit ${i} (Gỡ phần tử khỏi hệ thống).</strong><br>
+                Mệnh đề lệnh <code>mask & ~(1 << i)</code> cấu thành từ tổ hợp quy trình hai giai đoạn:<br>
+                1. Ký hiệu <code>~</code> đảm nhận quy trình định tuyến nghịch đảo mảng phụ hướng tới chuỗi <code>${binAux}</code> (Tham số 1 phủ định toàn bộ chỉ bảo tồn tham số 0 tại duy nhất điểm số ${i}).<br>
+                2. Toán tử AND: Khảo sát tại các cột biên <code>x AND 1 = x</code> (đảm bảo bảo toàn chuỗi tham số gốc). <strong>Xét trên điểm cột trung tâm ${i}:</strong> <code>${maskBitValue} AND 0 = 0</code>.<br>
+                &rarr; Tổ hợp này đóng vai trò như một cơ chế "triệt tiêu" tham chiếu, giúp giải phóng duy nhất thông số của bit thứ ${i}.`;
 
                 document.getElementById('edu-operator-sign').className = "w-16 text-right pr-4 font-bold text-red-400 text-2xl";
             }
@@ -709,11 +1143,138 @@ int main() {
             document.getElementById('edu-explain-box').innerHTML = explanation;
         }
 
+        // --- Logic for Meet in the Middle Simulator ---
+        const mitmSumLeft = [0, 1, 2, 3];
+        const mitmSumRight = [0, 3, 4, 7];
+        const mitmK = 5;
+        let mitmStep = -1; // -1: Init state, 0-3: Processing indices of sum_right
+        let mitmTotalAns = 0;
+
+        function renderMitmArrays() {
+            const leftContainer = document.getElementById('mitm-left-container');
+            const rightContainer = document.getElementById('mitm-right-container');
+            
+            leftContainer.innerHTML = '';
+            rightContainer.innerHTML = '';
+
+            let currentTarget = null;
+            if (mitmStep >= 0 && mitmStep < mitmSumRight.length) {
+                currentTarget = mitmK - mitmSumRight[mitmStep];
+            }
+
+            // Render sum_left
+            mitmSumLeft.forEach(val => {
+                const isMatch = (val === currentTarget);
+                const isSearching = (mitmStep >= 0 && mitmStep < mitmSumRight.length);
+                
+                let classes = "w-12 h-12 flex items-center justify-center rounded-lg border font-bold text-lg transition-all duration-500 ";
+                
+                if (isSearching) {
+                    if (isMatch) {
+                        classes += "bg-green-600 text-white border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.6)] scale-110 z-10";
+                    } else {
+                        classes += "bg-slate-800 text-slate-600 border-slate-700 opacity-50";
+                    }
+                } else {
+                    classes += "bg-slate-800 text-purple-300 border-slate-600";
+                }
+
+                leftContainer.innerHTML += `<div class="${classes}">${val}</div>`;
+            });
+
+            // Render sum_right
+            mitmSumRight.forEach((val, idx) => {
+                const isActive = (idx === mitmStep);
+                let classes = "w-12 h-12 flex items-center justify-center rounded-lg border font-bold text-lg transition-all duration-300 ";
+                
+                if (isActive) {
+                    classes += "bg-orange-600 text-white border-orange-400 shadow-[0_0_15px_rgba(234,88,12,0.6)] scale-110 z-10";
+                } else {
+                    classes += "bg-slate-800 text-orange-300 border-slate-600 " + (mitmStep > idx ? "opacity-30" : "");
+                }
+
+                rightContainer.innerHTML += `<div class="${classes}">${val}</div>`;
+            });
+        }
+
+        function updateMitmSimulator() {
+            renderMitmArrays();
+
+            const targetEl = document.getElementById('mitm-target-val');
+            const ansEl = document.getElementById('mitm-ans-val');
+            const logBox = document.getElementById('mitm-log-box');
+            const btnNext = document.getElementById('btn-mitm-next');
+
+            if (mitmStep === -1) {
+                targetEl.innerText = "-";
+                ansEl.innerText = "0";
+                logBox.innerHTML = `<div class="text-blue-300 italic">▶ Quá trình thiết lập tập hợp đã hoàn thành. Hệ thống mảng <code>sum_left</code> đã hoàn tất sắp xếp phân đoạn. Thao tác nút lệnh "Next" để tiến hành thủ tục quét <code>sum_right</code>.</div>`;
+                btnNext.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnNext.innerHTML = `Tiến hành Duyệt <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                return;
+            }
+
+            if (mitmStep >= mitmSumRight.length) {
+                logBox.innerHTML += `<div class="text-green-400 font-bold mt-2 border-t border-slate-700 pt-2">Phiên phân tích kết thúc. Thống kê tổng số cấu trúc đạt chuẩn là: ${mitmTotalAns} phương án.</div>`;
+                logBox.scrollTop = logBox.scrollHeight;
+                btnNext.classList.add('opacity-50', 'cursor-not-allowed');
+                btnNext.innerHTML = 'Tiến trình hoàn tất';
+                return;
+            }
+
+            // Processing step
+            const sr = mitmSumRight[mitmStep];
+            const target = mitmK - sr;
+            targetEl.innerText = target;
+
+            let matchCount = mitmSumLeft.filter(v => v === target).length;
+            mitmTotalAns += matchCount;
+            ansEl.innerText = mitmTotalAns;
+
+            let logHtml = `<div class="mb-2 text-slate-300">`;
+            logHtml += `▶ <strong>Quy trình phân tích Chu kỳ ${mitmStep + 1}:</strong> Xét đối tượng <code>sr = ${sr}</code> từ tập hợp Khối Phải.<br>`;
+            logHtml += `&nbsp;&nbsp;&nbsp;Tham số đối sánh bù trừ: <code>target = K - sr = 5 - ${sr} = <span class="text-blue-400">${target}</span></code>.<br>`;
+            
+            if (matchCount > 0) {
+                logHtml += `&nbsp;&nbsp;&nbsp;&rarr; <span class="text-green-400 font-bold">Ghi nhận ${matchCount} thực thể cấu trúc mang giá trị tương đương ${target}</span> nằm trên mảng Khối Trái! Triển khai phép tịnh tiến bộ đếm: <code>ans += ${matchCount}</code>.`;
+            } else {
+                logHtml += `&nbsp;&nbsp;&nbsp;&rarr; <span class="text-red-400">Xác thực hệ thống không tìm thấy</span> bất kỳ biến số mang giá trị ${target} nào trong mảng Khối Trái. Khởi động lệnh bỏ qua.`;
+            }
+            logHtml += `</div>`;
+
+            // Append log (keep previous logs)
+            if(mitmStep === 0) logBox.innerHTML = ''; // Clear init log
+            logBox.innerHTML += logHtml;
+            logBox.scrollTop = logBox.scrollHeight;
+
+            btnNext.innerHTML = `Bước tiếp theo <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+            
+            // Re-render KaTeX if needed
+            if (window.renderMathInElement) {
+                renderMathInElement(logBox, {delimiters: [{left: '$', right: '$', display: false}]});
+            }
+        }
+
+        function nextMitm() {
+            if (mitmStep < mitmSumRight.length) {
+                mitmStep++;
+                updateMitmSimulator();
+            }
+        }
+
+        function resetMitm() {
+            mitmStep = -1;
+            mitmTotalAns = 0;
+            updateMitmSimulator();
+        }
+
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
             updateSimulator();
             setupVisitCounter();
+            updateTrickPlayground(); // Khởi chạy mô phỏng trick 8-bit
             updateEduPlayground(); // Khởi chạy mô phỏng bảng đen
+            updateMitmSimulator(); // Khởi chạy mô phỏng Meet in the middle
         });
     </script>
 </body>
