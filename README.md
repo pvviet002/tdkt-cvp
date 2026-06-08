@@ -1,2 +1,2 @@
-# tdkt-cvp
-Thi đua khen thưởng CVP
+# Thầy Việt
+CPH - Vietnamese
