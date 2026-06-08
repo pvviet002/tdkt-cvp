@@ -45,6 +45,9 @@
         .queen-icon-tree { fill: #f8fafc; font-size: 20px; text-anchor: middle; dominant-baseline: central; font-family: "Arial Unicode MS", "Segoe UI Symbol", serif; }
         .board-label { font-family: "Times New Roman", Times, serif; font-size: 24px; text-anchor: middle; dominant-baseline: central; font-weight: bold; }
         
+        /* Cập nhật lưới Grid Path để hỗ trợ responsive */
+        .grid-svg { width: 160px; max-width: 100%; height: auto; display: block; margin: 0 auto; background-color: #1f2937; border: 1px solid #4b5563; }
+
         /* Tùy chỉnh thanh cuộn ngang */
         .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
@@ -204,7 +207,7 @@ void search(int k) {
                 <p>Cây đệ quy dưới đây minh họa các lời gọi hàm khi $n = 3$. Tại mỗi bước, ta luôn có thể chọn rẽ nhánh trái (không thêm $k$ vào tập con) hoặc rẽ nhánh phải (thêm $k$ vào tập con).</p>
 
                 <!-- SVG Container cho Tập con -->
-                <div class="w-full overflow-x-auto custom-scrollbar bg-[#0f172a] rounded-xl border border-slate-700 p-8 flex justify-center shadow-inner mb-8" id="svg-subset-tree"></div>
+                <div class="w-full bg-[#0f172a] rounded-xl border border-slate-700 p-4 md:p-8 flex justify-center shadow-inner mb-8" id="svg-subset-tree"></div>
 
                 <h4 class="text-xl font-semibold mt-8 mb-3 text-gray-200">Phương pháp 2</h4>
                 <p>Một cách khác để sinh tập con là dựa trên biểu diễn bit của số nguyên. Mỗi tập con của tập $n$ phần tử có thể được biểu thị bằng một chuỗi $n$ bit, tương ứng với một số nguyên từ $0 \dots 2^n - 1$. Các bit $1$ trong chuỗi bit chỉ ra phần tử nào được chọn vào tập con.</p>
@@ -279,7 +282,7 @@ do {
                 <p>Ví dụ, với $n = 4$, thuật toán quay lui sẽ sinh ra một phần của không gian trạng thái như sau:</p>
 
                 <!-- Biểu đồ cây N-Queens -->
-                <div class="w-full overflow-x-auto custom-scrollbar bg-[#0f172a] rounded-xl border border-slate-700 p-8 flex justify-center shadow-inner mb-6 mt-8" id="svg-nqueens-tree"></div>
+                <div class="w-full bg-[#0f172a] rounded-xl border border-slate-700 p-4 md:p-8 flex justify-center shadow-inner mb-6 mt-8" id="svg-nqueens-tree"></div>
 
                 <p>Ở tầng dưới cùng của hình vẽ, hai cấu hình đầu tiên là không hợp lệ (illegal) do các quân hậu nằm trên cùng một cột hoặc đường chéo. Tuy nhiên, cấu hình thứ ba và thứ tư là hợp lệ (valid) ở bước hiện tại và có thể tiếp tục mở rộng. Nếu mở rộng tiếp cấu hình thứ ba, ta sẽ thấy nó sẽ sớm gặp bế tắc và không thể đặt đủ 4 quân hậu.</p>
                 
@@ -409,7 +412,7 @@ void search(int y) {
     // Utils: Vẽ Bàn cờ SVG
     function drawChessboard(n, queens, size = 120, statusLabel = '', statusColor = '#94a3b8') {
         const cs = size / n;
-        let svg = `<svg width="${size}" height="${statusLabel ? size + 35 : size}" viewBox="0 0 ${size} ${statusLabel ? size + 35 : size}">`;
+        let svg = `<svg viewBox="0 0 ${size} ${statusLabel ? size + 35 : size}" class="max-w-full h-auto" style="width: ${size}px;">`;
         // Draw grid
         for(let i=0; i<n; i++) {
             for(let j=0; j<n; j++) {
@@ -433,7 +436,7 @@ void search(int y) {
     function drawIndexTable(data, title, size = 120) {
         const n = data.length;
         const cs = size / n;
-        let svg = `<svg width="${size}" height="${size + 40}" viewBox="0 0 ${size} ${size + 40}">`;
+        let svg = `<svg viewBox="0 0 ${size} ${size + 40}" class="max-w-full h-auto" style="width: ${size}px;">`;
         for(let i=0; i<n; i++) {
             for(let j=0; j<n; j++) {
                 svg += `<rect x="${j*cs}" y="${i*cs}" width="${cs}" height="${cs}" class="grid-bg" />`;
@@ -447,7 +450,7 @@ void search(int y) {
 
     // Utils: Vẽ Lưới Grid Path
     function drawGridPath(pathPointsStr, arrowPointsStr, size = 160) {
-        let svg = `<svg class="grid-svg shadow-md rounded-sm" width="${size}" height="${size}" viewBox="-1 -1 142 142">`;
+        let svg = `<svg class="grid-svg shadow-md rounded-sm max-w-full h-auto" viewBox="-1 -1 142 142">`;
         svg += `
             <path class="grid-lines" d="M 0 0 L 140 0 M 0 20 L 140 20 M 0 40 L 140 40 M 0 60 L 140 60 M 0 80 L 140 80 M 0 100 L 140 100 M 0 120 L 140 120 M 0 140 L 140 140"/>
             <path class="grid-lines" d="M 0 0 L 0 140 M 20 0 L 20 140 M 40 0 L 40 140 M 60 0 L 60 140 M 80 0 L 80 140 M 100 0 L 100 140 M 120 0 L 120 140 M 140 0 L 140 140"/>
@@ -500,7 +503,7 @@ void search(int y) {
         const getNode = (id) => nodes.find(n => n.id === id);
 
         let subsetSvg = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420" style="min-width: 1000px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" class="w-full h-auto">
                 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b" /></marker></defs>
         `;
         edges.forEach(edge => {
@@ -539,7 +542,7 @@ void search(int y) {
 
         const getBoard = (id) => nqBoards.find(b => b.id === id);
 
-        let nqSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="550" viewBox="0 0 1200 550" style="min-width: 1200px;">`;
+        let nqSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 550" class="w-full h-auto">`;
 
         // Vẽ các nhánh thẳng chéo (Straight Edges) giống hệt thiết kế gốc
         nqEdges.forEach(edge => {
