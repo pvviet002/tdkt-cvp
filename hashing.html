@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyên đề: Rolling Hashing & Rabin-Karp Algorithm</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" 
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ],
+            throwOnError: false
+        });"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <style>
+        /* Tinh chỉnh cuộn mượt và giao diện cơ bản */
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        .char-box {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 font-sans antialiased leading-relaxed min-h-screen">
+
+    <div class="max-w-5xl mx-auto px-4 py-10">
+        <!-- HEADER -->
+        <header class="mb-12 border-b border-slate-700 pb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Rolling Hashing & Thuật toán Rabin-Karp</h1>
+            <p class="text-slate-400">Chuyên đề Lập trình thi đấu: So khớp chuỗi bằng kỹ thuật Băm (Hashing)</p>
+        </header>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold text-indigo-400 mb-4 flex items-center gap-2">
+                <span class="bg-indigo-900/50 text-indigo-300 w-8 h-8 rounded flex items-center justify-center text-sm">1</span>
+                Tư tưởng cốt lõi
+            </h2>
+            
+            <div class="space-y-4 text-slate-300">
+                <p><strong>Mã băm (Hash)</strong> của một chuỗi là việc ánh xạ một chuỗi ký tự thành một số nguyên duy nhất (hoặc gần như duy nhất). Nhờ đó, thay vì so sánh hai chuỗi ký tự mất thời gian $O(K)$ (với $K$ là độ dài chuỗi), ta chỉ cần so sánh hai số nguyên đại diện cho chúng trong thời gian $O(1)$.</p>
+                
+                <div class="bg-slate-800 p-5 rounded-lg border border-slate-700">
+                    <h3 class="text-lg font-medium text-white mb-2">Công thức Polynomial Rolling Hash</h3>
+                    <p>Giả sử chuỗi $S$ có độ dài $L$, mã băm được tính bằng công thức đa thức:</p>
+                    <div class="py-2 text-center text-lg overflow-x-auto">
+                        $$H(S) = (S_1 \times B^{L-1} + S_2 \times B^{L-2} + \dots + S_L \times B^0) \pmod M$$
+                    </div>
+                    <ul class="list-disc list-inside mt-3 text-sm text-slate-400 space-y-1">
+                        <li>$S_i$: Mã ASCII của ký tự thứ $i$ (có thể dùng $S_i - \text{'a'} + 1$).</li>
+                        <li>$B$ (Base - Cơ số): Thường chọn là một số nguyên tố lớn hơn số lượng ký tự phân biệt trong bảng mã (VD: $31, 311, 313$).</li>
+                        <li>$M$ (Modulo): Thường chọn số nguyên tố lớn để đảm bảo giá trị băm nằm trong giới hạn kiểu số nguyên và giảm xác suất đụng độ (VD: $10^9+7, 10^9+9$).</li>
+                    </ul>
+
+                    <div class="mt-6 border-t border-slate-700 pt-4">
+                        <p class="text-sm text-slate-300 mb-3"><strong class="text-indigo-400">Ví dụ minh hoạ:</strong> Xét chuỗi $S = \text{"code"}$ với hệ cơ số $B = 311$. Đặt giá trị các ký tự: $\text{'c'}=3, \text{'o'}=15, \text{'d'}=4, \text{'e'}=5$.</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-2 mb-4 font-mono text-sm">
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 flex items-center justify-center bg-slate-800 border-2 border-slate-600 rounded-lg text-xl font-bold text-white shadow-lg">c</div>
+                                <div class="text-xs text-slate-500 mt-1">3 × $B^3$</div>
+                            </div>
+                            <div class="text-slate-500 text-lg font-bold">+</div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 flex items-center justify-center bg-slate-800 border-2 border-slate-600 rounded-lg text-xl font-bold text-white shadow-lg">o</div>
+                                <div class="text-xs text-slate-500 mt-1">15 × $B^2$</div>
+                            </div>
+                            <div class="text-slate-500 text-lg font-bold">+</div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 flex items-center justify-center bg-slate-800 border-2 border-slate-600 rounded-lg text-xl font-bold text-white shadow-lg">d</div>
+                                <div class="text-xs text-slate-500 mt-1">4 × $B^1$</div>
+                            </div>
+                            <div class="text-slate-500 text-lg font-bold">+</div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 flex items-center justify-center bg-slate-800 border-2 border-slate-600 rounded-lg text-xl font-bold text-white shadow-lg">e</div>
+                                <div class="text-xs text-slate-500 mt-1">5 × $B^0$</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-900/50 p-3 rounded text-center text-sm border border-slate-700 text-slate-300">
+                            $$H(\text{"code"}) = (3 \times 311^3 + 15 \times 311^2 + 4 \times 311^1 + 5 \times 311^0) \pmod M$$
+                        </div>
+                    </div>
+                </div>
+
+                <p><strong>Tại sao gọi là "Rolling"?</strong> Kỹ thuật này cho phép tính mã băm của một đoạn con $[L, R]$ bất kỳ trong chuỗi $S$ với độ phức tạp $O(1)$ sau khi đã tiền xử lý mảng cộng dồn trong $O(N)$ bằng công thức:</p>
+                <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-indigo-500 font-mono text-sm text-indigo-200 mb-6 shadow-inner">
+                    $$Hash(L, R) = \big( Hash[R] - Hash[L-1] \times B^{R-L+1} \big) \pmod M$$
+                </div>
+
+                <!-- Thêm lại phần minh hoạ trừ Hash -->
+                <div class="mt-6 border border-slate-700 bg-slate-800/30 p-5 rounded-lg shadow-md mb-6">
+                    <p class="text-sm text-slate-300 mb-4"><strong class="text-indigo-400">Minh họa trừ Hash (Rolling):</strong> Xét chuỗi $S = \text{"code"}$. Ta cần lấy mã Hash của đoạn $\text{"od"}$ ($L=2, R=3$).</p>
+                    
+                    <div class="flex flex-col gap-4 text-sm font-mono items-center">
+                        <!-- Hash[R] -->
+                        <div class="flex items-center gap-3 w-full max-w-lg justify-between">
+                            <div class="text-emerald-400 w-32 text-right whitespace-nowrap">Hash[3]</div>
+                            <div class="flex gap-1 flex-1 items-center justify-center bg-slate-800/80 p-2 rounded border border-slate-600">
+                                <span class="opacity-50 text-slate-400">c $\times B^2$</span>
+                                <span class="text-slate-500">+</span>
+                                <span class="text-white font-bold bg-indigo-500/30 px-2 py-1 rounded">o $\times B^1$</span>
+                                <span class="text-slate-500">+</span>
+                                <span class="text-white font-bold bg-indigo-500/30 px-2 py-1 rounded">d $\times B^0$</span>
+                            </div>
+                        </div>
+
+                        <!-- Trừ đi Hash[L-1] * B^(R-L+1) -->
+                        <div class="flex items-center gap-3 w-full max-w-lg justify-between">
+                            <div class="text-red-400 w-32 text-right whitespace-nowrap">- (Hash[1] $\times B^2$)</div>
+                            <div class="flex gap-1 flex-1 items-center justify-center bg-slate-800/80 p-2 rounded border border-slate-600 opacity-80 line-through decoration-red-500 decoration-2">
+                                <span class="text-slate-400">c $\times B^2$</span>
+                            </div>
+                        </div>
+
+                        <div class="w-full max-w-lg border-b border-slate-600 my-1"></div>
+
+                        <!-- Kết quả Hash(L, R) -->
+                        <div class="flex items-center gap-3 w-full max-w-lg justify-between">
+                            <div class="text-indigo-300 w-32 text-right font-bold whitespace-nowrap">= Hash(2, 3)</div>
+                            <div class="flex gap-1 flex-1 items-center justify-center bg-indigo-900/40 p-2 rounded border border-indigo-500/50 shadow-inner">
+                                <span class="text-white font-bold px-2 py-1">o $\times B^1$</span>
+                                <span class="text-white font-bold ml-1 text-slate-400">+</span>
+                                <span class="text-white font-bold ml-1 px-2 py-1">d $\times B^0$</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-amber-400/90 mt-4 bg-amber-900/20 p-4 rounded-lg border border-amber-700/50">
+                    <p class="mb-2"><span class="font-bold">* Lưu ý:</span> Khi thao tác trừ Modulo, kết quả có thể bị âm. Cần cộng thêm $M$ trước khi lấy dư: <code class="bg-slate-900 px-2 py-0.5 rounded text-amber-200 border border-slate-700">(A - B % M + M) % M</code>.</p>
+                    <p><span class="font-bold">* Đụng độ (Collision):</span> Là trường hợp hai chuỗi khác nhau nhưng lại có cùng mã băm. Để hạn chế tối đa rủi ro này, ta có thể áp dụng <strong class="text-amber-300">Double Hashing</strong> (tính mã băm độc lập với 2 cặp $(B, M)$ khác nhau).</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold text-emerald-400 mb-6 flex items-center gap-2 border-b border-slate-700 pb-3">
+                <span class="bg-emerald-900/50 text-emerald-300 w-8 h-8 rounded flex items-center justify-center text-sm shadow-sm">2</span>
+                Bài toán 1: Tìm kiếm chuỗi con (String Matching)
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div>
+                    <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 mb-6">
+                        <h3 class="text-lg font-medium text-white mb-2">Đề bài: Đếm số lần xuất hiện</h3>
+                        <p class="text-slate-300 text-sm mb-3">Cho chuỗi văn bản $S$ độ dài $N$ và chuỗi mẫu $T$ độ dài $M$. Hãy đếm số lần và in ra các vị trí mà $T$ xuất hiện dưới dạng chuỗi con liên tiếp của $S$.</p>
+                        <ul class="list-disc list-inside text-sm text-slate-400">
+                            <li>$1 \le M \le N \le 10^5$.</li>
+                            <li>Tất cả các ký tự là chữ cái in thường từ 'a' đến 'z'.</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Code C++ Sample -->
+                    <div class="flex justify-between items-center bg-slate-900 px-4 py-2 rounded-t-lg border border-slate-700 border-b-0">
+                        <span class="text-xs font-mono text-slate-400">C++ (Rabin-Karp)</span>
+                    </div>
+                    <pre class="rounded-b-lg border border-slate-700 !m-0 !bg-slate-900/80 shadow-inner text-sm"><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005;
+const long long BASE = 311;
+const long long MOD = 1e9 + 7;
+
+long long hashS[MAXN], powBase[MAXN];
+string S, T;
+int n, m;
+
+// Hàm tính mã Hash của đoạn con [L, R]
+long long getHash(int L, int R) {
+    long long res = (hashS[R] - hashS[L - 1] * powBase[R - L + 1]) % MOD;
+    return (res + MOD) % MOD; // Xử lý số âm
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    cin >> S >> T;
+    n = S.length();
+    m = T.length();
+
+    // Để dùng chỉ số 1-based (thuận tiện cho prefix sum)
+    S = " " + S;
+    T = " " + T;
+
+    // Tiền xử lý mảng lũy thừa
+    powBase[0] = 1;
+    for (int i = 1; i <= n; i++) powBase[i] = (powBase[i - 1] * BASE) % MOD;
+
+    // Xây dựng mảng Hash tiền tố cho S
+    hashS[0] = 0;
+    for (int i = 1; i <= n; i++) hashS[i] = (hashS[i - 1] * BASE + S[i]) % MOD;
+
+    // Tính mã Hash cho chuỗi T
+    long long hashT = 0;
+    for (int i = 1; i <= m; i++) hashT = (hashT * BASE + T[i]) % MOD;
+
+    // Trượt cửa sổ độ dài m trên S
+    for (int i = 1; i <= n - m + 1; i++)
+        if (getHash(i, i + m - 1) == hashT)
+            cout << i << " ";
+
+    return 0;
+}</code></pre>
+                </div>
+
+                <div class="flex flex-col bg-slate-800 border border-slate-700 rounded-lg overflow-hidden shadow-lg">
+                    <div class="bg-slate-900 px-4 py-3 border-b border-slate-700 flex justify-between items-center">
+                        <h3 class="font-semibold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Trình mô phỏng Rabin-Karp
+                        </h3>
+                        <div class="flex gap-2">
+                            <button onclick="resetSim()" class="px-3 py-1 text-xs font-medium rounded bg-slate-700 hover:bg-slate-600 text-white transition">Chơi lại</button>
+                            <button onclick="nextSim()" class="px-3 py-1 text-xs font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/50 transition">Tiếp tục ❯</button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <!-- Khung thiết lập -->
+                        <div class="mb-4 text-sm text-slate-400 flex flex-wrap gap-x-6 gap-y-2">
+                            <div><span class="text-slate-500">Quy ước:</span> $a=1, b=2, c=3$</div>
+                            <div><span class="text-slate-500">Base ($B$):</span> $10$</div>
+                            <div><span class="text-slate-500">Mod ($M$):</span> $\infty$ (Bỏ qua modulo để dễ nhìn)</div>
+                        </div>
+
+                        <!-- Target T -->
+                        <div class="mb-6">
+                            <div class="text-xs uppercase font-bold tracking-wider text-slate-500 mb-2">Chuỗi mẫu $T$ (Độ dài $M=3$)</div>
+                            <div class="flex gap-1" id="sim-t-chars">
+                                <!-- Chars rendered via JS -->
+                            </div>
+                            <div class="mt-2 text-sm text-indigo-300 font-mono" id="sim-t-hash">
+                                <!-- Hash T math -->
+                            </div>
+                        </div>
+
+                        <!-- Text S -->
+                        <div class="mb-4">
+                            <div class="text-xs uppercase font-bold tracking-wider text-slate-500 mb-2">Chuỗi văn bản $S$</div>
+                            <div class="flex gap-1" id="sim-s-chars">
+                                <!-- Chars rendered via JS -->
+                            </div>
+                            
+                            <!-- Bảng Mảng Hash -->
+                            <div class="mt-4 overflow-x-auto pb-2">
+                                <table class="w-full text-xs text-center border-collapse">
+                                    <thead>
+                                        <tr class="text-slate-500 border-b border-slate-700">
+                                            <th class="py-1 px-2 text-left font-normal">Chỉ số $i$</th>
+                                            <th class="py-1 px-2 font-normal">0</th><th class="py-1 px-2 font-normal">1</th><th class="py-1 px-2 font-normal">2</th><th class="py-1 px-2 font-normal">3</th><th class="py-1 px-2 font-normal">4</th><th class="py-1 px-2 font-normal">5</th><th class="py-1 px-2 font-normal">6</th><th class="py-1 px-2 font-normal">7</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sim-hash-table" class="font-mono text-slate-300">
+                                        <tr>
+                                            <td class="py-1 px-2 text-left text-indigo-400 font-semibold">hashS[i]</td>
+                                            <td class="py-1 px-2">0</td><td class="py-1 px-2">1</td><td class="py-1 px-2">12</td><td class="py-1 px-2">121</td><td class="py-1 px-2">1213</td><td class="py-1 px-2">12131</td><td class="py-1 px-2">121312</td><td class="py-1 px-2">1213121</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="logBox" class="h-28 overflow-y-auto bg-slate-950 p-3 rounded border border-slate-700 text-sm flex flex-col justify-center">
+                            <!-- JS sẽ inject text và KaTeX vào đây -->
+                            <div class="text-slate-400 text-center animate-pulse">Nhấn "Tiếp tục" để bắt đầu mô phỏng...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold text-rose-400 mb-6 flex items-center gap-2 border-b border-slate-700 pb-3">
+                <span class="bg-rose-900/50 text-rose-300 w-8 h-8 rounded flex items-center justify-center text-sm shadow-sm">3</span>
+                Bài toán 2: Đếm đoạn xâu đối xứng (Palindromic Substrings)
+            </h2>
+            
+            <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 mb-6">
+                <h3 class="text-lg font-medium text-white mb-2">Đề bài: Đếm đoạn xâu đối xứng</h3>
+                <p class="text-slate-300 text-sm mb-3">Cho trước một xâu $s$, hãy xác định xem có bao nhiêu xâu con của nó là xâu đối xứng (đọc từ trái sang phải giống như đọc từ phải sang trái).</p>
+                <ul class="list-disc list-inside mt-2 text-sm text-slate-400 space-y-1">
+                    <li>Dòng duy nhất chứa xâu $s$ chỉ bao gồm chữ cái in thường.</li>
+                    <li>Ràng buộc: $1 \le |s| \le 10^5$.</li>
+                </ul>
+                <div class="mt-4 flex gap-4">
+                    <div class="bg-slate-900/80 p-3 rounded border border-slate-700 flex-1">
+                        <div class="text-xs text-slate-500 font-bold uppercase mb-1">Ví dụ 1</div>
+                        <div class="font-mono text-sm text-slate-300">Input: ata<br>Output: 4</div>
+                        <div class="text-xs text-slate-400 mt-1">Giải thích: a, t, a, ata</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-3 rounded border border-slate-700 flex-1">
+                        <div class="text-xs text-slate-500 font-bold uppercase mb-1">Ví dụ 2</div>
+                        <div class="font-mono text-sm text-slate-300">Input: aabbaa<br>Output: 11</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <!-- Giải thuật và Minh họa -->
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-300 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Phân tích thuật toán
+                    </h3>
+                    <p class="text-sm text-slate-300 mb-4">Với giới hạn $N = 10^5$, thuật toán duyệt ngây thơ $O(N^3)$ hoặc mở rộng từ tâm $O(N^2)$ sẽ vượt quá thời gian cho phép (TLE). Ta có thể tối ưu độ phức tạp xuống $O(N \log N)$ bằng cách kết hợp Rolling Hash và Tìm kiếm nhị phân.</p>
+                    
+                    <div class="bg-slate-900/50 border border-indigo-500/30 p-4 rounded-lg mb-4 text-sm text-slate-300">
+                        <p class="mb-2 font-medium text-white">Hướng tiếp cận:</p>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>Xây dựng mảng mã băm <strong>thuận</strong> cho $S$ và <strong>ngược</strong> cho xâu đảo ngược của $S$.</li>
+                            <li>Một đoạn $[L, R]$ là đối xứng khi và chỉ khi <strong>Hash Thuận = Hash Ngược</strong>. Thao tác kiểm tra này tốn $O(1)$ thời gian.</li>
+                            <li>
+                                Duyệt qua từng vị trí $i$ đóng vai trò là <strong>tâm đối xứng</strong>:
+                                <ul class="list-[circle] list-inside ml-6 mt-1 text-slate-400">
+                                    <li>Tâm lẻ (ví dụ "aba"): Tâm là ký tự tại vị trí $i$.</li>
+                                    <li>Tâm chẵn (ví dụ "abba"): Tâm nằm giữa vị trí $i$ và $i+1$.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Tính đơn điệu:</strong> Nếu một đoạn độ dài $2K+1$ đối xứng thì đoạn độ dài $2K-1$ có cùng tâm cũng đối xứng. Nhờ đó, ta có thể dùng <strong>Tìm kiếm nhị phân (Binary Search)</strong> để tìm độ dài (bán kính) đối xứng lớn nhất tại mỗi tâm thay vì duyệt tuần tự.
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="border border-slate-700 bg-slate-800/30 p-4 rounded-lg shadow-md mb-6 relative overflow-hidden">
+                        <!-- Decorative background element -->
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl"></div>
+                        
+                        <p class="text-sm text-slate-300 mb-4 font-semibold relative z-10"><strong class="text-rose-400">Trực quan:</strong> So sánh Hash Thuận và Hash Ngược đoạn [2, 4]</p>
+                        
+                        <div class="flex flex-col gap-3 text-sm font-mono items-center relative z-10">
+                            <!-- S -->
+                            <div class="flex items-center gap-3 w-full max-w-sm justify-between">
+                                <div class="text-slate-400 w-12 text-right">S:</div>
+                                <div class="flex gap-1 flex-1 items-center justify-center bg-slate-800/80 p-1.5 rounded border border-slate-600">
+                                    <span class="text-slate-500 opacity-50">a</span>
+                                    <span class="text-white font-bold bg-indigo-500/30 px-2 py-0.5 rounded border border-indigo-500/50">a</span>
+                                    <span class="text-white font-bold bg-indigo-500/30 px-2 py-0.5 rounded border border-indigo-500/50">b</span>
+                                    <span class="text-white font-bold bg-indigo-500/30 px-2 py-0.5 rounded border border-indigo-500/50">a</span>
+                                    <span class="text-slate-500 opacity-50">c</span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2 items-center text-xs text-rose-300 bg-rose-900/30 px-3 py-1 rounded-full border border-rose-500/30">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                Compare $HashF(2,4) == HashR(2,4)$
+                            </div>
+
+                            <!-- revS -->
+                            <div class="flex items-center gap-3 w-full max-w-sm justify-between">
+                                <div class="text-slate-400 w-12 text-right">revS:</div>
+                                <div class="flex gap-1 flex-1 items-center justify-center bg-slate-800/80 p-1.5 rounded border border-slate-600 flex-row-reverse">
+                                    <span class="text-slate-500 opacity-50">a</span>
+                                    <span class="text-white font-bold bg-rose-500/30 px-2 py-0.5 rounded border border-rose-500/50">a</span>
+                                    <span class="text-white font-bold bg-rose-500/30 px-2 py-0.5 rounded border border-rose-500/50">b</span>
+                                    <span class="text-white font-bold bg-rose-500/30 px-2 py-0.5 rounded border border-rose-500/50">a</span>
+                                    <span class="text-slate-500 opacity-50">c</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code C++ Sample -->
+                <div>
+                    <div class="flex justify-between items-center bg-slate-900 px-4 py-2 rounded-t-lg border border-slate-700 border-b-0">
+                        <span class="text-xs font-mono text-slate-400">C++ (Hash + Binary Search)</span>
+                        <span class="text-xs text-emerald-400 font-medium">O(N log N)</span>
+                    </div>
+                    <pre class="rounded-b-lg border border-slate-700 !m-0 !bg-slate-900/80 shadow-inner text-sm overflow-hidden"><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005;
+const long long BASE = 311;
+const long long MOD = 1e9 + 7;
+
+long long hashF[MAXN], hashR[MAXN], powBase[MAXN];
+string S;
+int n;
+long long ans = 0;
+
+long long getHashF(int L, int R) {
+    long long res = (hashF[R] - hashF[L - 1] * powBase[R - L + 1]) % MOD;
+    return (res + MOD) % MOD;
+}
+
+// Chú ý cách ánh xạ chỉ số ngược
+long long getHashR(int L, int R) {
+    int L_rev = n - R + 1;
+    int R_rev = n - L + 1;
+    long long res = (hashR[R_rev] - hashR[L_rev - 1] * powBase[R_rev - L_rev + 1]) % MOD;
+    return (res + MOD) % MOD;
+}
+
+bool isPalindrome(int L, int R) {
+    return getHashF(L, R) == getHashR(L, R);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(NULL);
+    cin >> S;
+    n = S.length();
+    S = " " + S; // 1-based
+
+    powBase[0] = 1;
+    for (int i = 1; i <= n; i++) powBase[i] = (powBase[i - 1] * BASE) % MOD;
+
+    // Hash thuận
+    hashF[0] = 0;
+    for (int i = 1; i <= n; i++) hashF[i] = (hashF[i - 1] * BASE + S[i]) % MOD;
+
+    // Hash ngược
+    hashR[0] = 0;
+    for (int i = 1; i <= n; i++) hashR[i] = (hashR[i - 1] * BASE + S[n - i + 1]) % MOD;
+
+    for (int i = 1; i <= n; i++) {
+        // Đếm Palindrome tâm lẻ (ví dụ "aba")
+        int l = 1, r = min(i, n - i + 1), max_rad = 0;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            if (isPalindrome(i - mid + 1, i + mid - 1)) {
+                max_rad = mid;
+                l = mid + 1;
+            } else r = mid - 1;
+        }
+        ans += max_rad;
+
+        // Đếm Palindrome tâm chẵn (ví dụ "abba", tâm giữa i và i+1)
+        l = 1; r = min(i, n - i); max_rad = 0;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            if (isPalindrome(i - mid + 1, i + mid)) {
+                max_rad = mid;
+                l = mid + 1;
+            } else r = mid - 1;
+        }
+        ans += max_rad;
+    }
+    
+    cout << ans << "\n";
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Dữ liệu mô phỏng đơn giản hóa để dễ hiểu (B=10)
+        // a=1, b=2, c=3
+        const strT = "aba"; // Hash: 1*100 + 2*10 + 1 = 121
+        const strS = "abacaba"; 
+        const hashT_val = 121;
+        const M = 3;
+        const BASE = 10;
+        
+        // Mảng Hash cộng dồn của S (Tính trước dựa vào Base=10)
+        const hashS_arr = [0, 1, 12, 121, 1213, 12131, 121312, 1213121];
+        
+        let step = -1;
+        
+        // Trạng thái các bước
+        const simSteps = [
+            { type: 'init', msg: "Bước 0: Khởi tạo. Ta tính toán Hash của chuỗi mẫu $T$.<br>$$Hash(T) = 1 \\times 10^2 + 2 \\times 10^1 + 1 \\times 10^0 = 121$$" },
+            { type: 'slide', L: 1, R: 3, val: 121, msg: "Trượt cửa sổ đến đoạn $[1, 3]$.<br>Tính Hash: $hashS[3] - hashS[0] \\times 10^3 = 121 - 0 = 121$." },
+            { type: 'match', L: 1, R: 3, isMatch: true, msg: "$121 = 121$. <strong class='text-green-400'>Khớp!</strong> Ghi nhận vị trí xuất hiện tại chỉ số 1." },
+            
+            { type: 'slide', L: 2, R: 4, val: 213, msg: "Trượt cửa sổ đến đoạn $[2, 4]$.<br>Tính Hash: $hashS[4] - hashS[1] \\times 10^3 = 1213 - 1 \\times 1000 = 213$." },
+            { type: 'match', L: 2, R: 4, isMatch: false, msg: "$213 \\neq 121$. <strong class='text-red-400'>Không khớp.</strong>" },
+            
+            { type: 'slide', L: 3, R: 5, val: 131, msg: "Trượt cửa sổ đến đoạn $[3, 5]$.<br>Tính Hash: $hashS[5] - hashS[2] \\times 10^3 = 12131 - 12 \\times 1000 = 131$." },
+            { type: 'match', L: 3, R: 5, isMatch: false, msg: "$131 \\neq 121$. <strong class='text-red-400'>Không khớp.</strong>" },
+            
+            { type: 'slide', L: 4, R: 6, val: 312, msg: "Trượt cửa sổ đến đoạn $[4, 6]$.<br>Tính Hash: $hashS[6] - hashS[3] \\times 10^3 = 121312 - 121 \\times 1000 = 312$." },
+            { type: 'match', L: 4, R: 6, isMatch: false, msg: "$312 \\neq 121$. <strong class='text-red-400'>Không khớp.</strong>" },
+            
+            { type: 'slide', L: 5, R: 7, val: 121, msg: "Trượt cửa sổ đến đoạn $[5, 7]$.<br>Tính Hash: $hashS[7] - hashS[4] \\times 10^3 = 1213121 - 1213 \\times 1000 = 121$." },
+            { type: 'match', L: 5, R: 7, isMatch: true, msg: "$121 = 121$. <strong class='text-green-400'>Khớp.</strong> Ghi nhận vị trí xuất hiện tại chỉ số 5." },
+            
+            { type: 'end', msg: "<strong class='text-indigo-400'>Kết thúc mô phỏng.</strong> Thuật toán tìm thấy chuỗi mẫu $T$ tại các vị trí: 1, 5." }
+        ];
+
+        // Khởi tạo giao diện DOM chuỗi
+        function initDOM() {
+            const tContainer = document.getElementById('sim-t-chars');
+            const sContainer = document.getElementById('sim-s-chars');
+            tContainer.innerHTML = '';
+            sContainer.innerHTML = '';
+
+            // Vẽ chuỗi T
+            for (let i = 0; i < strT.length; i++) {
+                tContainer.innerHTML += `<div class="char-box w-10 h-10 flex flex-col items-center justify-center bg-slate-800 border border-slate-600 rounded font-mono text-lg font-bold text-slate-200">
+                    <div>${strT[i]}</div>
+                    <div class="text-[9px] text-slate-500 font-normal leading-none">${strT[i] === 'a'?1:(strT[i]==='b'?2:3)}</div>
+                </div>`;
+            }
+
+            // Vẽ chuỗi S
+            for (let i = 0; i < strS.length; i++) {
+                sContainer.innerHTML += `<div id="s-char-${i+1}" class="char-box w-10 h-10 flex flex-col items-center justify-center bg-slate-800 border border-slate-600 rounded font-mono text-lg font-bold text-slate-200">
+                    <div>${strS[i]}</div>
+                    <div class="text-[9px] text-slate-500 font-normal leading-none -mt-1">${i+1}</div>
+                </div>`;
+            }
+        }
+
+        // Cập nhật lại màu sắc các khối
+        function renderSimState(currData) {
+            const logBox = document.getElementById('logBox');
+            const tHashBox = document.getElementById('sim-t-hash');
+            
+            // Reset toàn bộ style chuỗi S
+            for (let i = 1; i <= strS.length; i++) {
+                let el = document.getElementById(`s-char-${i}`);
+                el.className = "char-box w-10 h-10 flex flex-col items-center justify-center bg-slate-800 border border-slate-600 rounded font-mono text-lg font-bold text-slate-200";
+            }
+
+            if (currData.type === 'init') {
+                tHashBox.innerHTML = `HashT = ${hashT_val}`;
+            }
+
+            if (currData.L && currData.R) {
+                // Tô màu cửa sổ đang xét
+                for (let i = currData.L; i <= currData.R; i++) {
+                    let el = document.getElementById(`s-char-${i}`);
+                    if (currData.type === 'slide') {
+                        // Highlight Sliding Window
+                        el.className = "char-box w-10 h-10 flex flex-col items-center justify-center bg-indigo-600/40 border-2 border-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)] rounded font-mono text-lg font-bold text-white z-10 scale-105";
+                    } else if (currData.type === 'match') {
+                        if (currData.isMatch) {
+                            el.className = "char-box w-10 h-10 flex flex-col items-center justify-center bg-green-600/40 border-2 border-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)] rounded font-mono text-lg font-bold text-white z-10 scale-105";
+                        } else {
+                            el.className = "char-box w-10 h-10 flex flex-col items-center justify-center bg-red-600/40 border-2 border-red-400 rounded font-mono text-lg font-bold text-white z-10 opacity-70";
+                        }
+                    }
+                }
+            }
+
+            // Ghi log và Render Math
+            logBox.innerHTML = `<div class="text-slate-300">${currData.msg}</div>`;
+            if (window.renderMathInElement) {
+                renderMathInElement(logBox, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+            }
+        }
+
+        function nextSim() {
+            if (step < simSteps.length - 1) {
+                step++;
+                renderSimState(simSteps[step]);
+            }
+        }
+
+        function resetSim() {
+            step = -1;
+            document.getElementById('sim-t-hash').innerHTML = '';
+            document.getElementById('logBox').innerHTML = '<div class="text-slate-400 text-center animate-pulse">Nhấn "Tiếp tục" để bắt đầu mô phỏng...</div>';
+            initDOM();
+        }
+
+        // Chạy lần đầu
+        window.onload = () => {
+            initDOM();
+        };
+    </script>
+</body>
+</html>
