@@ -183,7 +183,13 @@
                 <h4 class="text-xl font-semibold mt-8 mb-3">Phương pháp 1</h4>
                 <p>Một cách thanh lịch để duyệt qua tất cả các tập con là sử dụng đệ quy. Hàm <code>search</code> dưới đây sinh ra các tập con của tập $\{0, 1, \dots, n-1\}$. Hàm duy trì một vector <code>subset</code> chứa các phần tử của tập con hiện tại. Quá trình tìm kiếm bắt đầu khi gọi hàm với tham số $0$.</p>
 
-<pre><code class="language-cpp">void search(int k) {
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n = 3;
+vector&lt;int&gt; subset;
+
+void search(int k) {
     if (k == n) {
         // xử lý tập con
     } else {
@@ -199,15 +205,73 @@
                 
                 <p>Cây đệ quy dưới đây minh họa các lời gọi hàm khi $n = 3$. Tại mỗi bước, ta luôn có thể chọn rẽ nhánh trái (không thêm $k$ vào tập con) hoặc rẽ nhánh phải (thêm $k$ vào tập con).</p>
 
-                <div class="overflow-x-auto text-center text-sm font-mono bg-gray-900 border border-gray-700 p-6 rounded-lg mb-8 text-gray-300 leading-loose">
-                    <div>search(0)</div>
-                    <div>↙ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↘</div>
-                    <div>search(1) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; search(1)</div>
-                    <div>↙ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↘ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↙ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↘</div>
-                    <div>search(2) &nbsp; &nbsp; search(2) &nbsp; &nbsp; &nbsp; &nbsp; search(2) &nbsp; &nbsp; search(2)</div>
-                    <div>↙ &nbsp; &nbsp; ↘ &nbsp; &nbsp; ↙ &nbsp; &nbsp; ↘ &nbsp; &nbsp; &nbsp; &nbsp; ↙ &nbsp; &nbsp; ↘ &nbsp; &nbsp; ↙ &nbsp; &nbsp; ↘</div>
-                    <div>s(3) &nbsp; s(3) &nbsp; s(3) &nbsp; s(3) &nbsp; &nbsp; s(3) &nbsp; s(3) &nbsp; s(3) &nbsp; s(3)</div>
-                    <div class="font-bold text-blue-400">∅ &nbsp; &nbsp; {2} &nbsp; &nbsp; {1} &nbsp; {1,2} &nbsp; &nbsp; {0} &nbsp; {0,2} &nbsp; {0,1} &nbsp;{0,1,2}</div>
+                <div class="overflow-x-auto bg-gray-900 border border-gray-700 p-6 rounded-lg mb-8 flex justify-center shadow-inner">
+                    <svg viewBox="0 0 800 320" class="w-full max-w-3xl h-auto min-w-[600px]" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
+                            </marker>
+                        </defs>
+                        <style>
+                            .node { fill: #e5e7eb; font-size: 15px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace; text-anchor: middle; dominant-baseline: middle; }
+                            .leaf { fill: #60a5fa; font-size: 16px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+                            .link { stroke: #9ca3af; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+                        </style>
+                        
+                        <!-- Edges -->
+                        <!-- Row 0 -> Row 1 -->
+                        <line x1="380" y1="45" x2="250" y2="85" class="link" />
+                        <line x1="420" y1="45" x2="550" y2="85" class="link" />
+
+                        <!-- Row 1 -> Row 2 -->
+                        <line x1="200" y1="115" x2="145" y2="155" class="link" />
+                        <line x1="240" y1="115" x2="295" y2="155" class="link" />
+                        <line x1="560" y1="115" x2="505" y2="155" class="link" />
+                        <line x1="600" y1="115" x2="655" y2="155" class="link" />
+
+                        <!-- Row 2 -> Row 3 -->
+                        <line x1="120" y1="185" x2="95" y2="225" class="link" />
+                        <line x1="140" y1="185" x2="165" y2="225" class="link" />
+                        
+                        <line x1="300" y1="185" x2="275" y2="225" class="link" />
+                        <line x1="320" y1="185" x2="345" y2="225" class="link" />
+                        
+                        <line x1="480" y1="185" x2="455" y2="225" class="link" />
+                        <line x1="500" y1="185" x2="525" y2="225" class="link" />
+                        
+                        <line x1="660" y1="185" x2="635" y2="225" class="link" />
+                        <line x1="680" y1="185" x2="705" y2="225" class="link" />
+
+                        <!-- Nodes -->
+                        <text x="400" y="30" class="node">search(0)</text>
+                        
+                        <text x="220" y="100" class="node">search(1)</text>
+                        <text x="580" y="100" class="node">search(1)</text>
+                        
+                        <text x="130" y="170" class="node">search(2)</text>
+                        <text x="310" y="170" class="node">search(2)</text>
+                        <text x="490" y="170" class="node">search(2)</text>
+                        <text x="670" y="170" class="node">search(2)</text>
+
+                        <text x="85" y="240" class="node">s(3)</text>
+                        <text x="175" y="240" class="node">s(3)</text>
+                        <text x="265" y="240" class="node">s(3)</text>
+                        <text x="355" y="240" class="node">s(3)</text>
+                        <text x="445" y="240" class="node">s(3)</text>
+                        <text x="535" y="240" class="node">s(3)</text>
+                        <text x="625" y="240" class="node">s(3)</text>
+                        <text x="715" y="240" class="node">s(3)</text>
+
+                        <!-- Leaves -->
+                        <text x="85" y="290" class="leaf">∅</text>
+                        <text x="175" y="290" class="leaf">{2}</text>
+                        <text x="265" y="290" class="leaf">{1}</text>
+                        <text x="355" y="290" class="leaf">{1,2}</text>
+                        <text x="445" y="290" class="leaf">{0}</text>
+                        <text x="535" y="290" class="leaf">{0,2}</text>
+                        <text x="625" y="290" class="leaf">{0,1}</text>
+                        <text x="715" y="290" class="leaf">{0,1,2}</text>
+                    </svg>
                 </div>
 
                 <h4 class="text-xl font-semibold mt-8 mb-3">Phương pháp 2</h4>
@@ -418,7 +482,7 @@ void search(int y) {
 
                 <p class="mt-4">Quá trình tìm kiếm bắt đầu bằng cách gọi <code>search(0)</code>. Bàn cờ có kích thước $n \times n$, và số lượng nghiệm đếm được sẽ lưu vào biến toàn cục <code>cnt</code>.</p>
                 <p>Thuật toán giả định các hàng và cột được đánh số từ $0$ đến $n-1$. Khi <code>search(y)</code> được gọi, nó cố gắng đặt một quân hậu lên hàng $y$ và sau đó đệ quy <code>search(y + 1)</code>. Nếu $y = n$, ta đã đặt thành công quân hậu ở mọi hàng, tức là tìm được một nghiệm, do đó tăng <code>cnt</code> lên 1.</p>
-                <p>Mảng <code>column</code> theo dõi các cột đã bị chiếm, trong khi mảng <code>diag1</code> và <code>diag2</code> quản lý hai hướng đường chéo chính và phụ. Thuật toán sẽ bỏ qua nếu cột hoặc đường chéo tương ứng đã có quân hậu. Cách quy đổi tọa độ $(x,y)$ ra chỉ số mảng cho bàn cờ $4 \times 4$ được thể hiện ở hình sau:</p>
+                <p>Mảng <code>column</code> theo dõi các cột đã bị chiếm, trong khi mảng <code>diag1</code> và <code>diag2</code> quản lý hai hướng đường chéo chính và phụ. Thuật toán sẽ bỏ qua nếu cột tương ứng đã có quân hậu. Cách quy đổi tọa độ $(x,y)$ ra chỉ số mảng cho bàn cờ $4 \times 4$ được thể hiện ở hình sau:</p>
 
                 <div class="flex justify-center space-x-12 mb-10 mt-6">
                     <div class="text-center">
