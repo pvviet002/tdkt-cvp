@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mục lục Chuyên đề Lập trình</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Tùy chỉnh mũi tên của thẻ details */
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans p-8">
+
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-6 text-gray-900 border-b pb-2">Mục lục Chuyên đề</h1>
+
+        <ul class="space-y-2 text-lg">
+            <li>
+                <a href="preface.html" class="flex items-center text-blue-600 hover:underline">
+                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    Preface
+                </a>
+            </li>
+
+            <li>
+                <details open class="group">
+                    <summary class="flex items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+                        <span class="mr-2 transform group-open:rotate-90 transition-transform text-gray-400">▶</span>
+                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                        I Basic techniques
+                    </summary>
+                    <ul class="ml-10 mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
+                        <li><a href="introduction.html" class="text-blue-600 hover:underline">Introduction</a></li>
+                        <li><a href="time-complexity.html" class="text-blue-600 hover:underline">Time complexity</a></li>
+                        <li><a href="sorting.html" class="text-blue-600 hover:underline">Sorting</a></li>
+                        <li><a href="data-structures.html" class="text-blue-600 hover:underline">Data structures</a></li>
+                        <li><a href="complete-search.html" class="text-blue-600 hover:underline">Complete search</a></li>
+                        <li><a href="greedy-algorithms.html" class="text-blue-600 hover:underline">Greedy algorithms</a></li>
+                        <li><a href="dynamic-programming.html" class="text-blue-600 hover:underline">Dynamic programming</a></li>
+                        <li><a href="amortized-analysis.html" class="text-blue-600 hover:underline">Amortized analysis</a></li>
+                        <li><a href="range-queries.html" class="text-blue-600 hover:underline">Range queries</a></li>
+                        <li><a href="bit-manipulation.html" class="text-blue-600 hover:underline">Bit manipulation</a></li>
+                    </ul>
+                </details>
+            </li>
+
+            <li>
+                <details open class="group">
+                    <summary class="flex items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+                        <span class="mr-2 transform group-open:rotate-90 transition-transform text-gray-400">▶</span>
+                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                        II Graph algorithms
+                    </summary>
+                    <ul class="ml-10 mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
+                        <li><a href="basics-of-graphs.html" class="text-blue-600 hover:underline">Basics of graphs</a></li>
+                        <li><a href="graph-traversal.html" class="text-blue-600 hover:underline">Graph traversal</a></li>
+                        <li><a href="shortest-paths.html" class="text-blue-600 hover:underline">Shortest paths</a></li>
+                        <li><a href="tree-algorithms.html" class="text-blue-600 hover:underline">Tree algorithms</a></li>
+                        <li><a href="spanning-trees.html" class="text-blue-600 hover:underline">Spanning trees</a></li>
+                        <li><a href="directed-graphs.html" class="text-blue-600 hover:underline">Directed graphs</a></li>
+                        <li><a href="strong-connectivity.html" class="text-blue-600 hover:underline">Strong connectivity</a></li>
+                        <li><a href="tree-queries.html" class="text-blue-600 hover:underline">Tree queries</a></li>
+                        <li><a href="paths-and-circuits.html" class="text-blue-600 hover:underline">Paths and circuits</a></li>
+                        <li><a href="flows-and-cuts.html" class="text-blue-600 hover:underline">Flows and cuts</a></li>
+                    </ul>
+                </details>
+            </li>
+
+            <li>
+                <details open class="group">
+                    <summary class="flex items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+                        <span class="mr-2 transform group-open:rotate-90 transition-transform text-gray-400">▶</span>
+                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                        III Advanced topics
+                    </summary>
+                    <ul class="ml-10 mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
+                        <li><a href="number-theory.html" class="text-blue-600 hover:underline">Number theory</a></li>
+                        <li><a href="combinatorics.html" class="text-blue-600 hover:underline">Combinatorics</a></li>
+                        <li><a href="matrices.html" class="text-blue-600 hover:underline">Matrices</a></li>
+                        <li><a href="probability.html" class="text-blue-600 hover:underline">Probability</a></li>
+                        <li><a href="game-theory.html" class="text-blue-600 hover:underline">Game theory</a></li>
+                        <li><a href="string-algorithms.html" class="text-blue-600 hover:underline">String algorithms</a></li>
+                        <li><a href="square-root-algorithms.html" class="text-blue-600 hover:underline">Square root algorithms</a></li>
+                        <li><a href="segment-trees-revisited.html" class="text-blue-600 hover:underline">Segment trees revisited</a></li>
+                        <li><a href="geometry.html" class="text-blue-600 hover:underline">Geometry</a></li>
+                        <li><a href="sweep-line-algorithms.html" class="text-blue-600 hover:underline">Sweep line algorithms</a></li>
+                    </ul>
+                </details>
+            </li>
+
+            <li>
+                <a href="bibliography.html" class="flex items-center text-blue-600 hover:underline mt-2">
+                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    Bibliography
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</body>
+</html>
