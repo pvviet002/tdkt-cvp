@@ -34,9 +34,8 @@
         /* Styles cho Cây Không Gian Tìm Kiếm & Các Hình SVG Tự Động */
         .node-text { fill: #f8fafc; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace; font-size: 16px; }
         .leaf-text { fill: #60a5fa; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace; font-size: 18px; font-weight: bold; }
-        .edge { stroke: #64748b; stroke-width: 1.5; fill: none; stroke-linecap: round; }
+        .edge { stroke: #64748b; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
         .grid-bg { fill: #1e293b; stroke: #475569; stroke-width: 1.5; }
-        .queen-icon { fill: #f8fafc; font-size: 26px; font-family: sans-serif; }
         .path-line { fill: none; stroke: #60a5fa; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
         .path-arrow { fill: #60a5fa; }
         
@@ -411,13 +410,14 @@ void search(int y) {
                 svg += `<rect x="${j*cs}" y="${i*cs}" width="${cs}" height="${cs}" class="grid-bg" />`;
             }
         }
-        // Draw queens
+        // Draw queens (Auto-scale font size)
+        const qSize = cs * 0.75;
         queens.forEach(q => {
-            svg += `<text x="${q.c*cs + cs/2}" y="${q.r*cs + cs/2}" text-anchor="middle" dominant-baseline="central" class="queen-icon">♕</text>`;
+            svg += `<text x="${q.c*cs + cs/2}" y="${q.r*cs + cs/2 + 2}" text-anchor="middle" dominant-baseline="central" fill="#f8fafc" style="font-size: ${qSize}px; font-family: sans-serif;">♕</text>`;
         });
         // Draw Status
         if(statusLabel) {
-            svg += `<text x="${size/2}" y="${size + 20}" text-anchor="middle" font-family="monospace" font-size="14" font-weight="600" fill="${statusColor}">${statusLabel}</text>`;
+            svg += `<text x="${size/2}" y="${size + 20}" text-anchor="middle" font-family="ui-monospace, monospace" font-size="14" font-weight="600" fill="${statusColor}">${statusLabel}</text>`;
         }
         svg += `</svg>`;
         return svg;
@@ -513,42 +513,33 @@ void search(int y) {
             drawChessboard(4, [{r:0,c:1}, {r:1,c:3}, {r:2,c:0}, {r:3,c:2}], 128) +
             drawChessboard(4, [{r:0,c:2}, {r:1,c:0}, {r:2,c:3}, {r:3,c:1}], 128);
 
-        // 4. N-Queens Tree
-        const nqWidth = 800, nqHeight = 400;
+        // 4. N-Queens Tree (Updated to Orthogonal Lines)
         let nqSvg = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="${nqWidth}" height="${nqHeight}" viewBox="0 0 ${nqWidth} ${nqHeight}" style="min-width: 800px;">
-                <defs><marker id="arrow-nq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b" /></marker></defs>
+            <svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400" style="min-width: 800px;">
         `;
         
-        // Tree coordinates
-        const root = { x: 400, y: 10 };
-        const level1 = [
-            { x: 100, y: 160 }, { x: 300, y: 160 }, { x: 500, y: 160 }, { x: 700, y: 160 }
-        ];
-        const level2 = [
-            { x: 40, y: 310 }, { x: 150, y: 310 }, { x: 260, y: 310 }, { x: 370, y: 310 }
-        ];
+        // Vẽ các đường nhánh vuông góc (Orthogonal edges)
+        nqSvg += `
+            <!-- Các nhánh đi từ Node Gốc xuống Tầng 1 -->
+            <path d="M 500 100 L 500 120 M 380 120 L 620 120 M 380 120 L 380 140 M 460 120 L 460 140 M 540 120 L 540 140 M 620 120 L 620 140" class="edge" />
+            <!-- Các nhánh đi từ Tầng 1 (Node đầu tiên) xuống Tầng 2 -->
+            <path d="M 380 220 L 380 240 M 200 240 L 560 240 M 200 240 L 200 260 M 320 240 L 320 260 M 440 240 L 440 260 M 560 240 L 560 260" class="edge" />
+        `;
 
-        // Draw Lines
-        level1.forEach(p => {
-            nqSvg += `<line x1="${root.x}" y1="${root.y + 70}" x2="${p.x}" y2="${p.y - 10}" class="edge" marker-end="url(#arrow-nq)" />`;
-        });
-        level2.forEach(p => {
-            nqSvg += `<line x1="${level1[0].x}" y1="${level1[0].y + 70}" x2="${p.x}" y2="${p.y - 10}" class="edge" marker-end="url(#arrow-nq)" />`;
-        });
-
-        // Insert SVG blocks (Chessboards inside main SVG)
-        nqSvg += `<svg x="${root.x - 32}" y="${root.y}">${drawChessboard(4, [], 64)}</svg>`;
+        // Bàn cờ Gốc (Root)
+        nqSvg += `<svg x="460" y="20">${drawChessboard(4, [], 80)}</svg>`;
         
-        nqSvg += `<svg x="${level1[0].x - 32}" y="${level1[0].y}">${drawChessboard(4, [{r:0,c:0}], 64)}</svg>`;
-        nqSvg += `<svg x="${level1[1].x - 32}" y="${level1[1].y}">${drawChessboard(4, [{r:0,c:1}], 64)}</svg>`;
-        nqSvg += `<svg x="${level1[2].x - 32}" y="${level1[2].y}">${drawChessboard(4, [{r:0,c:2}], 64)}</svg>`;
-        nqSvg += `<svg x="${level1[3].x - 32}" y="${level1[3].y}">${drawChessboard(4, [{r:0,c:3}], 64)}</svg>`;
+        // Tầng 1 (Các bàn cờ kề sát nhau tạo thành lưới liên tục)
+        nqSvg += `<svg x="340" y="140">${drawChessboard(4, [{r:0,c:0}], 80)}</svg>`;
+        nqSvg += `<svg x="420" y="140">${drawChessboard(4, [{r:0,c:1}], 80)}</svg>`;
+        nqSvg += `<svg x="500" y="140">${drawChessboard(4, [{r:0,c:2}], 80)}</svg>`;
+        nqSvg += `<svg x="580" y="140">${drawChessboard(4, [{r:0,c:3}], 80)}</svg>`;
 
-        nqSvg += `<svg x="${level2[0].x - 32}" y="${level2[0].y}">${drawChessboard(4, [{r:0,c:0}, {r:1,c:0}], 64, 'illegal', '#f87171')}</svg>`;
-        nqSvg += `<svg x="${level2[1].x - 32}" y="${level2[1].y}">${drawChessboard(4, [{r:0,c:0}, {r:1,c:1}], 64, 'illegal', '#f87171')}</svg>`;
-        nqSvg += `<svg x="${level2[2].x - 32}" y="${level2[2].y}">${drawChessboard(4, [{r:0,c:0}, {r:1,c:2}], 64, 'valid', '#4ade80')}</svg>`;
-        nqSvg += `<svg x="${level2[3].x - 32}" y="${level2[3].y}">${drawChessboard(4, [{r:0,c:0}, {r:1,c:3}], 64, 'valid', '#4ade80')}</svg>`;
+        // Tầng 2 (Các bàn cờ tách rời nhau kèm trạng thái)
+        nqSvg += `<svg x="160" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:0}], 80, 'illegal', '#f87171')}</svg>`;
+        nqSvg += `<svg x="280" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:1}], 80, 'illegal', '#f87171')}</svg>`;
+        nqSvg += `<svg x="400" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:2}], 80, 'valid', '#4ade80')}</svg>`;
+        nqSvg += `<svg x="520" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:3}], 80, 'valid', '#4ade80')}</svg>`;
 
         nqSvg += `</svg>`;
         document.getElementById('svg-nqueens-tree').innerHTML = nqSvg;
