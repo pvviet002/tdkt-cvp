@@ -52,6 +52,17 @@
         .grid-lines { stroke: #374151; stroke-width: 1; }
         .path-line { fill: none; stroke: #60a5fa; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
         .arrow-head { fill: #60a5fa; }
+        
+        /* Styles cho Cây Không Gian Tìm Kiếm */
+        .node-text { fill: #f8fafc; font-family: "Times New Roman", Times, serif; font-size: 19px; }
+        .leaf-text { fill: #f8fafc; font-family: "Times New Roman", Times, serif; font-size: 20px; font-weight: bold; }
+        .edge { stroke: #94a3b8; stroke-width: 1.5; fill: none; stroke-linecap: round; }
+        
+        /* Tùy chỉnh thanh cuộn ngang */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
 <body class="bg-gray-900 h-screen flex overflow-hidden">
@@ -205,73 +216,8 @@ void search(int k) {
                 
                 <p>Cây đệ quy dưới đây minh họa các lời gọi hàm khi $n = 3$. Tại mỗi bước, ta luôn có thể chọn rẽ nhánh trái (không thêm $k$ vào tập con) hoặc rẽ nhánh phải (thêm $k$ vào tập con).</p>
 
-                <div class="overflow-x-auto bg-gray-900 border border-gray-700 p-6 rounded-lg mb-8 flex justify-center shadow-inner">
-                    <svg viewBox="0 0 800 320" class="w-full max-w-3xl h-auto min-w-[600px]" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
-                            </marker>
-                        </defs>
-                        <style>
-                            .node { fill: #e5e7eb; font-size: 15px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace; text-anchor: middle; dominant-baseline: middle; }
-                            .leaf { fill: #60a5fa; font-size: 16px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
-                            .link { stroke: #9ca3af; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
-                        </style>
-                        
-                        <!-- Edges -->
-                        <!-- Row 0 -> Row 1 -->
-                        <line x1="380" y1="45" x2="250" y2="85" class="link" />
-                        <line x1="420" y1="45" x2="550" y2="85" class="link" />
-
-                        <!-- Row 1 -> Row 2 -->
-                        <line x1="200" y1="115" x2="145" y2="155" class="link" />
-                        <line x1="240" y1="115" x2="295" y2="155" class="link" />
-                        <line x1="560" y1="115" x2="505" y2="155" class="link" />
-                        <line x1="600" y1="115" x2="655" y2="155" class="link" />
-
-                        <!-- Row 2 -> Row 3 -->
-                        <line x1="120" y1="185" x2="95" y2="225" class="link" />
-                        <line x1="140" y1="185" x2="165" y2="225" class="link" />
-                        
-                        <line x1="300" y1="185" x2="275" y2="225" class="link" />
-                        <line x1="320" y1="185" x2="345" y2="225" class="link" />
-                        
-                        <line x1="480" y1="185" x2="455" y2="225" class="link" />
-                        <line x1="500" y1="185" x2="525" y2="225" class="link" />
-                        
-                        <line x1="660" y1="185" x2="635" y2="225" class="link" />
-                        <line x1="680" y1="185" x2="705" y2="225" class="link" />
-
-                        <!-- Nodes -->
-                        <text x="400" y="30" class="node">search(0)</text>
-                        
-                        <text x="220" y="100" class="node">search(1)</text>
-                        <text x="580" y="100" class="node">search(1)</text>
-                        
-                        <text x="130" y="170" class="node">search(2)</text>
-                        <text x="310" y="170" class="node">search(2)</text>
-                        <text x="490" y="170" class="node">search(2)</text>
-                        <text x="670" y="170" class="node">search(2)</text>
-
-                        <text x="85" y="240" class="node">s(3)</text>
-                        <text x="175" y="240" class="node">s(3)</text>
-                        <text x="265" y="240" class="node">s(3)</text>
-                        <text x="355" y="240" class="node">s(3)</text>
-                        <text x="445" y="240" class="node">s(3)</text>
-                        <text x="535" y="240" class="node">s(3)</text>
-                        <text x="625" y="240" class="node">s(3)</text>
-                        <text x="715" y="240" class="node">s(3)</text>
-
-                        <!-- Leaves -->
-                        <text x="85" y="290" class="leaf">∅</text>
-                        <text x="175" y="290" class="leaf">{2}</text>
-                        <text x="265" y="290" class="leaf">{1}</text>
-                        <text x="355" y="290" class="leaf">{1,2}</text>
-                        <text x="445" y="290" class="leaf">{0}</text>
-                        <text x="535" y="290" class="leaf">{0,2}</text>
-                        <text x="625" y="290" class="leaf">{0,1}</text>
-                        <text x="715" y="290" class="leaf">{0,1,2}</text>
-                    </svg>
+                <div class="w-full overflow-x-auto custom-scrollbar bg-[#0f172a] rounded-xl border border-slate-800 p-8 flex justify-center shadow-inner mb-8" id="svg-container">
+                    <!-- Mã SVG sẽ được JavaScript vẽ tự động vào đây -->
                 </div>
 
                 <h4 class="text-xl font-semibold mt-8 mb-3">Phương pháp 2</h4>
@@ -657,6 +603,88 @@ void search(int y) {
                 {left: '$', right: '$', display: false}
             ]
         });
+
+        // Vẽ Cây không gian tìm kiếm
+        const nodes = [
+            { id: '0_0', x: 500, y: 60, text: 'search(0)' },
+            { id: '1_0', x: 300, y: 150, text: 'search(1)' },
+            { id: '1_1', x: 700, y: 150, text: 'search(1)' },
+            { id: '2_0', x: 200, y: 240, text: 'search(2)' },
+            { id: '2_1', x: 400, y: 240, text: 'search(2)' },
+            { id: '2_2', x: 600, y: 240, text: 'search(2)' },
+            { id: '2_3', x: 800, y: 240, text: 'search(2)' },
+            { id: '3_0', x: 150, y: 330, text: 'search(3)' },
+            { id: '3_1', x: 250, y: 330, text: 'search(3)' },
+            { id: '3_2', x: 350, y: 330, text: 'search(3)' },
+            { id: '3_3', x: 450, y: 330, text: 'search(3)' },
+            { id: '3_4', x: 550, y: 330, text: 'search(3)' },
+            { id: '3_5', x: 650, y: 330, text: 'search(3)' },
+            { id: '3_6', x: 750, y: 330, text: 'search(3)' },
+            { id: '3_7', x: 850, y: 330, text: 'search(3)' },
+        ];
+
+        const edges = [
+            ['0_0', '1_0'], ['0_0', '1_1'],
+            ['1_0', '2_0'], ['1_0', '2_1'],
+            ['1_1', '2_2'], ['1_1', '2_3'],
+            ['2_0', '3_0'], ['2_0', '3_1'],
+            ['2_1', '3_2'], ['2_1', '3_3'],
+            ['2_2', '3_4'], ['2_2', '3_5'],
+            ['2_3', '3_6'], ['2_3', '3_7'],
+        ];
+
+        const leaves = [
+            { x: 150, y: 410, text: '∅' },
+            { x: 250, y: 410, text: '{2}' },
+            { x: 350, y: 410, text: '{1}' },
+            { x: 450, y: 410, text: '{1, 2}' },
+            { x: 550, y: 410, text: '{0}' },
+            { x: 650, y: 410, text: '{0, 2}' },
+            { x: 750, y: 410, text: '{0, 1}' },
+            { x: 850, y: 410, text: '{0, 1, 2}' },
+        ];
+
+        const getNode = (id) => nodes.find(n => n.id === id);
+
+        let svgCode = `
+            <svg id="main-svg" xmlns="http://www.w3.org/2000/svg" width="1000" height="480" viewBox="0 0 1000 480" style="background-color: #0f172a; border-radius: 8px; min-width: 1000px;">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8" />
+                    </marker>
+                </defs>
+        `;
+
+        edges.forEach(edge => {
+            const u = getNode(edge[0]);
+            const v = getNode(edge[1]);
+            const dx = v.x - u.x;
+            const dy = v.y - u.y;
+            
+            const rU = 16 / dy;
+            const rV = 20 / dy;
+            const x1 = u.x + dx * rU;
+            const y1 = u.y + 16;
+            const x2 = v.x - dx * rV;
+            const y2 = v.y - 20;
+
+            svgCode += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="edge" marker-end="url(#arrow)" />`;
+        });
+
+        nodes.forEach(node => {
+            svgCode += `<text x="${node.x}" y="${node.y}" text-anchor="middle" dominant-baseline="central" class="node-text">${node.text}</text>`;
+        });
+
+        leaves.forEach(leaf => {
+            svgCode += `<text x="${leaf.x}" y="${leaf.y}" text-anchor="middle" dominant-baseline="central" class="leaf-text">${leaf.text}</text>`;
+        });
+
+        svgCode += `</svg>`;
+
+        const svgContainer = document.getElementById('svg-container');
+        if(svgContainer) {
+            svgContainer.innerHTML = svgCode;
+        }
     });
 </script>
 
