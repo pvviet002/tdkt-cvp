@@ -39,6 +39,12 @@
         .path-line { fill: none; stroke: #60a5fa; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
         .path-arrow { fill: #60a5fa; }
         
+        /* Styles cho Bàn Cờ N-Queens Tree */
+        .board-rect { fill: transparent; stroke: #cbd5e1; stroke-width: 2; }
+        .grid-line { stroke: #cbd5e1; stroke-width: 1.5; }
+        .queen-icon-tree { fill: #f8fafc; font-size: 20px; text-anchor: middle; dominant-baseline: central; font-family: "Arial Unicode MS", "Segoe UI Symbol", serif; }
+        .board-label { font-family: "Times New Roman", Times, serif; font-size: 24px; text-anchor: middle; dominant-baseline: central; font-weight: bold; }
+        
         /* Tùy chỉnh thanh cuộn ngang */
         .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
@@ -513,33 +519,57 @@ void search(int y) {
             drawChessboard(4, [{r:0,c:1}, {r:1,c:3}, {r:2,c:0}, {r:3,c:2}], 128) +
             drawChessboard(4, [{r:0,c:2}, {r:1,c:0}, {r:2,c:3}, {r:3,c:1}], 128);
 
-        // 4. N-Queens Tree (Updated to Orthogonal Lines)
-        let nqSvg = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400" style="min-width: 800px;">
-        `;
-        
-        // Vẽ các đường nhánh vuông góc (Orthogonal edges)
-        nqSvg += `
-            <!-- Các nhánh đi từ Node Gốc xuống Tầng 1 -->
-            <path d="M 500 100 L 500 120 M 380 120 L 620 120 M 380 120 L 380 140 M 460 120 L 460 140 M 540 120 L 540 140 M 620 120 L 620 140" class="edge" />
-            <!-- Các nhánh đi từ Tầng 1 (Node đầu tiên) xuống Tầng 2 -->
-            <path d="M 380 220 L 380 240 M 200 240 L 560 240 M 200 240 L 200 260 M 320 240 L 320 260 M 440 240 L 440 260 M 560 240 L 560 260" class="edge" />
-        `;
+        // 4. N-Queens Tree (Sử dụng cấu trúc dữ liệu và style lưới được cung cấp)
+        const nqBoards = [
+            { id: 'root', x: 550, y: 20, qs: [] },
+            { id: 'l1_1', x: 190, y: 200, qs: [[0,0]] },
+            { id: 'l1_2', x: 430, y: 200, qs: [[0,1]] },
+            { id: 'l1_3', x: 670, y: 200, qs: [[0,2]] },
+            { id: 'l1_4', x: 910, y: 200, qs: [[0,3]] },
+            { id: 'l2_1', x: 190, y: 380, qs: [[0,1], [1,0]], label: 'illegal' },
+            { id: 'l2_2', x: 350, y: 380, qs: [[0,1], [1,1]], label: 'illegal' },
+            { id: 'l2_3', x: 510, y: 380, qs: [[0,1], [1,2]], label: 'illegal' },
+            { id: 'l2_4', x: 670, y: 380, qs: [[0,1], [1,3]], label: 'valid' }
+        ];
 
-        // Bàn cờ Gốc (Root)
-        nqSvg += `<svg x="460" y="20">${drawChessboard(4, [], 80)}</svg>`;
-        
-        // Tầng 1 (Các bàn cờ kề sát nhau tạo thành lưới liên tục)
-        nqSvg += `<svg x="340" y="140">${drawChessboard(4, [{r:0,c:0}], 80)}</svg>`;
-        nqSvg += `<svg x="420" y="140">${drawChessboard(4, [{r:0,c:1}], 80)}</svg>`;
-        nqSvg += `<svg x="500" y="140">${drawChessboard(4, [{r:0,c:2}], 80)}</svg>`;
-        nqSvg += `<svg x="580" y="140">${drawChessboard(4, [{r:0,c:3}], 80)}</svg>`;
+        const nqEdges = [
+            ['root', 'l1_1'], ['root', 'l1_2'], ['root', 'l1_3'], ['root', 'l1_4'],
+            ['l1_2', 'l2_1'], ['l1_2', 'l2_2'], ['l1_2', 'l2_3'], ['l1_2', 'l2_4']
+        ];
 
-        // Tầng 2 (Các bàn cờ tách rời nhau kèm trạng thái)
-        nqSvg += `<svg x="160" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:0}], 80, 'illegal', '#f87171')}</svg>`;
-        nqSvg += `<svg x="280" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:1}], 80, 'illegal', '#f87171')}</svg>`;
-        nqSvg += `<svg x="400" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:2}], 80, 'valid', '#4ade80')}</svg>`;
-        nqSvg += `<svg x="520" y="260">${drawChessboard(4, [{r:0,c:0}, {r:1,c:3}], 80, 'valid', '#4ade80')}</svg>`;
+        const getBoard = (id) => nqBoards.find(b => b.id === id);
+
+        let nqSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="550" viewBox="0 0 1200 550" style="min-width: 1000px;">`;
+
+        // Vẽ các nhánh vuông góc (Orthogonal Edges)
+        nqEdges.forEach(edge => {
+            const u = getBoard(edge[0]);
+            const v = getBoard(edge[1]);
+            const x1 = u.x + 50;
+            const y1 = u.y + 100;
+            const x2 = v.x + 50;
+            const y2 = v.y;
+            const midY = y1 + (y2 - y1) / 2;
+            nqSvg += `<path d="M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}" class="edge" />`;
+        });
+
+        // Vẽ các bàn cờ
+        nqBoards.forEach(b => {
+            nqSvg += `<rect x="${b.x}" y="${b.y}" width="100" height="100" class="board-rect" />`;
+            for(let i = 1; i <= 3; i++) {
+                nqSvg += `<line x1="${b.x + i*25}" y1="${b.y}" x2="${b.x + i*25}" y2="${b.y + 100}" class="grid-line" />`;
+                nqSvg += `<line x1="${b.x}" y1="${b.y + i*25}" x2="${b.x + 100}" y2="${b.y + i*25}" class="grid-line" />`;
+            }
+            b.qs.forEach(q => {
+                const cx = b.x + q[1] * 25 + 12.5;
+                const cy = b.y + q[0] * 25 + 13.5;
+                nqSvg += `<text x="${cx}" y="${cy}" class="queen-icon-tree">&#9819;&#xFE0E;</text>`;
+            });
+            if (b.label) {
+                const labelColor = b.label === 'valid' ? '#34d399' : '#f87171';
+                nqSvg += `<text x="${b.x + 50}" y="${b.y + 125}" class="board-label" fill="${labelColor}">${b.label}</text>`;
+            }
+        });
 
         nqSvg += `</svg>`;
         document.getElementById('svg-nqueens-tree').innerHTML = nqSvg;
