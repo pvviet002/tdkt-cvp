@@ -183,13 +183,7 @@
                 <h4 class="text-xl font-semibold mt-8 mb-3">Phương pháp 1</h4>
                 <p>Một cách thanh lịch để duyệt qua tất cả các tập con là sử dụng đệ quy. Hàm <code>search</code> dưới đây sinh ra các tập con của tập $\{0, 1, \dots, n-1\}$. Hàm duy trì một vector <code>subset</code> chứa các phần tử của tập con hiện tại. Quá trình tìm kiếm bắt đầu khi gọi hàm với tham số $0$.</p>
 
-<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-int n = 3;
-vector&lt;int&gt; subset;
-
-void search(int k) {
+<pre><code class="language-cpp">void search(int k) {
     if (k == n) {
         // xử lý tập con
     } else {
