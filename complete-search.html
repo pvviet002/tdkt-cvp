@@ -539,9 +539,9 @@ void search(int y) {
 
         const getBoard = (id) => nqBoards.find(b => b.id === id);
 
-        let nqSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="550" viewBox="0 0 1200 550" style="min-width: 1000px;">`;
+        let nqSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="550" viewBox="0 0 1200 550" style="min-width: 1200px;">`;
 
-        // Vẽ các nhánh vuông góc (Orthogonal Edges)
+        // Vẽ các nhánh thẳng chéo (Straight Edges) giống hệt thiết kế gốc
         nqEdges.forEach(edge => {
             const u = getBoard(edge[0]);
             const v = getBoard(edge[1]);
@@ -549,8 +549,7 @@ void search(int y) {
             const y1 = u.y + 100;
             const x2 = v.x + 50;
             const y2 = v.y;
-            const midY = y1 + (y2 - y1) / 2;
-            nqSvg += `<path d="M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}" class="edge" />`;
+            nqSvg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="edge" />`;
         });
 
         // Vẽ các bàn cờ
