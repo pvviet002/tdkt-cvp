@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 5: Tìm kiếm toàn bộ (Complete search)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <style>
+        /* Đảm bảo tuyệt đối KHÔNG dùng font-serif */
+        body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        
+        .chessboard { border-collapse: collapse; margin: 10px auto; }
+        .chessboard td { width: 30px; height: 30px; border: 1px solid #999; text-align: center; vertical-align: middle; font-size: 20px; }
+        .index-table { border-collapse: collapse; margin: 10px; display: inline-block; }
+        .index-table td { width: 25px; height: 25px; border: 1px solid #333; text-align: center; font-size: 14px; }
+        
+        /* Grid cho bài toán đếm đường đi */
+        .grid-svg { width: 140px; height: 140px; border: 1px solid #333; display: block; margin: 0 auto; background-image: linear-gradient(#ccc 1px, transparent 1px), linear-gradient(90deg, #ccc 1px, transparent 1px); background-size: 20px 20px; }
+        .path-line { fill: none; stroke: #333; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 leading-relaxed py-10">
+
+<div class="max-w-4xl mx-auto bg-white p-10 shadow-lg rounded-lg">
+
+    <h1 class="text-4xl font-bold mb-4">Chương 5</h1>
+    <h2 class="text-5xl font-extrabold mb-8 pb-4 border-b-2 border-gray-200">Tìm kiếm toàn bộ (Complete search)</h2>
+
+    <p class="mb-4"><strong>Tìm kiếm toàn bộ (vét cạn)</strong> là một phương pháp tổng quát có thể dùng để giải quyết hầu hết mọi bài toán thuật toán. Ý tưởng là tạo ra tất cả các nghiệm có thể có của bài toán bằng cách thử sai (brute force), sau đó chọn ra nghiệm tốt nhất hoặc đếm số lượng nghiệm, tùy thuộc vào yêu cầu bài toán.</p>
+    
+    <p class="mb-8">Tìm kiếm toàn bộ là một kỹ thuật tốt nếu có đủ thời gian để duyệt qua tất cả các nghiệm, bởi vì nó thường dễ cài đặt và luôn đưa ra đáp án chính xác. Nếu việc tìm kiếm toàn bộ diễn ra quá chậm, ta có thể cần đến các kỹ thuật khác, chẳng hạn như thuật toán tham lam (greedy algorithms) hoặc quy hoạch động (dynamic programming).</p>
+
+    <h3 class="text-3xl font-bold mt-10 mb-4 border-l-4 border-blue-600 pl-4">5.1 Sinh tập con (Generating subsets)</h3>
+    <p class="mb-4">Đầu tiên chúng ta xem xét bài toán sinh tất cả các tập con của một tập hợp có \(n\) phần tử. Ví dụ, các tập con của \(\{0, 1, 2\}\) là \(\emptyset, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}\) và \(\{0, 1, 2\}\). Có hai phương pháp phổ biến để sinh tập con: thực hiện tìm kiếm đệ quy hoặc khai thác biểu diễn nhị phân của số nguyên.</p>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Phương pháp 1</h4>
+    <p class="mb-2">Một cách thanh lịch để duyệt qua tất cả các tập con là sử dụng đệ quy. Hàm <code>search</code> dưới đây sinh ra các tập con của tập \(\{0, 1, \dots, n-1\}\). Hàm này duy trì một vector <code>subset</code> chứa các phần tử của từng tập con. Quá trình tìm kiếm bắt đầu khi hàm được gọi với tham số 0.</p>
+
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n = 3;
+vector&lt;int&gt; subset;
+
+void search(int k) {
+    if (k == n) {
+        // xử lý tập con
+    } else {
+        search(k + 1);
+        subset.push_back(k);
+        search(k + 1);
+        subset.pop_back();
+    }
+}
+</code></pre>
+
+    <p class="mb-4 mt-4">Khi hàm <code>search</code> được gọi với tham số \(k\), nó sẽ quyết định xem có đưa phần tử \(k\) vào tập con hay không, và trong cả hai trường hợp, nó đều tự gọi lại chính nó với tham số \(k + 1\). Tuy nhiên, nếu \(k = n\), hàm nhận thấy rằng tất cả các phần tử đã được xét qua và một tập con đã được sinh ra hoàn chỉnh.</p>
+    
+    <p class="mb-4">Cây đệ quy dưới đây minh họa các lời gọi hàm khi \(n = 3\). Ta luôn có thể chọn rẽ nhánh trái (\(k\) không có trong tập con) hoặc rẽ nhánh phải (\(k\) có trong tập con).</p>
+
+    <div class="overflow-x-auto text-center text-sm font-mono bg-gray-100 p-4 rounded-lg mb-8">
+        <p>search(0)</p>
+        <p>↙ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↘</p>
+        <p>search(1) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; search(1)</p>
+        <p>↙ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↘ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↙ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↘</p>
+        <p>search(2) &nbsp; &nbsp; search(2) &nbsp; &nbsp; &nbsp; &nbsp; search(2) &nbsp; &nbsp; search(2)</p>
+        <p>↙ &nbsp; &nbsp; ↘ &nbsp; &nbsp; ↙ &nbsp; &nbsp; ↘ &nbsp; &nbsp; &nbsp; &nbsp; ↙ &nbsp; &nbsp; ↘ &nbsp; &nbsp; ↙ &nbsp; &nbsp; ↘</p>
+        <p>s(3) &nbsp; s(3) &nbsp; s(3) &nbsp; s(3) &nbsp; &nbsp; s(3) &nbsp; s(3) &nbsp; s(3) &nbsp; s(3)</p>
+        <p>∅ &nbsp; &nbsp; {2} &nbsp; &nbsp; {1} &nbsp; {1,2} &nbsp; &nbsp; {0} &nbsp; {0,2} &nbsp; {0,1} &nbsp;{0,1,2}</p>
+    </div>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Phương pháp 2</h4>
+    <p class="mb-2">Một cách khác để sinh tập con là dựa trên biểu diễn nhị phân (bit) của số nguyên. Mỗi tập con của một tập hợp \(n\) phần tử có thể được biểu diễn bằng một chuỗi \(n\) bit, tương ứng với một số nguyên từ \(0 \dots 2^n - 1\). Các bit 1 trong chuỗi bit chỉ ra phần tử nào được đưa vào tập con.</p>
+    <p class="mb-2">Quy ước thông thường là bit cuối cùng tương ứng với phần tử 0, bit áp chót tương ứng với phần tử 1, và cứ thế tiếp tục. Ví dụ, biểu diễn nhị phân của 25 là 11001, tương ứng với tập con \(\{0, 3, 4\}\).</p>
+    <p class="mb-2">Đoạn mã sau duyệt qua tất cả các tập con của một tập hợp có \(n\) phần tử:</p>
+
+<pre><code class="language-cpp">for (int b = 0; b &lt; (1 &lt;&lt; n); b++) {
+    // xử lý tập con
+}
+</code></pre>
+
+    <p class="mb-2 mt-4">Đoạn mã tiếp theo chỉ ra cách chúng ta có thể tìm các phần tử của một tập con tương ứng với một chuỗi bit. Khi xử lý mỗi tập con, mã sẽ xây dựng một vector chứa các phần tử trong tập con đó.</p>
+
+<pre><code class="language-cpp">for (int b = 0; b &lt; (1 &lt;&lt; n); b++) {
+    vector&lt;int&gt; subset;
+    for (int i = 0; i &lt; n; i++) {
+        if (b & (1 &lt;&lt; i)) subset.push_back(i);
+    }
+}
+</code></pre>
+
+    <h3 class="text-3xl font-bold mt-12 mb-4 border-l-4 border-blue-600 pl-4">5.2 Sinh hoán vị (Generating permutations)</h3>
+    <p class="mb-4">Tiếp theo, chúng ta xem xét bài toán sinh tất cả các hoán vị của một tập hợp có \(n\) phần tử. Ví dụ, các hoán vị của \(\{0, 1, 2\}\) là \((0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1)\) và \((2, 1, 0)\). Một lần nữa, có hai cách tiếp cận: ta có thể sử dụng đệ quy hoặc duyệt qua các hoán vị bằng vòng lặp.</p>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Phương pháp 1</h4>
+    <p class="mb-2">Giống như tập con, các hoán vị có thể được sinh ra bằng đệ quy. Hàm <code>search</code> sau đây duyệt qua các hoán vị của tập \(\{0, 1, \dots, n-1\}\). Hàm này xây dựng một vector <code>permutation</code> chứa hoán vị, và quá trình tìm kiếm bắt đầu khi hàm được gọi mà không có tham số.</p>
+
+<pre><code class="language-cpp">int n = 3;
+vector&lt;int&gt; permutation;
+bool chosen[100]; // Kích thước đủ lớn
+
+void search() {
+    if (permutation.size() == n) {
+        // xử lý hoán vị
+    } else {
+        for (int i = 0; i &lt; n; i++) {
+            if (chosen[i]) continue;
+            chosen[i] = true;
+            permutation.push_back(i);
+            search();
+            chosen[i] = false;
+            permutation.pop_back();
+        }
+    }
+}
+</code></pre>
+    <p class="mb-6 mt-2">Mỗi lời gọi hàm sẽ thêm một phần tử mới vào <code>permutation</code>. Mảng <code>chosen</code> chỉ định những phần tử nào đã được đưa vào hoán vị. Nếu kích thước của <code>permutation</code> bằng kích thước của tập hợp, một hoán vị đã được sinh ra.</p>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Phương pháp 2</h4>
+    <p class="mb-2">Một phương pháp khác để sinh hoán vị là bắt đầu với hoán vị \(\{0, 1, \dots, n-1\}\) và liên tục sử dụng một hàm để cấu trúc hoán vị tiếp theo theo thứ tự tăng dần. Thư viện chuẩn C++ có chứa hàm <code>next_permutation</code> có thể được dùng cho việc này:</p>
+
+<pre><code class="language-cpp">vector&lt;int&gt; permutation;
+for (int i = 0; i &lt; n; i++) {
+    permutation.push_back(i);
+}
+do {
+    // xử lý hoán vị
+} while (next_permutation(permutation.begin(), permutation.end()));
+</code></pre>
+
+
+    <h3 class="text-3xl font-bold mt-12 mb-4 border-l-4 border-blue-600 pl-4">5.3 Quay lui (Backtracking)</h3>
+    <p class="mb-4">Một thuật toán <strong>quay lui (backtracking)</strong> bắt đầu với một nghiệm rỗng và mở rộng nghiệm đó theo từng bước. Quá trình tìm kiếm đệ quy duyệt qua tất cả các cách khác nhau để có thể cấu trúc nên một nghiệm.</p>
+    
+    <p class="mb-4">Như một ví dụ, hãy xem xét bài toán tính số cách đặt \(n\) quân hậu trên một bàn cờ \(n \times n\) sao cho không có hai quân hậu nào tấn công nhau. Ví dụ, khi \(n = 4\), có hai nghiệm có thể xảy ra:</p>
+
+    <div class="flex justify-center space-x-8 mb-6">
+        <table class="chessboard">
+            <tr><td></td><td>♕</td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td>♕</td></tr>
+            <tr><td>♕</td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td>♕</td><td></td></tr>
+        </table>
+        <table class="chessboard">
+            <tr><td></td><td></td><td>♕</td><td></td></tr>
+            <tr><td>♕</td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td>♕</td></tr>
+            <tr><td></td><td>♕</td><td></td><td></td></tr>
+        </table>
+    </div>
+
+    <p class="mb-4">Bài toán có thể được giải quyết bằng kỹ thuật quay lui bằng cách đặt từng quân hậu lên bàn cờ theo từng hàng. Cụ thể hơn, chính xác một quân hậu sẽ được đặt trên mỗi hàng sao cho không có quân hậu nào tấn công các quân hậu đã được đặt trước đó. Một nghiệm được tìm thấy khi tất cả \(n\) quân hậu đã được đặt lên bàn cờ.</p>
+
+    <p class="mb-4">Ví dụ, khi \(n = 4\), một số trạng thái cục bộ được sinh ra bởi thuật toán quay lui như sau:</p>
+
+    <div class="flex flex-col items-center mb-8">
+        <table class="chessboard mb-4">
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+        </table>
+        <div class="flex justify-center space-x-4 mb-4">
+            <table class="chessboard">
+                <tr><td>♕</td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+            </table>
+            <table class="chessboard">
+                <tr><td></td><td>♕</td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+            </table>
+            <table class="chessboard">
+                <tr><td></td><td></td><td>♕</td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+            </table>
+            <table class="chessboard">
+                <tr><td></td><td></td><td></td><td>♕</td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+            </table>
+        </div>
+        <div class="flex justify-center space-x-4">
+            <div class="text-center">
+                <table class="chessboard">
+                    <tr><td></td><td>♕</td><td></td><td></td></tr>
+                    <tr><td>♕</td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
+                <span class="text-sm">illegal</span>
+            </div>
+            <div class="text-center">
+                <table class="chessboard">
+                    <tr><td></td><td>♕</td><td></td><td></td></tr>
+                    <tr><td></td><td>♕</td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
+                <span class="text-sm">illegal</span>
+            </div>
+            <div class="text-center">
+                <table class="chessboard">
+                    <tr><td></td><td>♕</td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td>♕</td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
+                <span class="text-sm">illegal</span>
+            </div>
+            <div class="text-center">
+                <table class="chessboard">
+                    <tr><td></td><td>♕</td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td>♕</td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                </table>
+                <span class="text-sm">valid</span>
+            </div>
+        </div>
+    </div>
+
+    <p class="mb-4">Ở tầng dưới cùng, ba cấu hình đầu tiên là không hợp lệ (illegal) vì các quân hậu tấn công lẫn nhau. Tuy nhiên, cấu hình thứ tư là hợp lệ (valid) và nó có thể được mở rộng thành một nghiệm hoàn chỉnh bằng cách đặt thêm hai quân hậu nữa lên bàn cờ. Chỉ có duy nhất một cách để đặt hai quân hậu còn lại.</p>
+    
+    <p class="mb-2">Thuật toán có thể được cài đặt như sau:</p>
+
+<pre><code class="language-cpp">int n = 4, cnt = 0;
+bool column[100], diag1[100], diag2[100];
+
+void search(int y) {
+    if (y == n) {
+        cnt++;
+        return;
+    }
+    for (int x = 0; x &lt; n; x++) {
+        if (column[x] || diag1[x + y] || diag2[x - y + n - 1]) continue;
+        
+        column[x] = diag1[x + y] = diag2[x - y + n - 1] = 1;
+        search(y + 1);
+        column[x] = diag1[x + y] = diag2[x - y + n - 1] = 0;
+    }
+}
+</code></pre>
+
+    <p class="mb-4 mt-4">Quá trình tìm kiếm bắt đầu bằng cách gọi <code>search(0)</code>. Kích thước của bàn cờ là \(n \times n\), và đoạn mã tính toán số lượng nghiệm lưu vào biến <code>cnt</code>.</p>
+    <p class="mb-4">Mã giả định rằng các hàng và cột của bàn cờ được đánh số từ \(0\) đến \(n-1\). Khi hàm <code>search</code> được gọi với tham số \(y\), nó đặt một quân hậu lên hàng \(y\) và sau đó tự gọi lại chính nó với tham số \(y + 1\). Nếu \(y = n\), một nghiệm đã được tìm thấy và biến đếm <code>cnt</code> được tăng thêm một.</p>
+    <p class="mb-4">Mảng <code>column</code> theo dõi các cột đã chứa quân hậu, trong khi các mảng <code>diag1</code> và <code>diag2</code> theo dõi các đường chéo. Không được phép thêm một quân hậu khác vào cột hoặc đường chéo đã có quân hậu. Ví dụ, các cột và đường chéo của bàn cờ \(4 \times 4\) được đánh số như sau:</p>
+
+    <div class="flex justify-center space-x-12 mb-8">
+        <div class="text-center">
+            <table class="index-table">
+                <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+                <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+                <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+                <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+            </table>
+            <p class="text-sm font-mono mt-1">column</p>
+        </div>
+        <div class="text-center">
+            <table class="index-table">
+                <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+                <tr><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+                <tr><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+                <tr><td>3</td><td>4</td><td>5</td><td>6</td></tr>
+            </table>
+            <p class="text-sm font-mono mt-1">diag1</p>
+        </div>
+        <div class="text-center">
+            <table class="index-table">
+                <tr><td>3</td><td>4</td><td>5</td><td>6</td></tr>
+                <tr><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+                <tr><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+                <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+            </table>
+            <p class="text-sm font-mono mt-1">diag2</p>
+        </div>
+    </div>
+
+    <p class="mb-4">Gọi \(q(n)\) là số lượng cách đặt \(n\) quân hậu trên bàn cờ \(n \times n\). Thuật toán quay lui ở trên cho chúng ta biết, ví dụ, \(q(8) = 92\). Khi \(n\) tăng lên, quá trình tìm kiếm nhanh chóng trở nên chậm chạp, vì số lượng nghiệm tăng theo cấp số nhân. Ví dụ, tính \(q(16) = 14772512\) bằng thuật toán trên mất khoảng một phút trên một máy tính hiện đại.</p>
+
+    <h3 class="text-3xl font-bold mt-12 mb-4 border-l-4 border-blue-600 pl-4">5.4 Cắt tỉa nhánh tìm kiếm (Pruning the search)</h3>
+    <p class="mb-4">Chúng ta thường có thể tối ưu hóa thuật toán quay lui bằng cách cắt tỉa cây tìm kiếm. Ý tưởng là thêm "trí thông minh" vào thuật toán để nó có thể nhận ra càng sớm càng tốt nếu một nghiệm cục bộ không thể mở rộng thành một nghiệm hoàn chỉnh. Những tối ưu hóa như vậy có thể mang lại tác động to lớn đến hiệu suất của việc tìm kiếm.</p>
+
+    <p class="mb-4">Hãy xem xét bài toán tính số lượng đường đi trong một lưới \(n \times n\) từ góc trên bên trái đến góc dưới bên phải sao cho đường đi thăm mỗi ô vuông chính xác một lần. Ví dụ, trong một lưới \(7 \times 7\), có 111712 đường đi như vậy. Một trong số đó được hiển thị dưới đây:</p>
+
+    <div class="flex justify-center mb-6">
+        <svg class="grid-svg" viewBox="0 0 140 140">
+            <polyline class="path-line" points="10,10 10,90 30,90 30,30 90,30 90,10 130,10 130,50 110,50 110,70 50,70 50,110 30,110 30,130 90,130 90,90 130,90 130,130" />
+            <polygon points="127,125 130,130 133,125" fill="#333" />
+        </svg>
+    </div>
+
+    <p class="mb-4">Chúng ta sẽ tập trung vào trường hợp \(7 \times 7\), vì mức độ khó của nó phù hợp với nhu cầu của chúng ta. Ta bắt đầu với một thuật toán quay lui cơ bản thẳng thắn, và sau đó tối ưu hóa nó từng bước bằng cách sử dụng các quan sát về việc làm thế nào quá trình tìm kiếm có thể được cắt tỉa. Sau mỗi lần tối ưu, chúng ta sẽ đo thời gian chạy của thuật toán và số lượng lời gọi đệ quy, để thấy rõ hiệu quả của mỗi tối ưu hóa đối với tính hiệu quả của thuật toán.</p>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Thuật toán cơ bản (Basic algorithm)</h4>
+    <p class="mb-2">Phiên bản đầu tiên của thuật toán không chứa bất kỳ tối ưu hóa nào. Chúng ta chỉ đơn giản sử dụng quay lui để sinh ra tất cả các đường đi có thể có từ góc trên bên trái đến góc dưới bên phải và đếm số lượng đường đi đó.</p>
+    <ul class="list-disc pl-8 mb-6">
+        <li>thời gian chạy: 483 giây</li>
+        <li>số lượng lời gọi đệ quy: 76 tỷ</li>
+    </ul>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Tối ưu hóa 1 (Optimization 1)</h4>
+    <p class="mb-2">Trong bất kỳ nghiệm nào, đầu tiên chúng ta di chuyển một bước xuống dưới hoặc sang phải. Luôn có hai đường đi đối xứng nhau qua đường chéo của lưới sau bước đi đầu tiên. Ví dụ, các đường đi sau đây là đối xứng:</p>
+    
+    <div class="flex justify-center space-x-8 mb-4">
+        <svg class="grid-svg" viewBox="0 0 140 140">
+            <polyline class="path-line" points="10,10 10,90 30,90 30,30 90,30 90,10 130,10 130,50 110,50 110,70 50,70 50,110 30,110 30,130 90,130 90,90 130,90 130,130" />
+            <polygon points="127,125 130,130 133,125" fill="#333" />
+        </svg>
+        <svg class="grid-svg" viewBox="0 0 140 140">
+            <polyline class="path-line" points="10,10 90,10 90,30 30,30 30,90 10,90 10,130 50,130 50,110 70,110 70,50 110,50 110,30 130,30 130,90 90,90 90,130 130,130" />
+            <polygon points="125,127 130,130 125,133" fill="#333" />
+        </svg>
+    </div>
+
+    <p class="mb-2">Do đó, chúng ta có thể quyết định rằng ta luôn di chuyển bước đầu tiên xuống dưới (hoặc sang phải), và cuối cùng nhân số lượng nghiệm lên gấp đôi.</p>
+    <ul class="list-disc pl-8 mb-6">
+        <li>thời gian chạy: 244 giây</li>
+        <li>số lượng lời gọi đệ quy: 38 tỷ</li>
+    </ul>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Tối ưu hóa 2 (Optimization 2)</h4>
+    <p class="mb-2">Nếu đường đi chạm tới ô góc dưới cùng bên phải trước khi nó ghé thăm tất cả các ô khác của lưới, rõ ràng là sẽ không thể hoàn thành nghiệm. Một ví dụ về điều này là đường đi sau:</p>
+
+    <div class="flex justify-center mb-4">
+        <svg class="grid-svg" viewBox="0 0 140 140">
+            <polyline class="path-line" points="10,10 10,70 30,70 30,30 70,30 70,110 30,110 30,130 130,130" />
+            <polygon points="125,127 130,130 125,133" fill="#333" />
+        </svg>
+    </div>
+
+    <p class="mb-2">Sử dụng quan sát này, chúng ta có thể kết thúc tìm kiếm ngay lập tức nếu chúng ta đến ô góc dưới bên phải quá sớm.</p>
+    <ul class="list-disc pl-8 mb-6">
+        <li>thời gian chạy: 119 giây</li>
+        <li>số lượng lời gọi đệ quy: 20 tỷ</li>
+    </ul>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Tối ưu hóa 3 (Optimization 3)</h4>
+    <p class="mb-2">Nếu đường đi chạm vào một bức tường và có thể rẽ trái hoặc phải, lưới sẽ bị chia thành hai phần chứa các ô chưa được ghé thăm. Ví dụ, trong tình huống sau, đường đi có thể rẽ trái hoặc phải:</p>
+
+    <div class="flex justify-center mb-4">
+        <svg class="grid-svg" viewBox="0 0 140 140">
+            <polyline class="path-line" points="10,10 10,70 30,70 30,30 50,30 50,110 30,110 30,130 90,130 90,90 50,90 50,50 110,50 110,10" />
+            <polygon points="107,15 110,10 113,15" fill="#333" />
+        </svg>
+    </div>
+
+    <p class="mb-2">Trong trường hợp này, chúng ta không thể ghé thăm tất cả các ô vuông được nữa, vì vậy chúng ta có thể kết thúc tìm kiếm. Tối ưu hóa này rất hữu ích:</p>
+    <ul class="list-disc pl-8 mb-6">
+        <li>thời gian chạy: 1.8 giây</li>
+        <li>số lượng lời gọi đệ quy: 221 triệu</li>
+    </ul>
+
+    <h4 class="text-xl font-semibold mt-6 mb-2">Tối ưu hóa 4 (Optimization 4)</h4>
+    <p class="mb-2">Ý tưởng của Tối ưu hóa 3 có thể được khái quát hóa: nếu đường đi không thể tiếp tục tiến lên mà có thể rẽ trái hoặc rẽ phải, lưới sẽ bị chia thành hai phần mà cả hai đều chứa các ô chưa được thăm. Ví dụ, xem xét đường đi sau:</p>
+
+    <div class="flex justify-center mb-4">
+        <svg class="grid-svg" viewBox="0 0 140 140">
+            <polyline class="path-line" points="10,10 10,70 30,70 30,30 110,30 110,50 50,50 50,110 30,110 30,130 90,130 90,90 70,90" />
+            <polygon points="75,87 70,90 75,93" fill="#333" />
+        </svg>
+    </div>
+
+    <p class="mb-2">Rõ ràng là chúng ta không thể ghé thăm tất cả các ô vuông được nữa, vì vậy ta có thể dừng tìm kiếm. Sau tối ưu hóa này, việc tìm kiếm trở nên cực kỳ hiệu quả:</p>
+    <ul class="list-disc pl-8 mb-6">
+        <li>thời gian chạy: 0.6 giây</li>
+        <li>số lượng lời gọi đệ quy: 69 triệu</li>
+    </ul>
+
+    <p class="mb-4 mt-6">Bây giờ là lúc thích hợp để dừng việc tối ưu hóa thuật toán và xem chúng ta đã đạt được những gì. Thời gian chạy của thuật toán ban đầu là 483 giây, và giờ đây sau các bước tối ưu, thời gian chạy chỉ còn 0.6 giây. Như vậy, thuật toán đã trở nên nhanh hơn gần 1000 lần sau khi tối ưu.</p>
+    
+    <p class="mb-4">Đây là một hiện tượng thường gặp trong quay lui, bởi vì cây tìm kiếm thường rất lớn và ngay cả những quan sát đơn giản cũng có thể cắt tỉa hiệu quả quá trình tìm kiếm. Đặc biệt hữu ích là những tối ưu hóa xảy ra trong những bước đầu tiên của thuật toán, tức là ở phần đỉnh của cây tìm kiếm.</p>
+
+    <h3 class="text-3xl font-bold mt-12 mb-4 border-l-4 border-blue-600 pl-4">5.5 Gặp nhau ở giữa (Meet in the middle)</h3>
+    <p class="mb-4"><strong>Gặp nhau ở giữa (Meet in the middle)</strong> là một kỹ thuật trong đó không gian tìm kiếm được chia thành hai phần có kích thước xấp xỉ bằng nhau. Một cuộc tìm kiếm riêng biệt được thực hiện cho cả hai phần, và cuối cùng kết quả của các cuộc tìm kiếm được kết hợp lại.</p>
+
+    <p class="mb-4">Kỹ thuật này có thể được sử dụng nếu có một cách hiệu quả để kết hợp các kết quả tìm kiếm. Trong tình huống như vậy, hai cuộc tìm kiếm có thể tốn ít thời gian hơn một cuộc tìm kiếm lớn. Thông thường, chúng ta có thể chuyển hệ số từ \(2^n\) thành hệ số \(2^{n/2}\) bằng cách sử dụng kỹ thuật gặp nhau ở giữa.</p>
+
+    <p class="mb-4">Làm ví dụ, hãy xem xét bài toán trong đó chúng ta được cho một danh sách \(n\) số và một số \(x\), và chúng ta muốn tìm xem liệu có thể chọn một số lượng các số từ danh sách sao cho tổng của chúng bằng \(x\) hay không. Ví dụ, cho danh sách \([2, 4, 5, 9]\) và \(x = 15\), ta có thể chọn các số \([2, 4, 9]\) để đạt được \(2 + 4 + 9 = 15\). Tuy nhiên, nếu \(x = 10\) với cùng danh sách trên, sẽ không thể tạo thành tổng đó.</p>
+
+    <p class="mb-4">Một thuật toán đơn giản cho bài toán này là duyệt qua tất cả các tập con của các phần tử và kiểm tra xem tổng của bất kỳ tập con nào có bằng \(x\) hay không. Thời gian chạy của thuật toán như vậy là \(\mathcal{O}(2^n)\), vì có \(2^n\) tập con. Tuy nhiên, bằng cách sử dụng kỹ thuật gặp nhau ở giữa, chúng ta có thể đạt được một thuật toán hiệu quả hơn với thời gian \(\mathcal{O}(2^{n/2})\). Lưu ý rằng \(\mathcal{O}(2^n)\) và \(\mathcal{O}(2^{n/2})\) là hai độ phức tạp khác nhau vì \(2^{n/2}\) thực chất bằng \(\sqrt{2^n}\).</p>
+
+    <p class="mb-4">Ý tưởng là chia danh sách thành hai danh sách \(A\) và \(B\) sao cho cả hai danh sách chứa khoảng một nửa các con số. Lần tìm kiếm đầu tiên sinh ra tất cả các tập con của \(A\) và lưu trữ tổng của chúng vào một danh sách \(S_A\). Tương tự, lần tìm kiếm thứ hai tạo ra một danh sách \(S_B\) từ \(B\). Sau bước này, chỉ cần kiểm tra xem có thể chọn một phần tử từ \(S_A\) và một phần tử khác từ \(S_B\) sao cho tổng của chúng bằng \(x\) hay không. Điều này hoàn toàn có thể xảy ra khi và chỉ khi có một cách tạo ra tổng \(x\) sử dụng các con số từ danh sách gốc ban đầu.</p>
+
+    <p class="mb-4">Ví dụ, giả sử danh sách là \([2, 4, 5, 9]\) và \(x = 15\). Đầu tiên, ta chia danh sách thành \(A = [2, 4]\) và \(B = [5, 9]\). Sau đó, ta tạo ra các danh sách \(S_A = [0, 2, 4, 6]\) và \(S_B = [0, 5, 9, 14]\). Trong trường hợp này, tổng \(x = 15\) có thể được tạo ra, bởi vì \(S_A\) chứa tổng 6, \(S_B\) chứa tổng 9, và \(6 + 9 = 15\). Điều này tương ứng với nghiệm \([2, 4, 9]\).</p>
+
+    <p class="mb-4">Chúng ta có thể cài đặt thuật toán sao cho độ phức tạp thời gian của nó là \(\mathcal{O}(2^{n/2})\). Đầu tiên, ta sinh ra các danh sách <em>đã sắp xếp</em> \(S_A\) và \(S_B\), thao tác này có thể thực hiện trong thời gian \(\mathcal{O}(2^{n/2})\) bằng kỹ thuật tương tự như Merge Sort (sắp xếp trộn). Sau đó, do các danh sách đã được sắp xếp, ta có thể kiểm tra trong thời gian \(\mathcal{O}(2^{n/2})\) xem tổng \(x\) có thể được tạo ra từ \(S_A\) và \(S_B\) hay không.</p>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+</body>
+</html>
