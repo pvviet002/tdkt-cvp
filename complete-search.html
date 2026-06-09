@@ -213,6 +213,58 @@ void search(int k) {
                 <h4 class="text-xl font-semibold mt-8 mb-3 text-gray-200">Phương pháp 2</h4>
                 <p>Một cách khác để sinh tập con là dựa trên biểu diễn bit của số nguyên. Mỗi tập con của tập $n$ phần tử có thể được biểu thị bằng một chuỗi $n$ bit, tương ứng với một số nguyên từ $0 \dots 2^n - 1$. Các bit $1$ trong chuỗi bit chỉ ra phần tử nào được chọn vào tập con.</p>
                 <p>Quy ước thông thường là bit cuối cùng (bit 0) tương ứng với phần tử 0, bit áp chót (bit 1) tương ứng với phần tử 1, và cứ thế. Ví dụ, biểu diễn nhị phân của $25$ là $11001$, tương ứng với tập con $\{0, 3, 4\}$.</p>
+                
+                <!-- Minh họa Bitmask Simulator -->
+                <div class="my-8 w-full font-sans">
+                    <!-- Control Panel -->
+                    <div class="bg-[#1e293b] p-6 rounded-xl border border-slate-700 shadow-lg mb-6">
+                        <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
+                            <!-- Input N -->
+                            <div class="w-full md:w-1/2">
+                                <label class="block text-sm font-semibold text-slate-400 mb-2">
+                                    Số phần tử tập hợp ($n = $ <span id="displayN" class="text-sky-400 font-mono">5</span>)
+                                </label>
+                                <input type="range" id="inputN" min="1" max="8" value="5" class="w-full accent-sky-500 cursor-pointer" />
+                                <div class="flex justify-between text-xs text-slate-500 mt-1 font-mono">
+                                    <span>1</span><span>8</span>
+                                </div>
+                            </div>
+
+                            <!-- Input Value -->
+                            <div class="w-full md:w-1/2">
+                                <label class="block text-sm font-semibold text-slate-400 mb-2">
+                                    Hệ thập phân (Giá trị = <span id="displayValue" class="text-emerald-400 font-mono">25</span>)
+                                </label>
+                                <input type="number" id="inputValue" min="0" max="255" value="25" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 font-mono text-lg transition-colors" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Mapping Area -->
+                    <div class="bg-[#0b1120] p-6 md:p-10 rounded-2xl border border-slate-800 shadow-2xl relative overflow-x-auto custom-scrollbar select-none">
+                        <div class="min-w-max flex flex-col items-center">
+                            
+                            <p class="text-slate-400 mb-8 text-sm md:text-base flex items-center gap-2">
+                                <svg class="w-5 h-5 text-sky-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                                Click trực tiếp vào các ô vuông bên dưới để Bật/Tắt bit (Toggle)
+                            </p>
+
+                            <!-- Middle: Binary Bits & Connectors -->
+                            <div id="bitsContainer" class="flex items-center justify-center gap-3 md:gap-6 mb-8">
+                                <!-- HTML các bit sẽ được chèn tự động vào đây bằng JavaScript -->
+                            </div>
+
+                            <!-- Bottom: Resulting Subset -->
+                            <div class="mt-4 pt-8 border-t border-slate-800/80 w-full flex flex-col items-center">
+                                <span class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Tập con tương ứng</span>
+                                <div id="subsetResult" class="text-3xl md:text-4xl font-black text-sky-400 tracking-wider">
+                                    {0, 3, 4}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <p>Đoạn mã sau duyệt qua tất cả các tập con của một tập hợp có $n$ phần tử:</p>
 
 <pre><code class="language-cpp">for (int b = 0; b &lt; (1 &lt;&lt; n); b++) {
@@ -610,6 +662,119 @@ void search(int y) {
         document.getElementById('svg-grid-opt2').innerHTML = drawGridPath(pathOpt2, arrSym);
         document.getElementById('svg-grid-opt3').innerHTML = drawGridPath(pathOpt3, arrOpt3);
         document.getElementById('svg-grid-opt4').innerHTML = drawGridPath(pathOpt4, arrOpt4);
+
+        // 7. Bitmask Simulator Logic
+        let simN = 5;
+        let simValue = 25;
+
+        const inputN = document.getElementById('inputN');
+        const inputValue = document.getElementById('inputValue');
+        const displayN = document.getElementById('displayN');
+        const displayValue = document.getElementById('displayValue');
+        const bitsContainer = document.getElementById('bitsContainer');
+        const subsetResult = document.getElementById('subsetResult');
+
+        function renderBitmaskSim() {
+            // Validate value range
+            const maxVal = (1 << simN) - 1;
+            if (simValue > maxVal) simValue = maxVal;
+            if (simValue < 0 || isNaN(simValue)) simValue = 0;
+
+            // Update inputs and labels
+            if(inputValue) {
+                inputValue.max = maxVal;
+                inputValue.value = simValue;
+            }
+            if(displayN) displayN.innerText = simN;
+            if(displayValue) displayValue.innerText = simValue;
+
+            let htmlContent = '';
+            let subsetElements = [];
+
+            // Duyệt từ bit cao (n-1) xuống bit thấp (0)
+            for (let i = simN - 1; i >= 0; i--) {
+                const bitVal = (simValue & (1 << i)) !== 0 ? 1 : 0;
+                if (bitVal === 1) subsetElements.push(i);
+
+                const isSelected = bitVal === 1;
+
+                // Các class CSS theo trạng thái
+                const bitBoxClass = isSelected 
+                    ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-110 border-emerald-400' 
+                    : 'bg-slate-800 text-slate-500 hover:bg-slate-700 border-slate-700';
+                
+                const elementBoxClass = isSelected 
+                    ? 'bg-sky-500/20 text-sky-400 border-sky-500/50 shadow-md shadow-sky-900/30' 
+                    : 'bg-slate-800/30 text-slate-600 border-transparent';
+
+                const labelColor = isSelected ? 'text-sky-400 font-bold' : 'text-slate-600';
+                const actionColor = isSelected ? 'text-emerald-400' : 'text-slate-600';
+                const actionText = isSelected ? 'Chọn' : 'Bỏ';
+
+                // Nối HTML (Thêm class .bit-toggle-btn và data-bit để bắt sự kiện click)
+                htmlContent += `
+                    <div class="bit-toggle-btn flex flex-col items-center gap-3 cursor-pointer group" data-bit="${i}" title="Click để chuyển đổi Bit ${i}">
+                        <span class="text-[11px] md:text-xs font-mono transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-300'}">Bit ${i}</span>
+                        
+                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-xl text-xl md:text-2xl font-black font-mono transition-all duration-300 border ${bitBoxClass}">
+                            ${bitVal}
+                        </div>
+
+                        <div class="flex flex-col items-center mt-2 transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}">
+                            <span class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm md:text-base border transition-all duration-300 ${elementBoxClass}">
+                                ${i}
+                            </span>
+                            <span class="text-[10px] md:text-xs uppercase mt-2 transition-colors ${actionColor} font-bold">
+                                ${actionText}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if(bitsContainer) bitsContainer.innerHTML = htmlContent;
+
+            // Xử lý chuỗi tập hợp
+            subsetElements.reverse();
+            if(subsetResult) {
+                if (subsetElements.length > 0) {
+                    subsetResult.innerText = `{${subsetElements.join(', ')}}`;
+                } else {
+                    subsetResult.innerText = '∅ (Tập rỗng)';
+                }
+            }
+        }
+
+        if (inputN && inputValue && bitsContainer) {
+            // Lắng nghe sự kiện thay đổi N
+            inputN.addEventListener('input', (e) => {
+                simN = parseInt(e.target.value);
+                renderBitmaskSim();
+            });
+
+            // Lắng nghe sự kiện thay đổi Giá trị thập phân
+            inputValue.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value);
+                const maxVal = (1 << simN) - 1;
+                if (val > maxVal) val = maxVal;
+                if (val < 0 || isNaN(val)) val = 0;
+                simValue = val;
+                renderBitmaskSim();
+            });
+
+            // Lắng nghe sự kiện CLICK trực tiếp vào các Bit (Event Delegation)
+            bitsContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.bit-toggle-btn');
+                if (btn) {
+                    const bitIndex = parseInt(btn.dataset.bit);
+                    simValue ^= (1 << bitIndex); // Lật bit bằng XOR
+                    renderBitmaskSim();
+                }
+            });
+
+            // Khởi tạo lần đầu
+            renderBitmaskSim();
+        }
     });
 </script>
 
