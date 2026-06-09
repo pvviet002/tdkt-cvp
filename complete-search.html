@@ -235,29 +235,29 @@ void search(int k) {
                                 <label class="block text-sm font-semibold text-slate-400 mb-2">
                                     Hệ thập phân (Giá trị = <span id="displayValue" class="text-emerald-400 font-mono">25</span>)
                                 </label>
-                                <input type="number" id="inputValue" min="0" max="255" value="25" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 font-mono text-lg transition-colors" />
+                                <input type="number" id="inputValue" min="0" max="255" value="25" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 font-mono text-base transition-colors" />
                             </div>
                         </div>
                     </div>
 
                     <!-- Visual Mapping Area -->
-                    <div class="bg-[#0b1120] p-6 md:p-10 rounded-2xl border border-slate-800 shadow-2xl relative overflow-x-auto custom-scrollbar select-none">
+                    <div class="bg-[#0b1120] p-6 rounded-2xl border border-slate-800 shadow-2xl relative overflow-x-auto custom-scrollbar select-none">
                         <div class="min-w-max flex flex-col items-center">
                             
-                            <p class="text-slate-400 mb-8 text-sm md:text-base flex items-center gap-2">
-                                <svg class="w-5 h-5 text-sky-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                            <p class="text-slate-400 mb-6 text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4 text-sky-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
                                 Click trực tiếp vào các ô vuông bên dưới để Bật/Tắt bit (Toggle)
                             </p>
 
                             <!-- Middle: Binary Bits & Connectors -->
-                            <div id="bitsContainer" class="flex items-center justify-center gap-3 md:gap-6 mb-8">
+                            <div id="bitsContainer" class="flex items-center justify-center gap-2 md:gap-4 mb-6">
                                 <!-- HTML các bit sẽ được chèn tự động vào đây bằng JavaScript -->
                             </div>
 
                             <!-- Bottom: Resulting Subset -->
-                            <div class="mt-4 pt-8 border-t border-slate-800/80 w-full flex flex-col items-center">
-                                <span class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Tập con tương ứng</span>
-                                <div id="subsetResult" class="text-3xl md:text-4xl font-black text-sky-400 tracking-wider">
+                            <div class="mt-4 pt-6 border-t border-slate-800/80 w-full flex flex-col items-center">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Tập con tương ứng</span>
+                                <div id="subsetResult" class="text-2xl md:text-3xl font-black text-sky-400 tracking-wider">
                                     {0, 3, 4}
                                 </div>
                             </div>
@@ -698,7 +698,7 @@ void search(int y) {
 
                 const isSelected = bitVal === 1;
 
-                // Các class CSS theo trạng thái
+                // Các class CSS theo trạng thái - thu nhỏ size hiển thị
                 const bitBoxClass = isSelected 
                     ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-110 border-emerald-400' 
                     : 'bg-slate-800 text-slate-500 hover:bg-slate-700 border-slate-700';
@@ -711,20 +711,20 @@ void search(int y) {
                 const actionColor = isSelected ? 'text-emerald-400' : 'text-slate-600';
                 const actionText = isSelected ? 'Chọn' : 'Bỏ';
 
-                // Nối HTML (Thêm class .bit-toggle-btn và data-bit để bắt sự kiện click)
+                // Nối HTML với kích thước phần tử nhỏ hơn
                 htmlContent += `
-                    <div class="bit-toggle-btn flex flex-col items-center gap-3 cursor-pointer group" data-bit="${i}" title="Click để chuyển đổi Bit ${i}">
-                        <span class="text-[11px] md:text-xs font-mono transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-300'}">Bit ${i}</span>
+                    <div class="bit-toggle-btn flex flex-col items-center gap-2 md:gap-3 cursor-pointer group" data-bit="${i}" title="Click để chuyển đổi Bit ${i}">
+                        <span class="text-[10px] md:text-xs font-mono transition-colors ${isSelected ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-300'}">Bit ${i}</span>
                         
-                        <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-xl text-xl md:text-2xl font-black font-mono transition-all duration-300 border ${bitBoxClass}">
+                        <div class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl text-lg md:text-xl font-black font-mono transition-all duration-300 border ${bitBoxClass}">
                             ${bitVal}
                         </div>
 
-                        <div class="flex flex-col items-center mt-2 transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}">
-                            <span class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm md:text-base border transition-all duration-300 ${elementBoxClass}">
+                        <div class="flex flex-col items-center mt-1 md:mt-2 transition-opacity duration-300 ${isSelected ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}">
+                            <span class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm border transition-all duration-300 ${elementBoxClass}">
                                 ${i}
                             </span>
-                            <span class="text-[10px] md:text-xs uppercase mt-2 transition-colors ${actionColor} font-bold">
+                            <span class="text-[9px] md:text-[10px] uppercase mt-1 md:mt-2 transition-colors ${actionColor} font-bold tracking-wider">
                                 ${actionText}
                             </span>
                         </div>
