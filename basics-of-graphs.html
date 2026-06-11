@@ -1,1 +1,604 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 11: Các khái niệm cơ bản về đồ thị</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
 
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <!-- PrismJS (Tomorrow Night theme) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+
+    <style>
+        body {
+            background-color: #0f172a; /* slate-900 */
+            color: #cbd5e1; /* slate-300 */
+        }
+        
+        /* Custom highlight animations for simulator */
+        .highlight-add {
+            animation: highlight-green 1.5s ease-out;
+        }
+        @keyframes highlight-green {
+            0% { background-color: #059669; color: #fff; transform: scale(1.1); }
+            100% { background-color: transparent; transform: scale(1); }
+        }
+        
+        .sim-node {
+            transition: all 0.3s;
+        }
+        .sim-edge {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 0.8s ease-in-out forwards;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Markdown-like styling */
+        h1, h2, h3 { color: #f8fafc; font-weight: 700; }
+        h1 { font-size: 2.25rem; margin-bottom: 1.5rem; border-bottom: 2px solid #334155; padding-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: #38bdf8; }
+        h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #94a3b8;}
+        p { margin-bottom: 1rem; line-height: 1.6; }
+        ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        li { margin-bottom: 0.5rem; }
+        pre[class*="language-"] { border-radius: 0.5rem; margin-top: 1rem; margin-bottom: 1.5rem; border: 1px solid #334155;}
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+    </style>
+</head>
+<body class="font-sans antialiased p-6 md:p-10 max-w-5xl mx-auto">
+
+    <header class="mb-10 text-center">
+        <h1 class="border-none text-4xl text-sky-400">BÀI GIẢNG: CÁC KHÁI NIỆM CƠ BẢN VỀ ĐỒ THỊ</h1>
+        <p class="text-slate-400 text-lg">Chương 11 | Lập trình thi đấu & Thuật toán</p>
+    </header>
+
+    <section>
+        <h2>1. Đặt vấn đề: Tại sao cần học Lý thuyết Đồ thị?</h2>
+        <p>Rất nhiều bài toán lập trình có thể được giải quyết bằng cách mô hình hóa chúng thành bài toán đồ thị và sử dụng một thuật toán đồ thị phù hợp. Một ví dụ điển hình là mạng lưới đường đi và các thành phố trong một quốc gia.</p>
+        <p>Tuy nhiên, đôi khi đồ thị bị ẩn giấu trong bài toán và lập trình viên có thể gặp khó khăn trong việc nhận ra nó. Việc nắm vững lý thuyết đồ thị giúp bạn có một lăng kính mới để phân tích độ phức tạp và hướng giải quyết của các bài toán tưởng chừng như không liên quan.</p>
+    </section>
+
+    <section>
+        <h2>2. Các thuật ngữ nền tảng (Graph Terminology)</h2>
+        <p>Để làm việc với đồ thị, bạn cần nắm vững các thành phần và tính chất sau:</p>
+        
+        <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 my-6">
+            <h3 class="mt-0 mb-4 text-emerald-400 border-b border-slate-700 pb-2">Năm khái niệm cốt lõi</h3>
+            <div class="flex flex-col lg:flex-row gap-6 items-center">
+                <div class="flex-1 w-full text-sm sm:text-base">
+                    <ul class="space-y-3 mb-0">
+                        <li><strong class="text-slate-200">Đỉnh (Node)</strong> & <strong class="text-slate-200">Cạnh (Edge):</strong> Các thành phần cơ bản tạo nên đồ thị. Biến $n$ thường đại diện số lượng đỉnh, $m$ đại diện số lượng cạnh. Đỉnh thường được đánh số từ $1 \dots n$.</li>
+                        <li><strong class="text-slate-200">Đường đi (Path):</strong> Chuỗi các cạnh dẫn từ đỉnh này đến đỉnh khác.</li>
+                        <li><strong class="text-sky-400">Đường đi đơn (Simple path):</strong> Đường đi mà mỗi đỉnh xuất hiện tối đa một lần (Minh hoạ bằng đường màu xanh).</li>
+                        <li><strong class="text-rose-400">Chu trình (Cycle):</strong> Đường đi bắt đầu và kết thúc tại cùng một đỉnh (Minh hoạ bằng đường màu đỏ).</li>
+                    </ul>
+                </div>
+                <div class="flex-1 flex justify-center bg-slate-900 rounded-lg p-4 border border-slate-700 w-full overflow-x-auto">
+                    <svg width="360" height="200" viewBox="0 0 360 200" class="min-w-[360px]">
+                        <!-- Normal Edge 1-2 -->
+                        <line x1="78" y1="60" x2="122" y2="60" stroke="#f43f5e" stroke-width="4" stroke-linecap="round"/>
+                        <!-- Normal Edge 2-5 -->
+                        <line x1="156.8" y1="66.3" x2="203.2" y2="83.7" stroke="#64748b" stroke-width="2"/>
+                        
+                        <!-- Path (Blue) 3-5, 5-6 -->
+                        <line x1="155.2" y1="130.5" x2="204.8" y2="99.5" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+                        <line x1="235.2" y1="99.5" x2="284.8" y2="130.5" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+                        
+                        <!-- Cycle (Red) 2-3, 3-4, 4-1 -->
+                        <line x1="140" y1="78" x2="140" y2="122" stroke="#f43f5e" stroke-width="4" stroke-linecap="round"/>
+                        <line x1="122" y1="140" x2="78" y2="140" stroke="#f43f5e" stroke-width="4" stroke-linecap="round"/>
+                        <line x1="60" y1="122" x2="60" y2="78" stroke="#f43f5e" stroke-width="4" stroke-dasharray="6,6" stroke-linecap="round"/>
+
+                        <!-- Nodes -->
+                        <circle cx="60" cy="60" r="16" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <text x="60" y="60" font-family="Inter" font-size="14" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">1</text>
+                        
+                        <circle cx="140" cy="60" r="16" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <text x="140" y="60" font-family="Inter" font-size="14" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">2</text>
+                        
+                        <circle cx="140" cy="140" r="16" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <text x="140" y="140" font-family="Inter" font-size="14" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">3</text>
+                        
+                        <circle cx="60" cy="140" r="16" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <text x="60" y="140" font-family="Inter" font-size="14" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">4</text>
+                        
+                        <circle cx="220" cy="90" r="16" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <text x="220" y="90" font-family="Inter" font-size="14" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">5</text>
+                        
+                        <circle cx="300" cy="140" r="16" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <text x="300" y="140" font-family="Inter" font-size="14" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">6</text>
+
+                        <!-- Annotations -->
+                        <text x="100" y="100" font-family="Inter" font-size="12" font-weight="bold" fill="#f43f5e" text-anchor="middle" dominant-baseline="central">Chu trình</text>
+                        <text x="275" y="105" font-family="Inter" font-size="12" font-weight="bold" fill="#38bdf8" text-anchor="middle">Đường đi đơn</text>
+                        
+                        <!-- Node Annotation -->
+                        <line x1="60" y1="20" x2="60" y2="40" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/>
+                        <text x="60" y="10" font-family="Inter" font-size="11" fill="#94a3b8" text-anchor="middle">Đỉnh</text>
+                        
+                        <!-- Edge Annotation -->
+                        <line x1="180" y1="60" x2="165" y2="75" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/>
+                        <text x="195" y="55" font-family="Inter" font-size="11" fill="#94a3b8" text-anchor="middle">Cạnh</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 mt-6">
+            <h3 class="mt-0 text-emerald-400">Tính liên thông (Connectivity)</h3>
+            <p>Đồ thị liên thông nếu luôn tồn tại đường đi giữa hai đỉnh bất kỳ. Nếu không, đồ thị bị chia thành các <strong>thành phần liên thông (Connected Components)</strong> độc lập.</p>
+            <div class="flex justify-center mt-4">
+                <svg width="300" height="120" viewBox="0 0 300 120">
+                    <!-- Component 1 box -->
+                    <rect x="25" y="15" width="110" height="90" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" rx="8"/>
+                    <text x="80" y="95" font-family="Inter" font-size="11" fill="#94a3b8" text-anchor="middle">Thành phần 1</text>
+                    
+                    <!-- Component 2 box -->
+                    <rect x="185" y="25" width="90" height="70" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6,4" rx="8"/>
+                    <text x="230" y="85" font-family="Inter" font-size="11" fill="#94a3b8" text-anchor="middle">Thành phần 2</text>
+
+                    <!-- Component 1 nodes -->
+                    <line x1="66" y1="40" x2="94" y2="40" stroke="#64748b" stroke-width="2"/>
+                    <line x1="59.6" y1="52.8" x2="70.4" y2="67.2" stroke="#64748b" stroke-width="2"/>
+                    <line x1="100.4" y1="52.8" x2="89.6" y2="67.2" stroke="#64748b" stroke-width="2"/>
+                    
+                    <circle cx="50" cy="40" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                    <text x="50" y="40" font-family="Inter" font-size="12" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">1</text>
+                    <circle cx="110" cy="40" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                    <text x="110" y="40" font-family="Inter" font-size="12" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">2</text>
+                    <circle cx="80" cy="80" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                    <text x="80" y="80" font-family="Inter" font-size="12" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">3</text>
+
+                    <!-- Component 2 nodes -->
+                    <line x1="216" y1="50" x2="244" y2="50" stroke="#64748b" stroke-width="2"/>
+                    <circle cx="200" cy="50" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                    <text x="200" y="50" font-family="Inter" font-size="12" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">4</text>
+                    <circle cx="260" cy="50" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                    <text x="260" y="50" font-family="Inter" font-size="12" font-weight="bold" fill="#cbd5e1" text-anchor="middle" dominant-baseline="central">5</text>
+                </svg>
+            </div>
+        </div>
+
+        <h3 class="mt-10 border-b border-slate-700 pb-2">Phân loại đồ thị mở rộng:</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            
+            <!-- Vô hướng / Có hướng -->
+            <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 flex flex-col">
+                <h4 class="text-sky-300 font-semibold mt-0 mb-2">1. Có hướng / Vô hướng</h4>
+                <p class="text-sm flex-grow">Các cạnh có thể chỉ đi được một chiều (Directed) hoặc đi được cả hai chiều (Undirected).</p>
+                <div class="flex justify-center mt-4">
+                    <svg width="220" height="70" viewBox="0 0 220 70">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+                                <polygon points="0 1, 8 4, 0 7" fill="#38bdf8" />
+                            </marker>
+                        </defs>
+                        <!-- Undirected -->
+                        <line x1="46" y1="35" x2="64" y2="35" stroke="#64748b" stroke-width="2"/>
+                        <circle cx="30" cy="35" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <circle cx="80" cy="35" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <text x="55" y="12" font-family="Inter" font-size="11" fill="#94a3b8" text-anchor="middle">Vô hướng</text>
+                        
+                        <!-- Directed -->
+                        <line x1="156" y1="35" x2="174" y2="35" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <circle cx="140" cy="35" r="14" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                        <circle cx="190" cy="35" r="14" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                        <text x="165" y="12" font-family="Inter" font-size="11" fill="#94a3b8" text-anchor="middle">Có hướng</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Có trọng số -->
+            <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 flex flex-col">
+                <h4 class="text-sky-300 font-semibold mt-0 mb-2">2. Có trọng số (Weighted)</h4>
+                <p class="text-sm flex-grow">Mỗi cạnh gắn kèm một giá trị (có thể là khoảng cách, chi phí, hoặc thời gian).</p>
+                <div class="flex justify-center mt-4">
+                    <svg width="150" height="80" viewBox="0 0 150 80">
+                        <line x1="40.5" y1="50.7" x2="64.5" y2="29.3" stroke="#64748b" stroke-width="2"/>
+                        <line x1="85.5" y1="29.3" x2="109.5" y2="50.7" stroke="#64748b" stroke-width="2"/>
+                        <line x1="44" y1="60" x2="106" y2="60" stroke="#64748b" stroke-width="2"/>
+                        
+                        <!-- Weights (Now clearly boxed) -->
+                        <rect x="44.5" y="32" width="16" height="16" fill="#334155" rx="4"/>
+                        <text x="52.5" y="40" font-family="Inter" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle" dominant-baseline="central">5</text>
+                        
+                        <rect x="89.5" y="32" width="16" height="16" fill="#334155" rx="4"/>
+                        <text x="97.5" y="40" font-family="Inter" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle" dominant-baseline="central">8</text>
+                        
+                        <rect x="67" y="52" width="16" height="16" fill="#334155" rx="4"/>
+                        <text x="75" y="60" font-family="Inter" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle" dominant-baseline="central">2</text>
+
+                        <!-- Nodes -->
+                        <circle cx="30" cy="60" r="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <circle cx="75" cy="20" r="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <circle cx="120" cy="60" r="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Cây -->
+            <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 flex flex-col">
+                <h4 class="text-sky-300 font-semibold mt-0 mb-2">3. Cây (Tree)</h4>
+                <p class="text-sm flex-grow">Đồ thị liên thông, tuyệt đối không chứa chu trình. Luôn có đúng $n$ đỉnh và $n-1$ cạnh.</p>
+                <div class="flex justify-center mt-4">
+                    <svg width="160" height="100" viewBox="0 0 160 100">
+                        <line x1="70" y1="29" x2="50" y2="46" stroke="#64748b" stroke-width="2"/>
+                        <line x1="90" y1="29" x2="110" y2="46" stroke="#64748b" stroke-width="2"/>
+                        <line x1="33" y1="67" x2="27" y2="78" stroke="#64748b" stroke-width="2"/>
+                        <line x1="47" y1="67" x2="53" y2="78" stroke="#64748b" stroke-width="2"/>
+                        
+                        <circle cx="80" cy="20" r="12" fill="#1e293b" stroke="#10b981" stroke-width="2"/> <!-- Root node highlighted -->
+                        <circle cx="40" cy="55" r="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <circle cx="120" cy="55" r="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <circle cx="20" cy="90" r="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                        <circle cx="60" cy="90" r="12" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Đồ thị hai phía -->
+            <div class="bg-slate-800 p-5 rounded-lg border border-slate-700 flex flex-col">
+                <h4 class="text-sky-300 font-semibold mt-0 mb-2">4. Đồ thị hai phía (Bipartite Graph)</h4>
+                <p class="text-sm flex-grow">Có thể chia tập đỉnh làm 2 tập sao cho mọi cạnh chỉ nối 2 đỉnh thuộc 2 tập khác nhau.</p>
+                <div class="flex justify-center mt-4">
+                    <svg width="180" height="100" viewBox="0 0 180 100">
+                        <!-- Colored Background hints -->
+                        <rect x="35" y="10" width="30" height="80" fill="#0f766e" fill-opacity="0.2" rx="15"/>
+                        <rect x="115" y="10" width="30" height="80" fill="#a21caf" fill-opacity="0.2" rx="15"/>
+                        
+                        <!-- Edges -->
+                        <line x1="64" y1="30" x2="116" y2="30" stroke="#64748b" stroke-width="2"/>
+                        <line x1="64" y1="70" x2="116" y2="70" stroke="#64748b" stroke-width="2"/>
+                        <line x1="62.5" y1="63.8" x2="117.5" y2="36.2" stroke="#64748b" stroke-width="2"/>
+
+                        <!-- Set A (Left - Teal) -->
+                        <circle cx="50" cy="30" r="12" fill="#1e293b" stroke="#14b8a6" stroke-width="2"/>
+                        <circle cx="50" cy="70" r="12" fill="#1e293b" stroke="#14b8a6" stroke-width="2"/>
+                        
+                        <!-- Set B (Right - Fuchsia) -->
+                        <circle cx="130" cy="30" r="12" fill="#1e293b" stroke="#d946ef" stroke-width="2"/>
+                        <circle cx="130" cy="70" r="12" fill="#1e293b" stroke="#d946ef" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Các phương pháp biểu diễn đồ thị (Graph Representation)</h2>
+        <p>Chọn đúng cấu trúc dữ liệu quyết định thuật toán chạy đủ nhanh không. Có 3 phương pháp chính:</p>
+
+        <h3>A. Danh sách kề (Adjacency List)</h3>
+        <p>Đây là cấu trúc phổ biến và tối ưu bộ nhớ nhất trong lập trình thi đấu. Bộ nhớ tiêu tốn là $O(n + m)$.</p>
+        
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, m, u, v;
+vector&lt;int&gt; adj[100005]; // Đồ thị không trọng số
+vector&lt;pair&lt;int, int&gt;&gt; adj_w[100005]; // Đồ thị có trọng số
+
+int main() {
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= m; i++)
+        cin &gt;&gt; u &gt;&gt; v, adj[u].push_back(v), adj[v].push_back(u);
+    
+    return 0;
+}</code></pre>
+
+        <h3>B. Ma trận kề (Adjacency Matrix)</h3>
+        <p>Sử dụng mảng 2 chiều <code>int adj[N][N];</code>. Kiểm tra cạnh $u-v$ tồn tại mất $O(1)$. Tuy nhiên, tiêu tốn bộ nhớ và thời gian khởi tạo $O(n^2)$. Chỉ nên dùng khi $n \le 1000$.</p>
+
+        <h3>C. Danh sách cạnh (Edge List)</h3>
+        <p>Lưu trực tiếp tất cả các cạnh. Cấu trúc này đặc biệt hữu ích cho các thuật toán duyệt mọi cạnh mà không quan tâm cấu trúc liên kết (như thuật toán Kruskal tìm cây khung nhỏ nhất, hay Bellman-Ford).</p>
+
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, m, u, v, w;
+vector&lt;tuple&lt;int, int, int&gt;&gt; edges;
+
+int main() {
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= m; i++)
+        cin &gt;&gt; u &gt;&gt; v &gt;&gt; w, edges.push_back({u, v, w});
+    
+    return 0;
+}</code></pre>
+    </section>
+
+    <!-- TRÌNH MÔ PHỎNG -->
+    <section class="mt-12 bg-slate-800/50 p-6 rounded-xl border border-slate-700 shadow-xl">
+        <h2 class="mt-0 flex items-center gap-3">
+            <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            Trình mô phỏng: Cơ chế lưu trữ Đồ thị vô hướng
+        </h2>
+        <p class="text-sm text-slate-400 mb-6">Nhấn <strong>"Thêm cạnh"</strong> để xem cách máy tính cập nhật dữ liệu vào Ma trận kề và Danh sách kề tương ứng khi một đồ thị được hình thành.</p>
+        
+        <!-- Controls -->
+        <div class="flex gap-4 mb-6">
+            <button onclick="nextStep()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-6 rounded shadow transition-colors focus:outline-none">Thêm cạnh (Tiếp tục)</button>
+            <button onclick="resetSim()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-2 px-6 rounded shadow transition-colors focus:outline-none">Làm lại</button>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 items-stretch">
+            
+            <!-- Left Side: Graph SVG & Edge List -->
+            <div class="lg:w-2/5 flex flex-col gap-4">
+                <!-- SVG Canvas -->
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 flex justify-center items-center flex-grow min-h-[220px]">
+                    <svg id="sim-svg" width="220" height="200" viewBox="0 0 220 200">
+                        <g id="sim-edges"></g>
+                        <g id="sim-nodes"></g>
+                    </svg>
+                </div>
+                
+                <!-- Edge List -->
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                    <h4 class="text-slate-300 font-semibold mb-2 border-b border-slate-700 pb-1">Danh sách cạnh (Edge List)</h4>
+                    <div id="sim-edge-list" class="font-mono text-sm text-sky-300 min-h-[100px]">
+                        <!-- Edges will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Matrix & Adj List -->
+            <div class="lg:w-3/5 flex flex-col gap-4">
+                
+                <!-- Matrix -->
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                    <h4 class="text-slate-300 font-semibold mb-3 border-b border-slate-700 pb-1">Ma trận kề (Adjacency Matrix)</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-center border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="border border-slate-700 p-1 bg-slate-800 text-slate-500"></th>
+                                    <th class="border border-slate-700 p-1 bg-slate-800 text-slate-400">1</th>
+                                    <th class="border border-slate-700 p-1 bg-slate-800 text-slate-400">2</th>
+                                    <th class="border border-slate-700 p-1 bg-slate-800 text-slate-400">3</th>
+                                    <th class="border border-slate-700 p-1 bg-slate-800 text-slate-400">4</th>
+                                    <th class="border border-slate-700 p-1 bg-slate-800 text-slate-400">5</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sim-matrix" class="font-mono text-sm">
+                                <!-- Matrix rows rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Adj List -->
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                    <h4 class="text-slate-300 font-semibold mb-3 border-b border-slate-700 pb-1">Danh sách kề (Adjacency List)</h4>
+                    <div id="sim-adj-list" class="font-mono text-sm grid grid-cols-1 gap-1">
+                        <!-- Adj list rows rendered by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed height Log Box -->
+        <div class="mt-6">
+            <h4 class="text-slate-400 font-semibold mb-2 text-sm uppercase tracking-wider">Log giải thích</h4>
+            <div id="sim-log" class="h-32 overflow-y-auto bg-slate-950 rounded-lg p-4 border border-slate-700 font-mono text-sm text-slate-300 flex flex-col gap-1">
+                <div class="text-emerald-500">>> Hệ thống sẵn sàng. Vui lòng nhấn "Thêm cạnh" để bắt đầu.</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="mt-12 bg-sky-900/30 p-4 rounded border-l-4 border-sky-500">
+        <h3 class="text-sky-300 mt-0">Tóm tắt bài giảng</h3>
+        <p class="mb-0 text-sm">Nhận diện được khái niệm cơ bản về đỉnh, cạnh và tính chất đặc thù của đồ thị. Luôn ưu tiên sử dụng <strong>Danh sách kề</strong> bằng <code>vector</code> trong C++ để tối ưu hóa bộ nhớ cho phần lớn các bài toán, trừ khi thuật toán yêu cầu cụ thể việc duyệt toàn bộ cạnh độc lập (thì dùng Danh sách cạnh).</p>
+    </div>
+
+    <!-- Initialization Scripts -->
+    <script>
+        // Render Math (KaTeX)
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError : false
+            });
+            
+            // Init Simulator
+            initSim();
+        });
+
+        // ----------------------------------------------------------------
+        // SIMULATOR LOGIC
+        // ----------------------------------------------------------------
+        
+        // Cấu hình tọa độ đỉnh (Hình ngũ giác)
+        const nodeCoords = {
+            1: {x: 110, y: 20},
+            2: {x: 190, y: 80},
+            3: {x: 160, y: 170},
+            4: {x: 60, y: 170},
+            5: {x: 30, y: 80}
+        };
+
+        // Kịch bản cạnh thêm vào
+        const simEdges = [
+            {u: 1, v: 2},
+            {u: 2, v: 3},
+            {u: 4, v: 5},
+            {u: 5, v: 1},
+            {u: 3, v: 5},
+            {u: 2, v: 5}
+        ];
+
+        let currentStep = 0;
+        
+        function initSim() {
+            currentStep = 0;
+            
+            // 1. Vẽ các đỉnh tĩnh
+            const nodesGroup = document.getElementById('sim-nodes');
+            nodesGroup.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                const cx = nodeCoords[i].x;
+                const cy = nodeCoords[i].y;
+                nodesGroup.innerHTML += `
+                    <circle id="node-${i}" cx="${cx}" cy="${cy}" r="16" fill="#1e293b" stroke="#64748b" stroke-width="2" class="sim-node" />
+                    <text x="${cx}" y="${cy+5}" font-family="Inter" font-size="12" font-weight="bold" fill="#cbd5e1" text-anchor="middle">${i}</text>
+                `;
+            }
+            document.getElementById('sim-edges').innerHTML = '';
+            document.getElementById('sim-edge-list').innerHTML = '';
+
+            // 2. Khởi tạo Ma trận rỗng (5x5) toàn số 0
+            const matrixBody = document.getElementById('sim-matrix');
+            matrixBody.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                let rowHtml = `<tr><td class="border border-slate-700 p-1 bg-slate-800 text-slate-400">${i}</td>`;
+                for(let j=1; j<=5; j++) {
+                    rowHtml += `<td id="cell-${i}-${j}" class="border border-slate-700 p-1 text-slate-600 transition-colors duration-300">0</td>`;
+                }
+                rowHtml += `</tr>`;
+                matrixBody.innerHTML += rowHtml;
+            }
+
+            // 3. Khởi tạo Danh sách kề rỗng
+            const adjBody = document.getElementById('sim-adj-list');
+            adjBody.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                adjBody.innerHTML += `
+                    <div class="flex items-center gap-2">
+                        <span class="w-16 text-slate-400">adj[${i}] =</span>
+                        <div id="adj-${i}" class="flex gap-1 min-h-[24px]"></div>
+                    </div>
+                `;
+            }
+
+            // 4. Reset Log
+            const logBox = document.getElementById('sim-log');
+            logBox.innerHTML = '<div class="text-emerald-500">>> Hệ thống làm mới. Sẵn sàng mô phỏng đồ thị 5 đỉnh vô hướng.</div>';
+        }
+
+        function logMsg(msg, colorClass = "text-slate-300") {
+            const logBox = document.getElementById('sim-log');
+            const entry = document.createElement('div');
+            entry.className = colorClass;
+            entry.innerHTML = `> ${msg}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight; // Auto scroll to bottom
+        }
+
+        function highlightElement(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                // remove and re-add class to restart animation
+                el.classList.remove('highlight-add');
+                void el.offsetWidth; // trigger reflow
+                el.classList.add('highlight-add');
+            }
+        }
+
+        function nextStep() {
+            if (currentStep >= simEdges.length) {
+                logMsg("Đã thêm toàn bộ cạnh theo kịch bản.", "text-yellow-400");
+                return;
+            }
+
+            const edge = simEdges[currentStep];
+            const {u, v} = edge;
+
+            // 1. Thêm vào Edge List HTML
+            const edgeList = document.getElementById('sim-edge-list');
+            const p = document.createElement('div');
+            p.textContent = `edges.push_back({${u}, ${v}});`;
+            p.id = `el-${currentStep}`;
+            edgeList.appendChild(p);
+            highlightElement(`el-${currentStep}`);
+
+            // 2. Vẽ cạnh trên SVG
+            const edgesGroup = document.getElementById('sim-edges');
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", nodeCoords[u].x);
+            line.setAttribute("y1", nodeCoords[u].y);
+            line.setAttribute("x2", nodeCoords[v].x);
+            line.setAttribute("y2", nodeCoords[v].y);
+            line.setAttribute("stroke", "#64748b");
+            line.setAttribute("stroke-width", "2");
+            line.classList.add('sim-edge');
+            edgesGroup.appendChild(line);
+
+            // Highlight node temporarily
+            document.getElementById(`node-${u}`).setAttribute("stroke", "#38bdf8");
+            document.getElementById(`node-${v}`).setAttribute("stroke", "#38bdf8");
+            setTimeout(() => {
+                document.getElementById(`node-${u}`).setAttribute("stroke", "#64748b");
+                document.getElementById(`node-${v}`).setAttribute("stroke", "#64748b");
+            }, 800);
+
+            // 3. Cập nhật Ma trận
+            const cell1 = document.getElementById(`cell-${u}-${v}`);
+            const cell2 = document.getElementById(`cell-${v}-${u}`);
+            cell1.textContent = "1";
+            cell2.textContent = "1";
+            cell1.className = "border border-slate-700 p-1 text-emerald-400 font-bold bg-slate-800 transition-colors";
+            cell2.className = "border border-slate-700 p-1 text-emerald-400 font-bold bg-slate-800 transition-colors";
+            highlightElement(`cell-${u}-${v}`);
+            highlightElement(`cell-${v}-${u}`);
+
+            // 4. Cập nhật Danh sách kề
+            const adjU = document.getElementById(`adj-${u}`);
+            const adjV = document.getElementById(`adj-${v}`);
+            
+            const badgeV = `<span id="adj-badge-${currentStep}-v" class="bg-slate-700 px-2 py-0.5 rounded text-sky-300 inline-block">${v}</span>`;
+            const badgeU = `<span id="adj-badge-${currentStep}-u" class="bg-slate-700 px-2 py-0.5 rounded text-sky-300 inline-block">${u}</span>`;
+            
+            adjU.insertAdjacentHTML('beforeend', badgeV);
+            adjV.insertAdjacentHTML('beforeend', badgeU);
+            
+            highlightElement(`adj-badge-${currentStep}-v`);
+            highlightElement(`adj-badge-${currentStep}-u`);
+
+            // 5. Ghi log giải thích
+            logMsg(`Thêm cạnh vô hướng giữa <strong>${u}</strong> và <strong>${v}</strong>.`);
+            logMsg(`+ Ma trận: gán <code>adj[${u}][${v}] = 1</code> và <code>adj[${v}][${u}] = 1</code>`, "text-sky-300 ml-4");
+            logMsg(`+ DS Kề: <code>adj[${u}].push_back(${v})</code> và <code>adj[${v}].push_back(${u})</code>`, "text-sky-300 ml-4");
+
+            currentStep++;
+        }
+
+        function resetSim() {
+            initSim();
+        }
+    </script>
+</body>
+</html>
