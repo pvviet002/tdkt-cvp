@@ -497,9 +497,9 @@ int main() {
             adjBody.innerHTML = '';
             for(let i=1; i<=5; i++) {
                 adjBody.innerHTML += `
-                    <div class="flex items-center gap-2">
-                        <span class="w-16 text-slate-400">adj[${i}] =</span>
-                        <div id="adj-${i}" class="flex gap-1 min-h-[24px]"></div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-20 shrink-0 text-slate-400 whitespace-nowrap">adj[${i}] =</span>
+                        <div id="adj-${i}" class="flex flex-wrap items-center gap-1 min-h-[28px]"></div>
                     </div>
                 `;
             }
